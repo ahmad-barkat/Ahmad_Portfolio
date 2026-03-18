@@ -192,10 +192,11 @@
         .projects-grid {
             display: flex;
             flex-direction: column;
-            gap: 85vh; /* Creates the scroll distance between cards */
+            gap: 100vh;
+            /* Increased gap for better scroll experience */
             width: 100%;
-            padding-top: 5vh;
-            padding-bottom: 13%;
+            padding-top: 10vh;
+            padding-bottom: 20vh;
         }
 
         .projects-scroll-container {
@@ -210,7 +211,7 @@
 
         .project-billboard {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -218,8 +219,10 @@
 
             /* Native CSS Stacking */
             position: sticky;
-            top: 15vh;
+            top: 10vh;
             margin: 0 auto;
+            min-height: 85vh;
+            /* Standardized minimum height */
 
             /* Solid background to cover previous cards */
             background: hsl(222.2 84% 4.9%);
@@ -231,19 +234,20 @@
             animation-range: entry 5% cover 30%;
         }
 
-        /* Each successive card covers the previous one */
-        .project-billboard:nth-child(1) { z-index: 1; }
-        .project-billboard:nth-child(2) { z-index: 2; }
-        .project-billboard:nth-child(3) { z-index: 3; }
-        .project-billboard:nth-child(4) { z-index: 4; }
-        .project-billboard:nth-child(5) { z-index: 5; }
-        .project-billboard:nth-child(6) { z-index: 6; }
+        /* Each successive card covers the previous one but leaves the header visible */
+        .project-billboard:nth-child(1) { z-index: 10; top: 10vh; }
+        .project-billboard:nth-child(2) { z-index: 20; top: calc(10vh + 3.5rem); }
+        .project-billboard:nth-child(3) { z-index: 30; top: calc(10vh + 7rem); }
+        .project-billboard:nth-child(4) { z-index: 40; top: calc(10vh + 10.5rem); }
+        .project-billboard:nth-child(5) { z-index: 50; top: calc(10vh + 14rem); }
+        .project-billboard:nth-child(6) { z-index: 60; top: calc(10vh + 17.5rem); }
 
         @keyframes fade-in-up {
             0% {
                 opacity: 0;
                 transform: translateY(15vh) scale(0.9);
             }
+
             100% {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -252,17 +256,42 @@
 
         .billboard-top {
             width: 100%;
-            background: #1a1a1a;
-            border-radius: 12px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            min-height: 75vh;
+            /* Consistent internal height */
+            background: #111827;
+            /* Darker solid background for better contrast */
+            border-radius: 20px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             transform: rotateX(2deg);
-            transition: transform 0.6s ease;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .billboard-top:hover {
             transform: rotateX(0deg) translateY(-5px);
+        }
+
+        /* Rocket Loader Animations */
+        @keyframes rocket-launch {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            20% { transform: translateY(10px) scale(1.1); }
+            45% { transform: translateY(-20px) scale(1.1); }
+            100% { transform: translateY(-600px) scale(0.5); opacity: 0; }
+        }
+        .rocket-animate {
+            animation: rocket-launch 2.5s cubic-bezier(0.6, -0.28, 0.735, 0.045) forwards;
+        }
+        @keyframes fuel-vibrate {
+            0%, 100% { transform: translate(0,0); }
+            25% { transform: translate(-2px, 1px); }
+            50% { transform: translate(2px, -1px); }
+            75% { transform: translate(-1px, 2px); }
+        }
+        .rocket-vibrate {
+            animation: fuel-vibrate 0.1s infinite;
         }
     </style>
     <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.39/build/spline-viewer.js"></script>
@@ -434,52 +463,193 @@
                 <div class="projects-scroll-container">
                     <div class="projects-wrapper">
                         <div class="projects-grid">
-                            
-                            <!-- Project 1: Netflix Clone -->
+
+                            <!-- Project 6: Ard Al Khair Properties -->
                             <div class="project-billboard">
-                                <div class="billboard-top bg-gradient-to-br from-background to-secondary/50">
-                                    <div class="h-2 w-full bg-gradient-to-r from-blue-500 to-cyan-400"></div>
-                                    <div class="p-8">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div class="p-3 rounded-lg bg-secondary text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <div
+                                    class="billboard-top relative overflow-hidden ring-2 ring-primary/50 shadow-2xl bg-gradient-to-br from-secondary/80 to-background group hover:bg-secondary transition-colors duration-500">
+                                    <div
+                                        class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                                    </div>
+                                    <div class="relative">
+                                        <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-blue-500 text-white text-xs font-black shadow-lg uppercase tracking-widest ring-1 ring-white/20">
+                                                01 / Project
+                                            </span>
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary/80 text-primary text-xs font-bold shadow-lg backdrop-blur-md border border-primary/30 uppercase tracking-wider">
+                                                🏆 Latest Masterpiece
+                                            </span>
+                                        </div>
+                                        <div class="h-3 w-full bg-gradient-to-r from-blue-400 via-primary to-purple-500"></div>
+                                    </div>
+                                    <div class="p-8 relative z-10">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div class="p-4 rounded-xl bg-secondary text-primary shadow-inner">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="1.5"
+                                                        d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                                 </svg>
                                             </div>
-                                            <a href="https://netflix-clone-mu-one-85.vercel.app/" target="_blank" class="text-muted-foreground hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
+                                            <a href="https://ardalkhairproperties.com/" target="_blank"
+                                                class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg></a>
                                         </div>
-                                        <h3 class="text-2xl font-bold mb-4 text-white">Netflix Clone</h3>
-                                        <p class="text-muted-foreground mb-6">A clone of the Netflix streaming service built with JavaScript, Node.js, and Express.js.</p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">JavaScript</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Node.js</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Express.js</span>
+                                        <h3
+                                            class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                                            Ard Al Khair Properties</h3>
+                                        <p class="text-muted-foreground mb-6 text-lg">A robust real estate platform
+                                            showcasing a massive feature-set, including a comprehensive <strong
+                                                class="text-white">secure backend dashboard</strong> and <strong
+                                                class="text-white">advanced APIs</strong>.</p>
+
+                                        <div
+                                            class="mb-6 rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
+                                            <img src="../project images/ard-al-khair.png" alt="Ard Al Khair Properties"
+                                                class="w-full h-48 sm:h-64 object-cover object-top hover:scale-105 transition-transform duration-700">
+                                        </div>
+
+                                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
+                                                    </svg>
+                                                    Backend Dashboard
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Custom admin panel built for
+                                                    seamless property management and data security.</p>
+                                            </div>
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Robust API Design
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Lightning-fast RESTful
+                                                    endpoints orchestrating dynamic frontend rendering.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2 pt-4 border-t border-border/50">
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">React
+                                                / Next.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Node.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Express.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">MongoDB</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">REST
+                                                APIs</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-
                             <!-- Project 2: Facebook Clone -->
                             <div class="project-billboard">
-                                <div class="billboard-top bg-gradient-to-br from-background to-secondary/50">
-                                    <div class="h-2 w-full bg-gradient-to-r from-green-500 to-emerald-400"></div>
-                                    <div class="p-8">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div class="p-3 rounded-lg bg-secondary text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
+                                <div class="billboard-top relative overflow-hidden ring-1 ring-white/10 shadow-2xl bg-gradient-to-br from-background to-secondary/50 group transition-all duration-500">
+                                    <div class="relative">
+                                        <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary/80 text-white text-xs font-black shadow-lg uppercase tracking-widest ring-1 ring-white/10 backdrop-blur-md">
+                                                02 / Project
+                                            </span>
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-green-500/10 text-green-400 text-xs font-bold shadow-lg backdrop-blur-md border border-green-500/30 uppercase tracking-wider">
+                                                Social Platform
+                                            </span>
+                                        </div>
+                                        <div class="h-2 w-full bg-gradient-to-r from-green-500 to-emerald-400"></div>
+                                    </div>
+                                    <div class="p-8 relative z-10 flex-grow flex flex-col">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div class="p-4 rounded-xl bg-secondary text-primary shadow-inner">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path
+                                                        d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
                                                 </svg>
                                             </div>
-                                            <a href="https://facebook-clone-eight-kappa.vercel.app/index.html" target="_blank" class="text-muted-foreground hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
+                                            <a href="https://facebook-clone-eight-kappa.vercel.app/index.html"
+                                                target="_blank"
+                                                class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg></a>
                                         </div>
-                                        <h3 class="text-2xl font-bold mb-4 text-white">Facebook Clone</h3>
-                                        <p class="text-muted-foreground mb-6">A clone of the Facebook social media platform built with JavaScript, Node.js, and Express.js.</p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">HTML</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">CSS</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">JavaScript</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Node.js</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Express.js</span>
+                                        <h3
+                                            class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                                            Facebook Clone</h3>
+                                        <p class="text-muted-foreground mb-6 text-lg">A sophisticated social media
+                                            platform recreation showcasing <strong class="text-white">real-time feed
+                                                architecture</strong> and <strong class="text-white">dynamic component
+                                                rendering</strong>.</p>
+
+                                        <div
+                                            class="mb-6 rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
+                                            <img src="../project images/facebook-clone.png" alt="Facebook Clone"
+                                                class="w-full h-48 sm:h-64 object-cover object-top hover:scale-105 transition-transform duration-700">
+                                        </div>
+
+                                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                                    </svg>
+                                                    Social Core
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Detailed implementation of
+                                                    social features including activity feeds and user connections.</p>
+                                            </div>
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Responsive UI/UX
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Optimized layouts providing a
+                                                    native-app feel across all modern web browsers.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-border/50">
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">HTML5/CSS3</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">JavaScript</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Node.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Express.js</span>
                                         </div>
                                     </div>
                                 </div>
@@ -487,23 +657,88 @@
 
                             <!-- Project 3: Personal CV -->
                             <div class="project-billboard">
-                                <div class="billboard-top bg-gradient-to-br from-background to-secondary/50">
-                                    <div class="h-2 w-full bg-gradient-to-r from-blue-400 to-indigo-500"></div>
-                                    <div class="p-8">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div class="p-3 rounded-lg bg-secondary text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <div class="billboard-top relative overflow-hidden ring-1 ring-white/10 shadow-2xl bg-gradient-to-br from-background to-secondary/50 group transition-all duration-500">
+                                    <div class="relative">
+                                        <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary/80 text-white text-xs font-black shadow-lg uppercase tracking-widest ring-1 ring-white/10 backdrop-blur-md">
+                                                03 / Project
+                                            </span>
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-blue-500/10 text-blue-400 text-xs font-bold shadow-lg backdrop-blur-md border border-blue-500/30 uppercase tracking-wider">
+                                                Professional Portfolio
+                                            </span>
+                                        </div>
+                                        <div class="h-2 w-full bg-gradient-to-r from-blue-400 to-indigo-500"></div>
+                                    </div>
+                                    <div class="p-8 relative z-10 flex-grow flex flex-col">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div class="p-4 rounded-xl bg-secondary text-primary shadow-inner">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path
+                                                        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                 </svg>
                                             </div>
-                                            <a href="https://ahmad-cv.vercel.app/" target="_blank" class="text-muted-foreground hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
+                                            <a href="https://ahmad-cv.vercel.app/" target="_blank"
+                                                class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg></a>
                                         </div>
-                                        <h3 class="text-2xl font-bold mb-4 text-white">Personal CV</h3>
-                                        <p class="text-muted-foreground mb-6">My personal CV built with HTML, CSS, and JavaScript.</p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">HTML</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">CSS</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">JavaScript</span>
+                                        <h3
+                                            class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                                            Personal CV</h3>
+                                        <p class="text-muted-foreground mb-6 text-lg">A clean, professional digital
+                                            resume platform built with <strong class="text-white">semantic
+                                                HTML5</strong> and <strong class="text-white">modern CSS
+                                                layouts</strong>.</p>
+
+                                        <div
+                                            class="mb-6 rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
+                                            <img src="../project images/ahmad-cv.png" alt="Personal CV"
+                                                class="w-full h-48 sm:h-64 object-cover object-top hover:scale-105 transition-transform duration-700">
+                                        </div>
+
+                                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                    </svg>
+                                                    Content Structure
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Carefully organized sections
+                                                    for skills, experience, and educational highlights.</p>
+                                            </div>
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                                    </svg>
+                                                    Print-Friendly CSS
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Dedicated print styles ensuring
+                                                    high-quality physical copy generation.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-border/50">
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">HTML5</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">CSS3</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">JavaScript</span>
                                         </div>
                                     </div>
                                 </div>
@@ -511,24 +746,93 @@
 
                             <!-- Project 4: Personal Portfolio -->
                             <div class="project-billboard">
-                                <div class="billboard-top bg-gradient-to-br from-background to-secondary/50">
-                                    <div class="h-2 w-full bg-gradient-to-r from-pink-500 to-rose-400"></div>
-                                    <div class="p-8">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div class="p-3 rounded-lg bg-secondary text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                                <div class="billboard-top relative overflow-hidden ring-1 ring-white/10 shadow-2xl bg-gradient-to-br from-background to-secondary/50 group transition-all duration-500">
+                                    <div class="relative">
+                                        <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary/80 text-white text-xs font-black shadow-lg uppercase tracking-widest ring-1 ring-white/10 backdrop-blur-md">
+                                                04 / Project
+                                            </span>
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-pink-500/10 text-pink-400 text-xs font-bold shadow-lg backdrop-blur-md border border-pink-500/30 uppercase tracking-wider">
+                                                Personal Developer Hub
+                                            </span>
+                                        </div>
+                                        <div class="h-2 w-full bg-gradient-to-r from-pink-500 to-rose-400"></div>
+                                    </div>
+                                    <div class="p-8 relative z-10 flex-grow flex flex-col">
+                                        <div class="flex justify-between items-start mb-6">
+                                            <div class="p-4 rounded-xl bg-secondary text-primary shadow-inner">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path
+                                                        d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                                                 </svg>
                                             </div>
-                                            <a href="#about" target="_blank" class="text-muted-foreground hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
+                                            <a href="https://ahmad-developer.vercel.app/" target="_blank"
+                                                class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg></a>
                                         </div>
-                                        <h3 class="text-2xl font-bold mb-4 text-white">Personal Portfolio</h3>
-                                        <p class="text-muted-foreground mb-6">My personal Portfolio built with HTML, CSS, JavaScript, and Node.js.</p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">HTML</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">CSS</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">JavaScript</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Node.js</span>
+                                        <h3
+                                            class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                                            Personal Portfolio</h3>
+                                        <p class="text-muted-foreground mb-6 text-lg">My high-performance developer
+                                            portfolio built with <strong class="text-white">Next.js/React</strong>,
+                                            showcasing <strong class="text-white">advanced animations</strong> and
+                                            <strong class="text-white">3D elements</strong>.</p>
+
+                                        <div
+                                            class="mb-6 rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
+                                            <img src="../project images/ahmad-portfolio.png" alt="Personal Portfolio"
+                                                class="w-full h-48 sm:h-64 object-cover object-top hover:scale-105 transition-transform duration-700">
+                                        </div>
+
+                                        <div class="grid md:grid-cols-2 gap-4 mb-6">
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                    </svg>
+                                                    Visual Excellence
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Integrating Spline 3D and
+                                                    Framer Motion for an immersive user experience.</p>
+                                            </div>
+                                            <div class="bg-background/40 p-4 rounded-xl border border-border/50">
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                    Perf Optimized
+                                                </h4>
+                                                <p class="text-xs text-muted-foreground">Leveraging SSR and edge caching
+                                                    for lightning-fast content delivery.</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-border/50">
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">React
+                                                / Next.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Node.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Express.js</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Spline
+                                                3D</span>
                                         </div>
                                     </div>
                                 </div>
@@ -536,83 +840,97 @@
 
                             <!-- Project 5: Brother's Portfolio -->
                             <div class="project-billboard">
-                                <div class="billboard-top bg-gradient-to-br from-background to-secondary/50">
-                                    <div class="h-2 w-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
-                                    <div class="p-8">
-                                        <div class="flex justify-between items-start mb-4">
-                                            <div class="p-3 rounded-lg bg-secondary text-primary">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
-                                                </svg>
-                                            </div>
-                                            <a href="https://raheeq-portfolio.vercel.app/" target="_blank" class="text-muted-foreground hover:text-primary"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
-                                        </div>
-                                        <h3 class="text-2xl font-bold mb-4 text-white">Brother's Portfolio</h3>
-                                        <p class="text-muted-foreground mb-6">A modern, responsive portfolio built with HTML, CSS, JavaScript, and Node.js.</p>
-                                        <div class="flex flex-wrap gap-2">
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">HTML</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">CSS</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">JavaScript</span>
-                                            <span class="px-2 py-1 rounded border border-border text-xs text-white">Node.js</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Project 6: Ard Al Khair Properties -->
-                            <div class="project-billboard">
-                                <div class="billboard-top relative overflow-hidden ring-2 ring-primary/50 shadow-2xl bg-gradient-to-br from-secondary/80 to-background group hover:bg-secondary transition-colors duration-500">
-                                    <div class="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div class="billboard-top relative overflow-hidden ring-1 ring-white/10 shadow-2xl bg-gradient-to-br from-background to-secondary/50 group transition-all duration-500">
                                     <div class="relative">
-                                        <div class="absolute top-4 left-4 z-10 animate-pulse">
-                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-gradient-to-r from-primary to-blue-500 text-white text-xs font-bold shadow-lg">🏆 Latest Masterpiece</span>
+                                        <div class="absolute top-4 left-4 z-10 flex items-center gap-3">
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-secondary/80 text-white text-xs font-black shadow-lg uppercase tracking-widest ring-1 ring-white/10 backdrop-blur-md">
+                                                05 / Project
+                                            </span>
+                                            <span class="inline-flex items-center px-4 py-1.5 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold shadow-lg backdrop-blur-md border border-purple-500/30 uppercase tracking-wider">
+                                                Modern Showcase
+                                            </span>
                                         </div>
-                                        <div class="h-3 w-full bg-gradient-to-r from-blue-400 via-primary to-purple-500"></div>
+                                        <div class="h-2 w-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
                                     </div>
-                                    <div class="p-8 relative z-10">
+                                    <div class="p-8 relative z-10 flex-grow flex flex-col">
                                         <div class="flex justify-between items-start mb-6">
                                             <div class="p-4 rounded-xl bg-secondary text-primary shadow-inner">
-                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path
+                                                        d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                 </svg>
                                             </div>
-                                            <a href="#" target="_blank" class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></a>
+                                            <a href="https://raheeq-portfolio.vercel.app/" target="_blank"
+                                                class="p-2 bg-secondary/50 rounded-full text-foreground hover:bg-primary hover:text-white transition-all duration-300"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                                    viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2"
+                                                        d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                                </svg></a>
                                         </div>
-                                        <h3 class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">Ard Al Khair Properties</h3>
-                                        <p class="text-muted-foreground mb-6 text-lg">A robust real estate platform showcasing a massive feature-set, including a comprehensive <strong class="text-white">secure backend dashboard</strong> and <strong class="text-white">advanced APIs</strong>.</p>
-                                        
+                                        <h3
+                                            class="text-3xl font-bold mb-3 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                                            Brother's Portfolio</h3>
+                                        <p class="text-muted-foreground mb-6 text-lg">A modern, responsive portfolio
+                                            platform built with <strong class="text-white">Node.js</strong> and <strong
+                                                class="text-white">modern CSS frameworks</strong>.</p>
+
+                                        <div
+                                            class="mb-6 rounded-xl overflow-hidden shadow-2xl border border-white/10 group-hover:border-primary/50 transition-colors duration-500">
+                                            <img src="../project images/brother-portfolio.png" alt="Brother's Portfolio"
+                                                class="w-full h-48 sm:h-64 object-cover object-top hover:scale-105 transition-transform duration-700">
+                                        </div>
+
                                         <div class="grid md:grid-cols-2 gap-4 mb-6">
                                             <div class="bg-background/40 p-4 rounded-xl border border-border/50">
-                                                <h4 class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" /></svg>
-                                                    Backend Dashboard
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2"
+                                                            d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A10.003 10.003 0 0012 20c4.478 0 8.268-2.943 9.542-7m-1.207-4a10.003 10.003 0 00-11.652-5.71m0 0a10.104 10.104 0 00-3.358 5.795M9 13a1 1 0 011-1h.01M13 13a1 1 0 011-1h.01M17 13a1 1 0 011-1h.01" />
+                                                    </svg>
+                                                    Modern Aesthetics
                                                 </h4>
-                                                <p class="text-xs text-muted-foreground">Custom admin panel built for seamless property management and data security.</p>
+                                                <p class="text-xs text-muted-foreground">Focusing on clean typography
+                                                    and whitespace for a balanced visual design.</p>
                                             </div>
                                             <div class="bg-background/40 p-4 rounded-xl border border-border/50">
-                                                <h4 class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                                                    Robust API Design
+                                                <h4
+                                                    class="text-sm font-semibold text-primary mb-2 flex items-center gap-2">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                                        viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                                            stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                                    </svg>
+                                                    SEO Ready
                                                 </h4>
-                                                <p class="text-xs text-muted-foreground">Lightning-fast RESTful endpoints orchestrating dynamic frontend rendering.</p>
+                                                <p class="text-xs text-muted-foreground">Implementing best practices for
+                                                    search engine visibility and accessibility.</p>
                                             </div>
                                         </div>
 
-                                        <div class="flex flex-wrap gap-2 pt-4 border-t border-border/50">
-                                            <span class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">React / Next.js</span>
-                                            <span class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Node.js</span>
-                                            <span class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Express.js</span>
-                                            <span class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">MongoDB</span>
-                                            <span class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">REST APIs</span>
+                                        <div class="flex flex-wrap gap-2 mt-auto pt-4 border-t border-border/50">
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">HTML5/CSS3</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">JavaScript</span>
+                                            <span
+                                                class="px-3 py-1.5 rounded-md bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">Node.js</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
                 </div>
             </div>
-        </section>on>
+        </section>
 
         <!-- Skills Section -->
         <section id="skills" class="py-24 bg-secondary/30">
@@ -640,9 +958,18 @@
                             <span
                                 class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">Express.js</span>
                             <span
+                                class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">API
+                                Integeration</span>
+                            <span
+                                class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">Admin Panel</span>
+                            <span
+                                class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">Three
+                                JS</span>
+                            <span
                                 class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">Tailwind</span>
                             <span
                                 class="px-3 py-1.5 bg-secondary rounded-lg font-medium hover:bg-primary hover:text-white transition-colors cursor-pointer">Bootstrap</span>
+
                         </div>
                     </div>
                 </div>
@@ -695,7 +1022,27 @@
                         </div>
                     </div>
 
-                    <div class="glass p-8 rounded-3xl">
+                    <div class="glass p-8 rounded-3xl relative overflow-hidden">
+                        <!-- Rocket Loader -->
+                        <div id="rocket-loader" class="hidden absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-md rounded-3xl">
+                            <div id="rocket-container" class="relative">
+                                <div class="rocket-vibrate">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-24 h-24 text-primary">
+                                        <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" />
+                                        <path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" />
+                                        <path d="M9 12H4s.55-3.03 2-5c1.62-2.2 5-3 5-3" />
+                                        <path d="M12 15v5s3.03-.55 5-2c2.2-1.62 3-5 3-5" />
+                                    </svg>
+                                </div>
+                                <!-- Exhaust Flame/Smoke Effect -->
+                                <div class="absolute -bottom-10 left-1/2 -translate-x-1/2 flex items-center justify-center">
+                                    <div class="w-4 h-12 bg-gradient-to-t from-transparent via-orange-500 to-yellow-400 rounded-full blur-sm animate-pulse"></div>
+                                </div>
+                            </div>
+                            <div class="mt-16 text-2xl font-black font-heading tracking-[0.2em] text-white animate-pulse">LAUNCHING...</div>
+                            <div class="mt-2 text-primary font-bold text-xs uppercase tracking-widest">Message Ascent in Progress</div>
+                        </div>
+
                         <form id="contact-form" class="space-y-6" onsubmit="event.preventDefault()">
                             <div class="space-y-2">
                                 <label class="text-sm font-medium">Name</label>
@@ -829,18 +1176,34 @@
             });
         });
 
-        // Contact Form Submission
+        // Contact Form Submission with Rocket Animation
         document.addEventListener('DOMContentLoaded', () => {
             const contactForm = document.getElementById('contact-form');
+            const rocketLoader = document.getElementById('rocket-loader');
+            const rocketContainer = document.getElementById('rocket-container');
             const successMessage = document.getElementById('success-message');
 
             if (contactForm) {
                 contactForm.addEventListener('submit', function (e) {
                     e.preventDefault();
 
-                    // Hide the form and show success message
-                    contactForm.classList.add('hidden');
-                    successMessage.classList.remove('hidden');
+                    // Scroll to form to ensure animation is visible
+                    contactForm.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // 1. Show the loader overlay
+                    rocketLoader.classList.remove('hidden');
+                    
+                    // 2. Start the launch animation after a short "ignition" delay
+                    setTimeout(() => {
+                        rocketContainer.classList.add('rocket-animate');
+                        
+                        // 3. After animation finishes, show success message
+                        setTimeout(() => {
+                            rocketLoader.classList.add('hidden');
+                            contactForm.classList.add('hidden');
+                            successMessage.classList.remove('hidden');
+                        }, 2500);
+                    }, 800);
                 });
             }
         });
@@ -931,8 +1294,7 @@
     <!-- WhatsApp Icon (Fixed) -->
     <a href="https://wa.me/923314853634" target="_blank" rel="noopener noreferrer"
         class="fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg hover:shadow-xl hover:scale-110 transition-all duration-300 hover:from-green-600 hover:to-emerald-600 group "
-        style="position: fixed; bottom: 40px; right: 15px; z-index: 9999;"
-        aria-label="Chat with us on WhatsApp">
+        style="position: fixed; bottom: 40px; right: 15px; z-index: 9999;" aria-label="Chat with us on WhatsApp">
         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-whatsapp"
             viewBox="0 0 16 16">
             <path
@@ -940,7 +1302,7 @@
         </svg>
     </a>
 
-  
+
 
 </body>
 
