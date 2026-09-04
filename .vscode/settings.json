@@ -1,0 +1,5 @@
+{
+    "typescript.autoClosingTags": false,
+    "kiroAgent.agentAutonomy": "Supervised",
+    "files.autoSave": "afterDelay"
+}
