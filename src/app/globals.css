@@ -1040,3 +1040,361 @@ body {
     bottom: 2rem;
   }
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   HERO SECTION — Full-Screen Portrait + Cursor Reveal
+══════════════════════════════════════════════════════════════ */
+
+/* ── Root container ── */
+.hero-root {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 600px;
+  background: #081C15;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Dot-grid texture overlay ── */
+.hero-grid-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  background-image:
+    radial-gradient(circle, rgba(82, 183, 136, 0.12) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* ── Portrait image layers ── */
+.hero-portrait-layer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Revealed portrait (bottom) */
+.hero-portrait-base {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+/* Scratch overlay portrait (top, canvas-clipped) */
+.hero-portrait-top {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* ── Canvas mask ── */
+.hero-mask-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0; /* fades in on mount */
+  transition: opacity 0.6s ease;
+}
+.hero-mask-canvas.ready {
+  opacity: 1;
+}
+
+/* ── Watermark background text ── */
+.hero-watermark {
+  position: absolute;
+  bottom: -0.15em;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 900;
+  font-size: clamp(5rem, 18vw, 16rem);
+  letter-spacing: -0.04em;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 1.5px rgba(82, 183, 136, 0.08);
+  user-select: none;
+  pointer-events: none;
+  z-index: 5;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* ── Diagonal marquee bands ── */
+.hero-marquees {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-marquee-band {
+  position: absolute;
+  width: 140%;
+  left: -20%;
+  display: flex;
+  align-items: center;
+  transform-origin: center center;
+  white-space: nowrap;
+  overflow: hidden;
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.45);
+}
+
+.hero-marquee-band:nth-child(1) {
+  top: 22%;
+  transform: rotate(-8deg);
+  background: rgba(82, 183, 136, 0.92);
+  border-top: 1.5px solid #74C69D;
+  border-bottom: 1.5px solid #74C69D;
+}
+.hero-marquee-band:nth-child(1) .hero-marquee-item {
+  color: #081C15;
+}
+
+.hero-marquee-band:nth-child(2) {
+  top: 48%;
+  transform: rotate(-8deg);
+  background: rgba(8, 28, 21, 0.88);
+  border-top: 1.5px solid rgba(82, 183, 136, 0.35);
+  border-bottom: 1.5px solid rgba(82, 183, 136, 0.35);
+  backdrop-filter: blur(12px);
+}
+.hero-marquee-band:nth-child(2) .hero-marquee-item {
+  color: #F0EDE8;
+}
+
+.hero-marquee-band:nth-child(3) {
+  top: 74%;
+  transform: rotate(-8deg);
+  background: rgba(13, 43, 32, 0.92);
+  border-top: 1.5px solid rgba(82, 183, 136, 0.4);
+  border-bottom: 1.5px solid rgba(82, 183, 136, 0.4);
+}
+.hero-marquee-band:nth-child(3) .hero-marquee-item {
+  color: #52B788;
+}
+
+.hero-marquee-track {
+  display: flex;
+  gap: 0;
+  will-change: transform;
+}
+
+/* Forward (left) */
+.hero-marquee-track--fwd {
+  animation: hero-scroll-fwd 22s linear infinite;
+}
+/* Reverse (right) */
+.hero-marquee-track--rev {
+  animation: hero-scroll-rev 22s linear infinite;
+}
+
+@keyframes hero-scroll-fwd {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes hero-scroll-rev {
+  from { transform: translateX(-50%); }
+  to   { transform: translateX(0); }
+}
+
+.hero-marquee-item {
+  padding: 0.45em 2.2em;
+  font-family: 'Arial Black', system-ui, sans-serif;
+  font-weight: 900;
+  font-size: clamp(0.75rem, 1.25vw, 1.05rem);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.hero-kanji-tag {
+  font-family: 'Hiragino Mincho ProN', 'MS Mincho', serif;
+  font-weight: 700;
+  font-size: 1.1em;
+  padding: 0 0.4em;
+  opacity: 0.95;
+}
+
+/* ── HUD chrome layer ── */
+.hero-hud {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+/* Top-left brand */
+.hero-hud-brand {
+  position: absolute;
+  top: clamp(1.5rem, 4vh, 2.5rem);
+  left: clamp(1.5rem, 4vw, 3rem);
+  pointer-events: all;
+}
+
+.hero-hud-name {
+  display: block;
+  font-family: 'Arial Black', system-ui, sans-serif;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #F0EDE8;
+  line-height: 1;
+}
+
+.hero-hud-sub {
+  display: block;
+  font-family: monospace;
+  font-size: clamp(0.55rem, 0.9vw, 0.7rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #52B788;
+  margin-top: 0.4em;
+}
+
+/* Right-side vertical status */
+.hero-hud-right {
+  position: absolute;
+  top: 50%;
+  right: clamp(1rem, 2.5vw, 2rem);
+  transform: translateY(-50%);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+.hero-reveal-hint {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  writing-mode: vertical-rl;
+  font-family: system-ui, monospace;
+  font-size: clamp(0.55rem, 0.85vw, 0.68rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(240, 237, 232, 0.7);
+}
+
+.hero-reveal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #52B788;
+  box-shadow: 0 0 10px #52B788;
+  animation: hero-dot-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes hero-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+.hero-hud-status {
+  writing-mode: vertical-rl;
+  font-family: monospace;
+  font-size: clamp(0.5rem, 0.8vw, 0.62rem);
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: rgba(149, 213, 178, 0.45);
+}
+
+/* Bottom scroll hint */
+.hero-hud-scroll {
+  position: absolute;
+  bottom: clamp(1.5rem, 4vh, 2.5rem);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  pointer-events: none;
+}
+
+.hero-hud-scroll-label {
+  font-family: monospace;
+  font-size: clamp(0.5rem, 0.8vw, 0.62rem);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(149, 213, 178, 0.5);
+}
+
+.hero-hud-scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, rgba(82, 183, 136, 0.7), transparent);
+  animation: hero-scroll-pulse 2s ease-in-out infinite;
+}
+
+@keyframes hero-scroll-pulse {
+  0%, 100% { opacity: 0.4; transform: scaleY(1); }
+  50%       { opacity: 1;   transform: scaleY(1.15); }
+}
+
+/* ── Green stroke sweep flash ── */
+.hero-red-stroke {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  border: 0px solid #52B788;
+  opacity: 0;
+}
+
+/* ── Corner brackets ── */
+.hero-corner {
+  position: absolute;
+  width: clamp(18px, 2.5vw, 30px);
+  height: clamp(18px, 2.5vw, 30px);
+  z-index: 9;
+  pointer-events: none;
+  opacity: 0.4;
+}
+.hero-corner--tl { top: clamp(1rem,2.5vh,2rem); left: clamp(1rem,2.5vw,2rem); border-top: 1.5px solid rgba(82, 183, 136, 0.5); border-left: 1.5px solid rgba(82, 183, 136, 0.5); }
+.hero-corner--tr { top: clamp(1rem,2.5vh,2rem); right: clamp(1rem,2.5vw,2rem); border-top: 1.5px solid rgba(82, 183, 136, 0.5); border-right: 1.5px solid rgba(82, 183, 136, 0.5); }
+.hero-corner--bl { bottom: clamp(1rem,2.5vh,2rem); left: clamp(1rem,2.5vw,2rem); border-bottom: 1.5px solid rgba(82, 183, 136, 0.5); border-left: 1.5px solid rgba(82, 183, 136, 0.5); }
+.hero-corner--br { bottom: clamp(1rem,2.5vh,2rem); right: clamp(1rem,2.5vw,2rem); border-bottom: 1.5px solid rgba(82, 183, 136, 0.5); border-right: 1.5px solid rgba(82, 183, 136, 0.5); }
+
+/* ── Mobile tweaks ── */
+@media (max-width: 768px) {
+  .hero-hud-left  { display: none; }
+  .hero-hud-right { display: none; }
+  .hero-hud-awwwards { display: none; }
+  .hero-watermark { font-size: clamp(4rem, 22vw, 9rem); }
+  .hero-marquee-item { font-size: 0.65rem; }
+}
+
+/* ── Cyberpunk Diagonal Marquee Keyframes ── */
+@keyframes marquee-left {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+

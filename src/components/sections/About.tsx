@@ -1,2 +1,1 @@
-// About section — to be implemented
-export {};
+export { CyberpunkAboutHero as default, CyberpunkAboutHero } from "./CyberpunkAboutHero";

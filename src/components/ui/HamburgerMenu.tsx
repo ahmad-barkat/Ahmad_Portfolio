@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { gsap } from "gsap";
 import { usePageTransition } from "./TransitionProvider";
+import { useNavHistory } from "@/hooks/useNavHistory";
 
 // ── Nav items (mirrors nav/page.tsx) ──────────────────────────────────────────
 const MENU_LINKS = [
@@ -15,6 +16,7 @@ const MENU_LINKS = [
 
 export default function HamburgerMenu() {
   const { transitionTo } = usePageTransition();
+  const { isCurrent, isVisited, pathname, visitedPages } = useNavHistory();
   const [open, setOpen] = useState(false);
 
   // refs
@@ -292,95 +294,152 @@ export default function HamburgerMenu() {
             }}
             aria-label="Main navigation"
           >
-            {MENU_LINKS.map((link, i) => (
-              <div
-                key={link.label}
-                ref={(el) => { linksRef.current[i] = el; }}
-                role="button"
-                tabIndex={0}
-                onClick={(e) =>
-                  handleLinkClick(link.href, link.color, link.label, e.currentTarget as HTMLElement)
-                }
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ")
-                    handleLinkClick(link.href, link.color, link.label, e.currentTarget as HTMLElement);
-                }}
-                style={{
-                  display: "flex",
-                  alignItems: "baseline",
-                  gap: "clamp(0.8rem, 2vw, 1.5rem)",
-                  cursor: "pointer",
-                  padding: "clamp(0.4rem, 1vh, 0.75rem) 0",
-                  borderBottom: "1px solid rgba(82,183,136,0.08)",
-                  userSelect: "none",
-                }}
-                onMouseEnter={(e) => {
-                  const label = e.currentTarget.querySelector(".hb-label") as HTMLElement;
-                  const dot   = e.currentTarget.querySelector(".hb-dot")   as HTMLElement;
-                  if (label) gsap.to(label, { x: 12, color: link.color, duration: 0.25, ease: "power2.out" });
-                  if (dot)   gsap.to(dot,   { scale: 1.6, background: link.color, duration: 0.25, ease: "power2.out" });
-                }}
-                onMouseLeave={(e) => {
-                  const label = e.currentTarget.querySelector(".hb-label") as HTMLElement;
-                  const dot   = e.currentTarget.querySelector(".hb-dot")   as HTMLElement;
-                  if (label) gsap.to(label, { x: 0, color: "#f0ede8", duration: 0.3, ease: "power2.out" });
-                  if (dot)   gsap.to(dot,   { scale: 1, background: "rgba(82,183,136,0.3)", duration: 0.3, ease: "power2.out" });
-                }}
-              >
-                {/* Index number */}
-                <span style={{
-                  fontFamily: "system-ui, monospace",
-                  fontSize: "clamp(0.55rem, 1vw, 0.7rem)",
-                  color: "rgba(82,183,136,0.4)",
-                  letterSpacing: "0.15em",
-                  flexShrink: 0,
-                  width: "2.5ch",
-                }}>
-                  {link.idx}
-                </span>
+            {MENU_LINKS.map((link, i) => {
+              const active = isCurrent(link.href);
+              const visited = isVisited(link.href);
 
-                {/* Color dot */}
-                <span
-                  className="hb-dot"
-                  style={{
-                    display: "inline-block",
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: "rgba(82,183,136,0.3)",
-                    flexShrink: 0,
-                    marginBottom: "0.25em",
+              return (
+                <div
+                  key={link.label}
+                  ref={(el) => { linksRef.current[i] = el; }}
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) =>
+                    handleLinkClick(link.href, link.color, link.label, e.currentTarget as HTMLElement)
+                  }
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ")
+                      handleLinkClick(link.href, link.color, link.label, e.currentTarget as HTMLElement);
                   }}
-                />
-
-                {/* Label */}
-                <span
-                  className="hb-label"
                   style={{
-                    fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
-                    fontSize: "clamp(2rem, 6.5vw, 6rem)",
-                    fontWeight: 900,
-                    color: "#f0ede8",
-                    textTransform: "uppercase",
-                    letterSpacing: "-0.03em",
-                    lineHeight: 1,
-                    display: "block",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "clamp(0.8rem, 2vw, 1.5rem)",
+                    cursor: "pointer",
+                    padding: "clamp(0.4rem, 1vh, 0.75rem) 0",
+                    borderBottom: "1px solid rgba(82,183,136,0.08)",
+                    userSelect: "none",
+                  }}
+                  onMouseEnter={(e) => {
+                    const label = e.currentTarget.querySelector(".hb-label") as HTMLElement;
+                    const dot   = e.currentTarget.querySelector(".hb-dot")   as HTMLElement;
+                    if (label) gsap.to(label, { x: 12, color: link.color, duration: 0.25, ease: "power2.out" });
+                    if (dot)   gsap.to(dot,   { scale: 1.6, background: link.color, duration: 0.25, ease: "power2.out" });
+                  }}
+                  onMouseLeave={(e) => {
+                    const label = e.currentTarget.querySelector(".hb-label") as HTMLElement;
+                    const dot   = e.currentTarget.querySelector(".hb-dot")   as HTMLElement;
+                    if (label) gsap.to(label, { x: 0, color: active ? link.color : "#f0ede8", duration: 0.3, ease: "power2.out" });
+                    if (dot)   gsap.to(dot,   { scale: 1, background: active ? link.color : "rgba(82,183,136,0.3)", duration: 0.3, ease: "power2.out" });
                   }}
                 >
-                  {link.label}
-                </span>
+                  {/* Index number */}
+                  <span style={{
+                    fontFamily: "system-ui, monospace",
+                    fontSize: "clamp(0.55rem, 1vw, 0.7rem)",
+                    color: active ? link.color : "rgba(82,183,136,0.4)",
+                    letterSpacing: "0.15em",
+                    flexShrink: 0,
+                    width: "2.5ch",
+                  }}>
+                    {link.idx}
+                  </span>
 
-                {/* Arrow */}
-                <span style={{
-                  marginLeft: "auto",
-                  fontSize: "clamp(0.9rem, 2vw, 1.3rem)",
-                  color: "rgba(82,183,136,0.25)",
-                  flexShrink: 0,
-                }}>
-                  →
-                </span>
-              </div>
-            ))}
+                  {/* Color dot */}
+                  <span
+                    className="hb-dot"
+                    style={{
+                      display: "inline-block",
+                      width: 8,
+                      height: 8,
+                      borderRadius: "50%",
+                      background: active ? link.color : "rgba(82,183,136,0.3)",
+                      boxShadow: active ? `0 0 10px ${link.color}` : "none",
+                      flexShrink: 0,
+                    }}
+                  />
+
+                  {/* Label */}
+                  <span
+                    className="hb-label"
+                    style={{
+                      fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                      fontSize: "clamp(1.8rem, 5.8vw, 5rem)",
+                      fontWeight: 900,
+                      color: active ? link.color : "#f0ede8",
+                      textTransform: "uppercase",
+                      letterSpacing: "-0.03em",
+                      lineHeight: 1,
+                      display: "block",
+                      transition: "color 0.3s ease",
+                    }}
+                  >
+                    {link.label}
+                  </span>
+
+                  {/* Status Badge: CURRENT PAGE or RECENTLY VISITED */}
+                  {active ? (
+                    <span
+                      style={{
+                        fontFamily: "system-ui, sans-serif",
+                        fontSize: "clamp(0.55rem, 0.9vw, 0.7rem)",
+                        fontWeight: 700,
+                        letterSpacing: "0.12em",
+                        color: "#081C15",
+                        background: link.color,
+                        padding: "0.25em 0.75em",
+                        borderRadius: "999px",
+                        textTransform: "uppercase",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "0.4em",
+                        boxShadow: `0 0 12px ${link.color}66`,
+                        flexShrink: 0,
+                      }}
+                    >
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: "50%",
+                          background: "#081C15",
+                          display: "inline-block",
+                        }}
+                      />
+                      CURRENT PAGE
+                    </span>
+                  ) : visited ? (
+                    <span
+                      style={{
+                        fontFamily: "system-ui, sans-serif",
+                        fontSize: "clamp(0.55rem, 0.85vw, 0.68rem)",
+                        fontWeight: 600,
+                        letterSpacing: "0.1em",
+                        color: "rgba(149, 213, 178, 0.9)",
+                        background: "rgba(82, 183, 136, 0.12)",
+                        border: "1px solid rgba(82, 183, 136, 0.25)",
+                        padding: "0.2em 0.65em",
+                        borderRadius: "999px",
+                        textTransform: "uppercase",
+                        flexShrink: 0,
+                      }}
+                    >
+                      ✓ VISITED
+                    </span>
+                  ) : null}
+
+                  {/* Arrow */}
+                  <span style={{
+                    marginLeft: "auto",
+                    fontSize: "clamp(0.9rem, 2vw, 1.3rem)",
+                    color: active ? link.color : "rgba(82,183,136,0.25)",
+                    flexShrink: 0,
+                  }}>
+                    →
+                  </span>
+                </div>
+              );
+            })}
           </nav>
 
           {/* Footer */}

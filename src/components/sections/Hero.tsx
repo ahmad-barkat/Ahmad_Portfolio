@@ -1,2 +1,2 @@
-// Hero section — to be implemented
-export {};
+// Hero section — re-exports the full HeroSection component
+export { default } from "./HeroSection";

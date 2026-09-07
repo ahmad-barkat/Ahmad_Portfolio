@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
+import { useNavHistory } from "@/hooks/useNavHistory";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -59,6 +60,7 @@ const NAV_ITEMS = [
 
 export default function NavPage() {
   const { transitionTo } = usePageTransition();
+  const { isCurrent, isVisited, pathname, visitedPages } = useNavHistory();
   const pageRef = useRef<HTMLDivElement>(null);
 
   // Section refs
@@ -301,7 +303,9 @@ export default function NavPage() {
           }}
         >
           {NAV_ITEMS.map((item, i) => {
-            const isRight = i % 2 === 0; // 0 (1st) -> right, 1 (2nd) -> left, 2 (3rd) -> right, etc.
+            const isRight = i % 2 === 0;
+            const active = isCurrent(item.href);
+            const visited = isVisited(item.href);
 
             return (
               <div
@@ -313,10 +317,12 @@ export default function NavPage() {
                   marginRight: isRight ? 0 : "auto",
                   width: "clamp(78%, 86vw, 91%)",
                   maxWidth: 1300,
-                  background: "rgba(13, 43, 32, 0.7)",
-                  border: "1.5px solid rgba(82, 183, 136, 0.22)",
-                  borderRight: isRight ? "none" : "1.5px solid rgba(82, 183, 136, 0.22)",
-                  borderLeft: isRight ? "1.5px solid rgba(82, 183, 136, 0.22)" : "none",
+                  background: active ? "rgba(18, 56, 42, 0.85)" : "rgba(13, 43, 32, 0.7)",
+                  border: active
+                    ? `1.5px solid ${item.color}`
+                    : "1.5px solid rgba(82, 183, 136, 0.22)",
+                  borderRight: isRight ? "none" : active ? `1.5px solid ${item.color}` : "1.5px solid rgba(82, 183, 136, 0.22)",
+                  borderLeft: isRight ? (active ? `1.5px solid ${item.color}` : "1.5px solid rgba(82, 183, 136, 0.22)") : "none",
                   borderRadius: isRight ? "24px 0 0 24px" : "0 24px 24px 0",
                   backdropFilter: "blur(16px)",
                   WebkitBackdropFilter: "blur(16px)",
@@ -326,7 +332,9 @@ export default function NavPage() {
                   cursor: "none",
                   overflow: "hidden",
                   position: "relative",
-                  boxShadow: isRight
+                  boxShadow: active
+                    ? `0 0 30px ${item.color}33, ${isRight ? "-10px" : "10px"} 12px 32px rgba(0, 0, 0, 0.45)`
+                    : isRight
                     ? "-10px 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(82, 183, 136, 0.15)"
                     : "10px 12px 32px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(82, 183, 136, 0.15)",
                   willChange: "transform, border-color, box-shadow",
@@ -353,9 +361,10 @@ export default function NavPage() {
                     bottom: 0,
                     left: isRight ? 0 : "auto",
                     right: isRight ? "auto" : 0,
-                    width: 4,
+                    width: active ? 6 : 4,
                     background: item.color,
                     borderRadius: isRight ? "24px 0 0 24px" : "0 24px 24px 0",
+                    boxShadow: active ? `0 0 12px ${item.color}` : "none",
                   }}
                 />
 
@@ -376,8 +385,8 @@ export default function NavPage() {
                         fontFamily: "system-ui, monospace",
                         fontSize: "clamp(0.65rem, 1vw, 0.8rem)",
                         fontWeight: 700,
-                        color: "#52B788",
-                        background: "rgba(82, 183, 136, 0.15)",
+                        color: active ? "#081C15" : "#52B788",
+                        background: active ? item.color : "rgba(82, 183, 136, 0.15)",
                         border: "1px solid rgba(82, 183, 136, 0.3)",
                         padding: "0.3em 0.7em",
                         borderRadius: 6,
@@ -390,24 +399,74 @@ export default function NavPage() {
                     </span>
 
                     <div>
-                      {/* Main Label */}
-                      <span
-                        className="nav-bar-label"
-                        style={{
-                          display: "block",
-                          fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
-                          fontSize: "clamp(1.8rem, 4.5vw, 3.8rem)",
-                          fontWeight: 900,
-                          color: "#F0EDE8",
-                          letterSpacing: "-0.02em",
-                          lineHeight: 1.05,
-                          textTransform: "uppercase",
-                          userSelect: "none",
-                          transition: "color 0.3s",
-                        }}
-                      >
-                        {item.label}
-                      </span>
+                      {/* Title & Status Row */}
+                      <div style={{ display: "flex", alignItems: "center", gap: "0.8rem", flexWrap: "wrap" }}>
+                        <span
+                          className="nav-bar-label"
+                          style={{
+                            display: "block",
+                            fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
+                            fontSize: "clamp(1.8rem, 4.5vw, 3.8rem)",
+                            fontWeight: 900,
+                            color: active ? item.color : "#F0EDE8",
+                            letterSpacing: "-0.02em",
+                            lineHeight: 1.05,
+                            textTransform: "uppercase",
+                            userSelect: "none",
+                            transition: "color 0.3s",
+                          }}
+                        >
+                          {item.label}
+                        </span>
+
+                        {active ? (
+                          <span
+                            style={{
+                              fontFamily: "system-ui, sans-serif",
+                              fontSize: "clamp(0.58rem, 0.9vw, 0.72rem)",
+                              fontWeight: 700,
+                              letterSpacing: "0.12em",
+                              color: "#081C15",
+                              background: item.color,
+                              padding: "0.25em 0.75em",
+                              borderRadius: "999px",
+                              textTransform: "uppercase",
+                              display: "inline-flex",
+                              alignItems: "center",
+                              gap: "0.4em",
+                              boxShadow: `0 0 12px ${item.color}66`,
+                            }}
+                          >
+                            <span
+                              style={{
+                                width: 6,
+                                height: 6,
+                                borderRadius: "50%",
+                                background: "#081C15",
+                                display: "inline-block",
+                              }}
+                            />
+                            CURRENT PAGE
+                          </span>
+                        ) : visited ? (
+                          <span
+                            style={{
+                              fontFamily: "system-ui, sans-serif",
+                              fontSize: "clamp(0.55rem, 0.85vw, 0.68rem)",
+                              fontWeight: 600,
+                              letterSpacing: "0.1em",
+                              color: "rgba(149, 213, 178, 0.9)",
+                              background: "rgba(82, 183, 136, 0.12)",
+                              border: "1px solid rgba(82, 183, 136, 0.25)",
+                              padding: "0.2em 0.65em",
+                              borderRadius: "999px",
+                              textTransform: "uppercase",
+                            }}
+                          >
+                            ✓ VISITED
+                          </span>
+                        ) : null}
+                      </div>
 
                       {/* Sub description */}
                       <span
@@ -430,7 +489,7 @@ export default function NavPage() {
                     className="nav-bar-arrow"
                     style={{
                       fontSize: "clamp(1.2rem, 2.5vw, 2rem)",
-                      color: "rgba(82, 183, 136, 0.4)",
+                      color: active ? item.color : "rgba(82, 183, 136, 0.4)",
                       flexShrink: 0,
                       transition: "color 0.3s, transform 0.3s",
                     }}
