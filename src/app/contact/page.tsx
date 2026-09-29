@@ -6,6 +6,8 @@ import { useGSAP } from "@gsap/react";
 import { useRouter } from "next/navigation";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 import ContactGlobe from "@/components/ui/ContactGlobe";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
+import { CinematicFooter } from "@/components/ui/motion-footer";
 
 
 gsap.registerPlugin(useGSAP);
@@ -15,7 +17,7 @@ const CONTACT_LINKS = [
     label: "Direct Email",
     value: "ahmad.barkat.dev@gmail.com",
     href: "mailto:ahmad.barkat.dev@gmail.com",
-    ariaLabel: "Send direct email to Ahmad Barkat",
+    ariaLabel: "Send direct email to AHMAD Barkat",
   },
   {
     label: "GitHub",
@@ -73,7 +75,7 @@ export default function ContactPage() {
 
   const handleBackClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    transitionTo("/nav", e.currentTarget, "#081C15", "NAV");
+    transitionTo("/", e.currentTarget, "#0B3D91", "NAV");
   };
 
   const handleCopyEmail = async (e: React.MouseEvent) => {
@@ -192,14 +194,15 @@ export default function ContactPage() {
   );
 
   return (
+    <>
     <main
       ref={pageRef}
       style={{
         minHeight: "100vh",
-        background: "#081C15",
+        background: "#0B3D91",
         display: "flex",
         flexDirection: "column",
-        color: "#F0EDE8",
+        color: "#E8F6FF",
         position: "relative",
         overflowX: "hidden",
         width: "100%",
@@ -211,7 +214,7 @@ export default function ContactPage() {
           position: "fixed",
           inset: 0,
           background:
-            "radial-gradient(circle at 85% 60%, rgba(82, 183, 136, 0.08) 0%, transparent 65%)",
+            "radial-gradient(circle at 85% 60%, rgba(59, 167, 242, 0.08) 0%, transparent 65%)",
           pointerEvents: "none",
           zIndex: 0,
         }}
@@ -224,7 +227,7 @@ export default function ContactPage() {
         style={{
           position: "fixed",
           inset: 0,
-          background: "#081C15",
+          background: "#0B3D91",
           zIndex: 200,
           pointerEvents: "none",
           transformOrigin: "top center",
@@ -243,7 +246,7 @@ export default function ContactPage() {
           fontSize: "clamp(5.5rem, 22vw, 19rem)",
           fontWeight: 900,
           fontFamily: "'Arial Black', sans-serif",
-          WebkitTextStroke: "1.5px rgba(82, 183, 136, 0.07)",
+          WebkitTextStroke: "1.5px rgba(59, 167, 242, 0.07)",
           color: "transparent",
           zIndex: 0,
           pointerEvents: "none",
@@ -262,6 +265,8 @@ export default function ContactPage() {
           alignItems: "center",
           justifyContent: "space-between",
           padding: "clamp(1.5rem, 4vh, 2.5rem) clamp(2rem, 5vw, 5rem)",
+          // Sit clear of the docked nav tab
+          paddingTop: "calc(clamp(1.5rem, 4vh, 2.5rem) + var(--nav-dock-clearance))",
           position: "relative",
           zIndex: 10,
           flexWrap: "wrap",
@@ -276,8 +281,8 @@ export default function ContactPage() {
           aria-label="Back to navigation"
           className="group relative overflow-hidden"
           style={{
-            background: "rgba(13, 43, 32, 0.7)",
-            border: "1px solid rgba(82, 183, 136, 0.35)",
+            background: "rgba(15, 74, 163, 0.7)",
+            border: "1px solid rgba(59, 167, 242, 0.35)",
             borderRadius: 8,
             cursor: "pointer",
             fontFamily: "system-ui, sans-serif",
@@ -285,7 +290,7 @@ export default function ContactPage() {
             fontWeight: 700,
             letterSpacing: "0.2em",
             textTransform: "uppercase",
-            color: "#52B788",
+            color: "#3BA7F2",
             display: "inline-flex",
             alignItems: "center",
             gap: "0.6rem",
@@ -295,8 +300,8 @@ export default function ContactPage() {
           }}
           onMouseEnter={(e) => {
             const btn = e.currentTarget;
-            btn.style.borderColor = "#52B788";
-            btn.style.color = "#081C15";
+            btn.style.borderColor = "#3BA7F2";
+            btn.style.color = "#0B3D91";
             const curtain = btn.querySelector(".btn-curtain") as HTMLElement;
             if (curtain) curtain.style.transform = "translateY(0%)";
             const arrow = btn.querySelector(".btn-arrow") as HTMLElement;
@@ -304,8 +309,8 @@ export default function ContactPage() {
           }}
           onMouseLeave={(e) => {
             const btn = e.currentTarget;
-            btn.style.borderColor = "rgba(82, 183, 136, 0.35)";
-            btn.style.color = "#52B788";
+            btn.style.borderColor = "rgba(59, 167, 242, 0.35)";
+            btn.style.color = "#3BA7F2";
             const curtain = btn.querySelector(".btn-curtain") as HTMLElement;
             if (curtain) curtain.style.transform = "translateY(100%)";
             const arrow = btn.querySelector(".btn-arrow") as HTMLElement;
@@ -318,7 +323,7 @@ export default function ContactPage() {
             style={{
               position: "absolute",
               inset: 0,
-              backgroundColor: "#52B788",
+              backgroundColor: "#3BA7F2",
               transform: "translateY(100%)",
               transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
               zIndex: 0,
@@ -357,7 +362,7 @@ export default function ContactPage() {
             fontFamily: "'Arial Black', Arial, sans-serif",
             fontSize: "clamp(0.85rem, 1.8vw, 1.3rem)",
             fontWeight: 900,
-            color: "#74C69D",
+            color: "#5FC7E4",
             letterSpacing: "0.15em",
             textTransform: "uppercase",
             marginRight: "clamp(3.8rem, 5.5vw, 5rem)",
@@ -412,13 +417,13 @@ export default function ContactPage() {
             >
               {/* Each line wrapped in a clip mask so the word slides up from behind */}
               <div style={{ overflow: "hidden", lineHeight: 1.05 }}>
-                <span className="contact-headline-word" style={{ display: "block", color: "#F0EDE8" }}>LET&apos;S BUILD</span>
+                <span className="contact-headline-word" style={{ display: "block", color: "#E8F6FF" }}>LET&apos;S BUILD</span>
               </div>
               <div style={{ overflow: "hidden", lineHeight: 1.05 }}>
-                <span className="contact-headline-word" style={{ display: "block", color: "#52B788" }}>SOMETHING</span>
+                <span className="contact-headline-word" style={{ display: "block", color: "#3BA7F2" }}>SOMETHING</span>
               </div>
               <div style={{ overflow: "hidden", lineHeight: 1.05 }}>
-                <span className="contact-headline-word" style={{ display: "block", color: "#74C69D" }}>REMARKABLE.</span>
+                <span className="contact-headline-word" style={{ display: "block", color: "#5FC7E4" }}>REMARKABLE.</span>
               </div>
             </h2>
 
@@ -428,7 +433,7 @@ export default function ContactPage() {
                 style={{
                   fontFamily: "system-ui, sans-serif",
                   fontSize: "clamp(0.95rem, 1.25vw, 1.1rem)",
-                  color: "rgba(240, 237, 232, 0.88)",
+                  color: "rgba(232, 246, 255, 0.88)",
                   lineHeight: 1.8,
                   margin: 0,
                   maxWidth: "580px",
@@ -448,8 +453,8 @@ export default function ContactPage() {
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              background: "rgba(13, 43, 32, 0.65)",
-              border: "1.5px solid rgba(82, 183, 136, 0.25)",
+              background: "rgba(15, 74, 163, 0.65)",
+              border: "1.5px solid rgba(59, 167, 242, 0.25)",
               borderRadius: 12,
               padding: "1.1rem 1.4rem",
               backdropFilter: "blur(12px)",
@@ -459,12 +464,12 @@ export default function ContactPage() {
               transition: "border-color 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(82, 183, 136, 0.6)";
+              e.currentTarget.style.borderColor = "rgba(59, 167, 242, 0.6)";
               const line = e.currentTarget.querySelector(".email-underline") as HTMLElement;
               if (line) line.style.transform = "scaleX(1)";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(82, 183, 136, 0.25)";
+              e.currentTarget.style.borderColor = "rgba(59, 167, 242, 0.25)";
               const line = e.currentTarget.querySelector(".email-underline") as HTMLElement;
               if (line) line.style.transform = "scaleX(0)";
             }}
@@ -476,7 +481,7 @@ export default function ContactPage() {
                   fontFamily: "system-ui, monospace",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#52B788",
+                  color: "#3BA7F2",
                   letterSpacing: "0.15em",
                   textTransform: "uppercase",
                 }}
@@ -489,7 +494,7 @@ export default function ContactPage() {
                     display: "block",
                     fontFamily: "system-ui, sans-serif",
                     fontSize: "clamp(0.92rem, 1.25vw, 1.05rem)",
-                    color: "#FFFFFF",
+                    color: "#E8F6FF",
                     fontWeight: 600,
                   }}
                 >
@@ -503,7 +508,7 @@ export default function ContactPage() {
                     bottom: -2,
                     width: "100%",
                     height: "1.5px",
-                    backgroundColor: "#52B788",
+                    backgroundColor: "#3BA7F2",
                     transform: "scaleX(0)",
                     transformOrigin: "left center",
                     transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -518,9 +523,9 @@ export default function ContactPage() {
               style={{
                 position: "relative",
                 overflow: "hidden",
-                background: copied ? "#52B788" : "rgba(82, 183, 136, 0.15)",
-                color: copied ? "#081C15" : "#52B788",
-                border: "1px solid rgba(82, 183, 136, 0.35)",
+                background: copied ? "#3BA7F2" : "rgba(59, 167, 242, 0.15)",
+                color: copied ? "#0B3D91" : "#3BA7F2",
+                border: "1px solid rgba(59, 167, 242, 0.35)",
                 borderRadius: 8,
                 padding: "0.55rem 1.1rem",
                 fontFamily: "system-ui, sans-serif",
@@ -533,14 +538,14 @@ export default function ContactPage() {
               }}
               onMouseEnter={(e) => {
                 if (!copied) {
-                  e.currentTarget.style.backgroundColor = "#52B788";
-                  e.currentTarget.style.color = "#081C15";
+                  e.currentTarget.style.backgroundColor = "#3BA7F2";
+                  e.currentTarget.style.color = "#0B3D91";
                 }
               }}
               onMouseLeave={(e) => {
                 if (!copied) {
-                  e.currentTarget.style.backgroundColor = "rgba(82, 183, 136, 0.15)";
-                  e.currentTarget.style.color = "#52B788";
+                  e.currentTarget.style.backgroundColor = "rgba(59, 167, 242, 0.15)";
+                  e.currentTarget.style.color = "#3BA7F2";
                 }
               }}
             >
@@ -555,7 +560,7 @@ export default function ContactPage() {
                 fontFamily: "system-ui, monospace",
                 fontSize: "0.7rem",
                 fontWeight: 700,
-                color: "#74C69D",
+                color: "#5FC7E4",
                 letterSpacing: "0.16em",
                 textTransform: "uppercase",
               }}
@@ -576,8 +581,8 @@ export default function ContactPage() {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  background: "rgba(13, 43, 32, 0.55)",
-                  border: "1.5px solid rgba(82, 183, 136, 0.22)",
+                  background: "rgba(15, 74, 163, 0.55)",
+                  border: "1.5px solid rgba(59, 167, 242, 0.22)",
                   borderRadius: 12,
                   padding: "0.95rem 1.3rem",
                   textDecoration: "none",
@@ -587,8 +592,8 @@ export default function ContactPage() {
                 }}
                 onMouseEnter={(e) => {
                   const card = e.currentTarget;
-                  card.style.borderColor = "rgba(82, 183, 136, 0.7)";
-                  card.style.backgroundColor = "rgba(16, 52, 38, 0.85)";
+                  card.style.borderColor = "rgba(59, 167, 242, 0.7)";
+                  card.style.backgroundColor = "rgba(17, 83, 176, 0.85)";
 
                   const notch = card.querySelector(".channel-notch") as HTMLElement;
                   if (notch) notch.style.transform = "scaleY(1)";
@@ -599,13 +604,13 @@ export default function ContactPage() {
                   const arrow = card.querySelector(".channel-arrow") as HTMLElement;
                   if (arrow) {
                     arrow.style.transform = "translate(3px, -3px)";
-                    arrow.style.color = "#FFFFFF";
+                    arrow.style.color = "#E8F6FF";
                   }
                 }}
                 onMouseLeave={(e) => {
                   const card = e.currentTarget;
-                  card.style.borderColor = "rgba(82, 183, 136, 0.22)";
-                  card.style.backgroundColor = "rgba(13, 43, 32, 0.55)";
+                  card.style.borderColor = "rgba(59, 167, 242, 0.22)";
+                  card.style.backgroundColor = "rgba(15, 74, 163, 0.55)";
 
                   const notch = card.querySelector(".channel-notch") as HTMLElement;
                   if (notch) notch.style.transform = "scaleY(0)";
@@ -616,7 +621,7 @@ export default function ContactPage() {
                   const arrow = card.querySelector(".channel-arrow") as HTMLElement;
                   if (arrow) {
                     arrow.style.transform = "translate(0px, 0px)";
-                    arrow.style.color = "#52B788";
+                    arrow.style.color = "#3BA7F2";
                   }
                 }}
               >
@@ -628,7 +633,7 @@ export default function ContactPage() {
                     top: 0,
                     bottom: 0,
                     width: 3.5,
-                    backgroundColor: "#52B788",
+                    backgroundColor: "#3BA7F2",
                     transform: "scaleY(0)",
                     transformOrigin: "center center",
                     transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
@@ -647,7 +652,7 @@ export default function ContactPage() {
                       fontFamily: "system-ui, sans-serif",
                       fontSize: "0.7rem",
                       fontWeight: 700,
-                      color: "#52B788",
+                      color: "#3BA7F2",
                       letterSpacing: "0.14em",
                       textTransform: "uppercase",
                     }}
@@ -659,7 +664,7 @@ export default function ContactPage() {
                       display: "block",
                       fontFamily: "system-ui, sans-serif",
                       fontSize: "clamp(0.85rem, 1.15vw, 0.98rem)",
-                      color: "#F0EDE8",
+                      color: "#E8F6FF",
                       marginTop: "0.2rem",
                     }}
                   >
@@ -672,7 +677,7 @@ export default function ContactPage() {
                   aria-hidden="true"
                   style={{
                     fontSize: "1.2rem",
-                    color: "#52B788",
+                    color: "#3BA7F2",
                     fontWeight: 700,
                     transition: "transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease",
                   }}
@@ -687,7 +692,7 @@ export default function ContactPage() {
           <div
             style={{
               paddingTop: "0.6rem",
-              borderTop: "1px solid rgba(82, 183, 136, 0.15)",
+              borderTop: "1px solid rgba(59, 167, 242, 0.15)",
               display: "flex",
               alignItems: "center",
               gap: "0.75rem",
@@ -699,7 +704,7 @@ export default function ContactPage() {
                 width: 8,
                 height: 8,
                 borderRadius: "50%",
-                backgroundColor: "#52B788",
+                backgroundColor: "#3BA7F2",
                 display: "inline-block",
               }}
             />
@@ -707,7 +712,7 @@ export default function ContactPage() {
               style={{
                 fontFamily: "system-ui, sans-serif",
                 fontSize: "0.82rem",
-                color: "rgba(240, 237, 232, 0.8)",
+                color: "rgba(232, 246, 255, 0.8)",
               }}
             >
               Based in Lahore, Pakistan &nbsp;•&nbsp; Available for remote projects worldwide
@@ -736,8 +741,8 @@ export default function ContactPage() {
             justifySelf: "end",
             width: "100%",
             maxWidth: "520px",
-            background: "rgba(13, 43, 32, 0.65)",
-            border: "1.5px solid rgba(82, 183, 136, 0.25)",
+            background: "rgba(15, 74, 163, 0.65)",
+            border: "1.5px solid rgba(59, 167, 242, 0.25)",
             borderRadius: 16,
             padding: "clamp(1.6rem, 3.5vw, 2.4rem)",
             backdropFilter: "blur(16px)",
@@ -749,7 +754,7 @@ export default function ContactPage() {
               fontFamily: "'Arial Black', sans-serif",
               fontSize: "clamp(1.2rem, 2.2vw, 1.6rem)",
               fontWeight: 900,
-              color: "#F0EDE8",
+              color: "#E8F6FF",
               margin: "0 0 1.5rem 0",
               textTransform: "uppercase",
               letterSpacing: "0.02em",
@@ -759,6 +764,7 @@ export default function ContactPage() {
           </h3>
 
           <form
+            id="contact-form"
             onSubmit={handleSubmit}
             noValidate
             aria-label="Contact form"
@@ -773,7 +779,7 @@ export default function ContactPage() {
                   fontFamily: "system-ui, monospace",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#74C69D",
+                  color: "#5FC7E4",
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
                   marginBottom: "0.45rem",
@@ -792,25 +798,25 @@ export default function ContactPage() {
                 aria-invalid={!!errors.name}
                 style={{
                   width: "100%",
-                  background: "rgba(8, 28, 21, 0.7)",
-                  border: `1.5px solid ${errors.name ? "#E76F51" : "rgba(82, 183, 136, 0.25)"}`,
+                  background: "rgba(11, 61, 145, 0.7)",
+                  border: `1.5px solid ${errors.name ? "#3BA7F2" : "rgba(59, 167, 242, 0.25)"}`,
                   borderRadius: 10,
                   padding: "0.85rem 1rem",
                   fontFamily: "system-ui, sans-serif",
                   fontSize: "0.94rem",
-                  color: "#F0EDE8",
+                  color: "#E8F6FF",
                   outline: "none",
                   transition: "border-color 0.25s ease, background-color 0.25s ease",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#52B788";
-                  e.currentTarget.style.backgroundColor = "rgba(13, 43, 32, 0.9)";
+                  e.currentTarget.style.borderColor = "#3BA7F2";
+                  e.currentTarget.style.backgroundColor = "rgba(15, 74, 163, 0.9)";
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = errors.name
-                    ? "#E76F51"
-                    : "rgba(82, 183, 136, 0.25)";
-                  e.currentTarget.style.backgroundColor = "rgba(8, 28, 21, 0.7)";
+                    ? "#3BA7F2"
+                    : "rgba(59, 167, 242, 0.25)";
+                  e.currentTarget.style.backgroundColor = "rgba(11, 61, 145, 0.7)";
                 }}
               />
               {errors.name && (
@@ -818,7 +824,7 @@ export default function ContactPage() {
                   style={{
                     fontFamily: "system-ui, sans-serif",
                     fontSize: "0.72rem",
-                    color: "#E76F51",
+                    color: "#3BA7F2",
                     marginTop: "0.35rem",
                   }}
                 >
@@ -836,7 +842,7 @@ export default function ContactPage() {
                   fontFamily: "system-ui, monospace",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#74C69D",
+                  color: "#5FC7E4",
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
                   marginBottom: "0.45rem",
@@ -855,25 +861,25 @@ export default function ContactPage() {
                 aria-invalid={!!errors.email}
                 style={{
                   width: "100%",
-                  background: "rgba(8, 28, 21, 0.7)",
-                  border: `1.5px solid ${errors.email ? "#E76F51" : "rgba(82, 183, 136, 0.25)"}`,
+                  background: "rgba(11, 61, 145, 0.7)",
+                  border: `1.5px solid ${errors.email ? "#3BA7F2" : "rgba(59, 167, 242, 0.25)"}`,
                   borderRadius: 10,
                   padding: "0.85rem 1rem",
                   fontFamily: "system-ui, sans-serif",
                   fontSize: "0.94rem",
-                  color: "#F0EDE8",
+                  color: "#E8F6FF",
                   outline: "none",
                   transition: "border-color 0.25s ease, background-color 0.25s ease",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#52B788";
-                  e.currentTarget.style.backgroundColor = "rgba(13, 43, 32, 0.9)";
+                  e.currentTarget.style.borderColor = "#3BA7F2";
+                  e.currentTarget.style.backgroundColor = "rgba(15, 74, 163, 0.9)";
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = errors.email
-                    ? "#E76F51"
-                    : "rgba(82, 183, 136, 0.25)";
-                  e.currentTarget.style.backgroundColor = "rgba(8, 28, 21, 0.7)";
+                    ? "#3BA7F2"
+                    : "rgba(59, 167, 242, 0.25)";
+                  e.currentTarget.style.backgroundColor = "rgba(11, 61, 145, 0.7)";
                 }}
               />
               {errors.email && (
@@ -881,7 +887,7 @@ export default function ContactPage() {
                   style={{
                     fontFamily: "system-ui, sans-serif",
                     fontSize: "0.72rem",
-                    color: "#E76F51",
+                    color: "#3BA7F2",
                     marginTop: "0.35rem",
                   }}
                 >
@@ -899,7 +905,7 @@ export default function ContactPage() {
                   fontFamily: "system-ui, monospace",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#74C69D",
+                  color: "#5FC7E4",
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
                   marginBottom: "0.45rem",
@@ -914,37 +920,37 @@ export default function ContactPage() {
                 onChange={handleChange}
                 style={{
                   width: "100%",
-                  background: "#081C15",
-                  border: "1.5px solid rgba(82, 183, 136, 0.25)",
+                  background: "#0B3D91",
+                  border: "1.5px solid rgba(59, 167, 242, 0.25)",
                   borderRadius: 10,
                   padding: "0.85rem 1rem",
                   fontFamily: "system-ui, sans-serif",
                   fontSize: "0.94rem",
-                  color: "#F0EDE8",
+                  color: "#E8F6FF",
                   outline: "none",
                   cursor: "pointer",
                   transition: "border-color 0.25s ease",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#52B788";
+                  e.currentTarget.style.borderColor = "#3BA7F2";
                 }}
                 onBlur={(e) => {
-                  e.currentTarget.style.borderColor = "rgba(82, 183, 136, 0.25)";
+                  e.currentTarget.style.borderColor = "rgba(59, 167, 242, 0.25)";
                 }}
               >
-                <option value="" style={{ background: "#081C15", color: "#F0EDE8" }}>
+                <option value="" style={{ background: "#0B3D91", color: "#E8F6FF" }}>
                   General Inquiry / Say Hello
                 </option>
-                <option value="Web Application" style={{ background: "#081C15", color: "#F0EDE8" }}>
+                <option value="Web Application" style={{ background: "#0B3D91", color: "#E8F6FF" }}>
                   Web Application Development
                 </option>
-                <option value="Creative Frontend" style={{ background: "#081C15", color: "#F0EDE8" }}>
+                <option value="Creative Frontend" style={{ background: "#0B3D91", color: "#E8F6FF" }}>
                   Creative Frontend & Interactive Experience
                 </option>
-                <option value="Architecture & Consulting" style={{ background: "#081C15", color: "#F0EDE8" }}>
+                <option value="Architecture & Consulting" style={{ background: "#0B3D91", color: "#E8F6FF" }}>
                   UI Architecture & Technical Consulting
                 </option>
-                <option value="Full-Time / Contract" style={{ background: "#081C15", color: "#F0EDE8" }}>
+                <option value="Full-Time / Contract" style={{ background: "#0B3D91", color: "#E8F6FF" }}>
                   Full-Time or Contract Opportunity
                 </option>
               </select>
@@ -959,7 +965,7 @@ export default function ContactPage() {
                   fontFamily: "system-ui, monospace",
                   fontSize: "0.7rem",
                   fontWeight: 700,
-                  color: "#74C69D",
+                  color: "#5FC7E4",
                   letterSpacing: "0.16em",
                   textTransform: "uppercase",
                   marginBottom: "0.45rem",
@@ -977,28 +983,28 @@ export default function ContactPage() {
                 aria-invalid={!!errors.message}
                 style={{
                   width: "100%",
-                  background: "rgba(8, 28, 21, 0.7)",
-                  border: `1.5px solid ${errors.message ? "#E76F51" : "rgba(82, 183, 136, 0.25)"}`,
+                  background: "rgba(11, 61, 145, 0.7)",
+                  border: `1.5px solid ${errors.message ? "#3BA7F2" : "rgba(59, 167, 242, 0.25)"}`,
                   borderRadius: 10,
                   padding: "0.85rem 1rem",
                   fontFamily: "system-ui, sans-serif",
                   fontSize: "0.94rem",
                   lineHeight: 1.6,
-                  color: "#F0EDE8",
+                  color: "#E8F6FF",
                   outline: "none",
                   resize: "vertical",
                   minHeight: "120px",
                   transition: "border-color 0.25s ease, background-color 0.25s ease",
                 }}
                 onFocus={(e) => {
-                  e.currentTarget.style.borderColor = "#52B788";
-                  e.currentTarget.style.backgroundColor = "rgba(13, 43, 32, 0.9)";
+                  e.currentTarget.style.borderColor = "#3BA7F2";
+                  e.currentTarget.style.backgroundColor = "rgba(15, 74, 163, 0.9)";
                 }}
                 onBlur={(e) => {
                   e.currentTarget.style.borderColor = errors.message
-                    ? "#E76F51"
-                    : "rgba(82, 183, 136, 0.25)";
-                  e.currentTarget.style.backgroundColor = "rgba(8, 28, 21, 0.7)";
+                    ? "#3BA7F2"
+                    : "rgba(59, 167, 242, 0.25)";
+                  e.currentTarget.style.backgroundColor = "rgba(11, 61, 145, 0.7)";
                 }}
               />
               {errors.message && (
@@ -1006,7 +1012,7 @@ export default function ContactPage() {
                   style={{
                     fontFamily: "system-ui, sans-serif",
                     fontSize: "0.72rem",
-                    color: "#E76F51",
+                    color: "#3BA7F2",
                     marginTop: "0.35rem",
                   }}
                 >
@@ -1022,9 +1028,9 @@ export default function ContactPage() {
               style={{
                 position: "relative",
                 overflow: "hidden",
-                background: submitting ? "rgba(82, 183, 136, 0.5)" : "#52B788",
-                color: "#081C15",
-                border: "1px solid #52B788",
+                background: submitting ? "rgba(59, 167, 242, 0.5)" : "#3BA7F2",
+                color: "#0B3D91",
+                border: "1px solid #3BA7F2",
                 borderRadius: 10,
                 fontFamily: "system-ui, sans-serif",
                 fontSize: "clamp(0.82rem, 1.2vw, 0.92rem)",
@@ -1043,7 +1049,7 @@ export default function ContactPage() {
               onMouseEnter={(e) => {
                 if (!submitting) {
                   const btn = e.currentTarget;
-                  btn.style.color = "#FFFFFF";
+                  btn.style.color = "#E8F6FF";
                   const curtain = btn.querySelector(".submit-curtain") as HTMLElement;
                   if (curtain) curtain.style.transform = "translateY(0%)";
                   const arrow = btn.querySelector(".submit-arrow") as HTMLElement;
@@ -1053,7 +1059,7 @@ export default function ContactPage() {
               onMouseLeave={(e) => {
                 if (!submitting) {
                   const btn = e.currentTarget;
-                  btn.style.color = "#081C15";
+                  btn.style.color = "#0B3D91";
                   const curtain = btn.querySelector(".submit-curtain") as HTMLElement;
                   if (curtain) curtain.style.transform = "translateY(100%)";
                   const arrow = btn.querySelector(".submit-arrow") as HTMLElement;
@@ -1066,7 +1072,7 @@ export default function ContactPage() {
                 style={{
                   position: "absolute",
                   inset: 0,
-                  backgroundColor: "#0D2B20",
+                  backgroundColor: "#0F4AA3",
                   transform: "translateY(100%)",
                   transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
                   zIndex: 0,
@@ -1095,82 +1101,14 @@ export default function ContactPage() {
           </form>
         </div>
       </div>
-
-      {/* Footer with Editorial Underline Hover */}
-      <footer
-        style={{
-          position: "relative",
-          zIndex: 10,
-          borderTop: "1px solid rgba(82, 183, 136, 0.12)",
-          padding: "1.2rem clamp(2rem, 5vw, 5rem)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "0.8rem",
-          width: "100%",
-        }}
-      >
-        <span
-          style={{
-            fontFamily: "system-ui, sans-serif",
-            fontSize: "0.72rem",
-            color: "rgba(240, 237, 232, 0.45)",
-            letterSpacing: "0.04em",
-          }}
-        >
-          © {new Date().getFullYear()} Muhammad Ahmad Barkat
-        </span>
-
-        <div style={{ display: "flex", gap: "1.6rem" }}>
-          {[
-            { label: "Privacy Policy", href: "/privacy" },
-            { label: "Terms of Service", href: "/terms" },
-          ].map(({ label, href }) => (
-            <a
-              key={href}
-              href={href}
-              style={{
-                position: "relative",
-                fontFamily: "system-ui, sans-serif",
-                fontSize: "0.72rem",
-                color: "rgba(82, 183, 136, 0.75)",
-                textDecoration: "none",
-                letterSpacing: "0.06em",
-                transition: "color 0.25s ease",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.color = "#52B788";
-                const line = e.currentTarget.querySelector(".footer-line") as HTMLElement;
-                if (line) line.style.transform = "scaleX(1)";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.color = "rgba(82, 183, 136, 0.75)";
-                const line = e.currentTarget.querySelector(".footer-line") as HTMLElement;
-                if (line) line.style.transform = "scaleX(0)";
-              }}
-            >
-              {label}
-              <span
-                className="footer-line"
-                style={{
-                  position: "absolute",
-                  left: 0,
-                  bottom: -1,
-                  width: "100%",
-                  height: "1px",
-                  backgroundColor: "#52B788",
-                  transform: "scaleX(0)",
-                  transformOrigin: "left center",
-                  transition: "transform 0.25s cubic-bezier(0.16, 1, 0.3, 1)",
-                }}
-              />
-            </a>
-          ))}
-        </div>
-      </footer>
       </div>
     </main>
+
+    {/* Testimonials // client words drifting up in columns */}
+    <TestimonialsSection background="#0B3D91" />
+
+    {/* Footer // curtain reveal with the closing call to action */}
+    <CinematicFooter />
+    </>
   );
 }
-

@@ -1,22 +1,30 @@
 import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "@/components/ui/LenisProvider";
 import TransitionProvider from "@/components/ui/TransitionProvider";
-import HamburgerMenu from "@/components/ui/HamburgerMenu";
+import Navbar from "@/components/ui/Navbar";
 import Analytics from "@/components/ui/Analytics";
+import GlobalPreloader from "@/components/ui/GlobalPreloader";
+import AnimationGovernor from "@/components/ui/AnimationGovernor";
 
 const BASE_URL = "https://ahmadbarkat.dev";
+
+// The site's type: Geist for text and headings, Geist Mono for labels and
+// numbers. Self-hosted by next/font, exposed as --font-sans / --font-mono.
+const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Muhammad Ahmad Barkat | Software Engineer & UI Architect",
-    template: "%s | Ahmad Barkat",
+    default: "AHMAD Barkat | Software Engineer & UI Architect",
+    template: "%s | AHMAD Barkat",
   },
   description:
-    "Portfolio of Muhammad Ahmad Barkat — a Software Engineer specialising in interactive web experiences, creative UI architecture, and high-performance applications.",
+    "Portfolio of AHMAD Barkat — a Software Engineer specialising in interactive web experiences, creative UI architecture, and high-performance applications.",
   keywords: [
-    "Muhammad Ahmad Barkat",
+    "AHMAD Barkat",
     "Software Engineer",
     "Frontend Developer",
     "UI Architect",
@@ -26,8 +34,8 @@ export const metadata: Metadata = {
     "GSAP Animations",
     "Pakistan Developer",
   ],
-  authors: [{ name: "Muhammad Ahmad Barkat", url: BASE_URL }],
-  creator: "Muhammad Ahmad Barkat",
+  authors: [{ name: "AHMAD Barkat", url: BASE_URL }],
+  creator: "AHMAD Barkat",
   robots: {
     index: true,
     follow: true,
@@ -38,15 +46,15 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_US",
     url: BASE_URL,
-    siteName: "Ahmad Barkat Portfolio",
-    title: "Muhammad Ahmad Barkat | Software Engineer & UI Architect",
+    siteName: "AHMAD Barkat Portfolio",
+    title: "AHMAD Barkat | Software Engineer & UI Architect",
     description:
-      "Explore the portfolio of Ahmad Barkat — creative software engineering, interactive experiences, and premium digital craftsmanship.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Ahmad Barkat Portfolio — Software Engineer" }],
+      "Explore the portfolio of AHMAD Barkat — creative software engineering, interactive experiences, and premium digital craftsmanship.",
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "AHMAD Barkat Portfolio — Software Engineer" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Muhammad Ahmad Barkat | Software Engineer",
+    title: "AHMAD Barkat | Software Engineer",
     description: "Software Engineer & UI Architect building interactive web experiences.",
     images: ["/opengraph-image"],
   },
@@ -58,16 +66,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`dark ${sans.variable} ${mono.variable}`}>
       <body
         suppressHydrationWarning
         className="font-sans"
-        style={{ margin: 0, padding: 0, backgroundColor: "#081C15" }}
+        style={{ margin: 0, padding: 0 }}
       >
         <LenisProvider>
           <TransitionProvider>
             <Analytics />
-            <HamburgerMenu />
+            <AnimationGovernor />
+            <GlobalPreloader />
+            <Navbar />
             {children}
           </TransitionProvider>
         </LenisProvider>

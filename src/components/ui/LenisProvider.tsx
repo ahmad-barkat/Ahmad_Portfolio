@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, createContext, useContext, ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import Lenis from "lenis";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -17,6 +18,7 @@ export function useLenis() {
 
 export default function LenisProvider({ children }: { children: ReactNode }) {
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
+  const pathname = usePathname();
 
   useEffect(() => {
     const lenis = new Lenis({
@@ -24,13 +26,15 @@ export default function LenisProvider({ children }: { children: ReactNode }) {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       wheelMultiplier: 1,
-      touchMultiplier: 2,
+      touchMultiplier: 1.8,
     });
 
     setLenisInstance(lenis);
 
-    // Sync Lenis with GSAP ScrollTrigger
-    lenis.on("scroll", ScrollTrigger.update);
+    // Sync Lenis scroll events with GSAP ScrollTrigger
+    lenis.on("scroll", () => {
+      ScrollTrigger.update();
+    });
 
     const gsapTicker = (time: number) => {
       lenis.raf(time * 1000);
@@ -44,6 +48,14 @@ export default function LenisProvider({ children }: { children: ReactNode }) {
       gsap.ticker.remove(gsapTicker);
     };
   }, []);
+
+  // Reset Lenis scroll to top on route change
+  useEffect(() => {
+    if (lenisInstance) {
+      lenisInstance.scrollTo(0, { immediate: true });
+      ScrollTrigger.refresh();
+    }
+  }, [pathname, lenisInstance]);
 
   return (
     <LenisContext.Provider value={lenisInstance}>

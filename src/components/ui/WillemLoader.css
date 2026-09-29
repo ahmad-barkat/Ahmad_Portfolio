@@ -1,0 +1,284 @@
+/* Willem Loader CSS - Exact Webflow reproduction */
+
+.willem-header {
+  position: fixed;
+  inset: 0;
+  z-index: 9999999;
+  width: 100vw;
+  height: 100dvh;
+  background-color: #E8F6FF;
+  color: #E8F6FF;
+  overflow: hidden;
+  pointer-events: auto;
+}
+
+.willem-header.is--hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.willem-loader {
+  color: #0B3D91;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.willem__h1 {
+  white-space: nowrap;
+  justify-content: center;
+  align-items: center;
+  /* One word now, so it can run larger; the whole line (name + open window) still
+     fits a 360px phone. */
+  font-size: clamp(3.25rem, 11vw + 1rem, 12rem);
+  font-weight: 700;
+  line-height: .85;
+  display: flex;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.03em;
+}
+
+/* The word is cut through the M, so the inner edges must meet with no padding;
+   the outer edges keep a little room for glyph overshoot. */
+.willem__h1-start {
+  justify-content: flex-end;
+  width: auto;
+  display: flex;
+  overflow: hidden;
+  padding-left: 0.05em;
+}
+
+.willem__h1-end {
+  justify-content: flex-start;
+  width: auto;
+  display: flex;
+  overflow: hidden;
+  padding-right: 0.05em;
+}
+
+/* Half of the M. Both halves hold the full glyph; the start side shows its left half,
+   the end side slides its copy back by half a glyph to show the right half.
+   --willem-m-half is measured in WillemLoader.tsx. */
+.willem__letter.willem__half {
+  display: flex;
+  flex-shrink: 0;
+  width: var(--willem-m-half, 0.42em);
+  overflow: hidden;
+}
+
+.willem__half--end {
+  /* Stands in for the tracking the whole M would have carried */
+  margin-right: -0.03em;
+}
+
+.willem__half-glyph {
+  display: block;
+  flex-shrink: 0;
+  width: max-content;
+  letter-spacing: 0;
+}
+
+.willem__half--end .willem__half-glyph {
+  margin-left: calc(var(--willem-m-half, 0.42em) * -1);
+}
+
+.willem__letter {
+  display: block;
+  position: relative;
+}
+
+.willem__letter-white {
+  display: block;
+  position: relative;
+}
+
+.willem__letter-white.is--space {
+  margin-left: .25em;
+}
+
+.willem-loader__box {
+  flex-flow: column;
+  justify-content: center;
+  align-items: center;
+  width: 0;
+  /* Everything inside is absolutely positioned, so without this the box collapses to
+     zero height and the inline window is invisible until it is blown up fullscreen.
+     Stretching it to the heading's line box gives the small window its letter height. */
+  align-self: stretch;
+  display: flex;
+  position: relative;
+}
+
+.willem-loader__box-inner {
+  justify-content: center;
+  align-items: center;
+  /* Width of the inline window. The box is tweened open to whatever this measures,
+     so this rule alone controls how wide the gap between the syllables becomes. */
+  min-width: 1.5em;
+  height: 95%;
+  display: flex;
+  position: relative;
+}
+
+.willem__growing-image {
+  justify-content: center;
+  align-items: center;
+  width: 0%;
+  height: 100%;
+  display: flex;
+  position: absolute;
+  overflow: hidden;
+}
+
+.willem__growing-image-wrap {
+  width: 100%;
+  min-width: 1em;
+  height: 100%;
+  position: absolute;
+}
+
+/* The base still is frame 1 of the baked laptop sequence, so it takes the same hue
+   shift as the canvas — otherwise the hand-off jumps from green to blue. */
+.willem__cover-image--laptop {
+  filter: hue-rotate(var(--laptop-hue-shift));
+}
+
+.willem__cover-image {
+  pointer-events: none;
+  object-fit: cover;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.willem__cover-image-extra {
+  pointer-events: none;
+  object-fit: cover;
+  /* Default framing; each cover can override it (and zoom) inline. */
+  object-position: 50% 25%;
+  -webkit-user-select: none;
+  user-select: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* Base layer when the loader opens onto a page instead of a still image.
+   The inner panel keeps full viewport dimensions while the wrapper grows,
+   so the page is unveiled through a widening window rather than stretched. */
+.willem__finale {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.willem__finale-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
+  will-change: transform;
+}
+
+.willem-header__content {
+  flex-flow: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  min-height: 100dvh;
+  padding: 3em;
+  display: flex;
+  position: relative;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.willem-header__top {
+  width: 100%;
+  position: relative;
+}
+
+.willem-header__bottom {
+  justify-content: flex-start;
+  align-items: flex-end;
+  width: 100%;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.willen-nav {
+  display: flex;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.willem-nav__start {
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 50%;
+  display: flex;
+}
+
+.willem-nav__end {
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 50%;
+  display: flex;
+}
+
+.willem-nav__cta {
+  display: flex;
+}
+
+.willem-nav__links {
+  grid-column-gap: .5em;
+  grid-row-gap: .5em;
+  display: flex;
+}
+
+.willem-nav__link {
+  color: inherit;
+  font-size: 1.3125em;
+  line-height: 1.3;
+  text-decoration: none;
+  position: relative;
+}
+
+@media screen and (max-width: 991px) {
+  .willem-nav__links {
+    grid-column-gap: 0em;
+    grid-row-gap: 0em;
+    flex-flow: column;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .willem-nav__start {
+    width: 65%;
+  }
+
+  .willem-nav__end {
+    grid-column-gap: 1.5em;
+    grid-row-gap: 1.5em;
+    flex-flow: column;
+    width: 45%;
+  }
+}

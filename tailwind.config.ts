@@ -16,9 +16,9 @@ const config: Config = {
         serif:   ["Georgia", "Times New Roman", "serif"],
       },
       colors: {
-        "hero-bg":  "#0B0B0B",
-        "hero-red": "#E50914",
-        "hero-off": "#E5E5E5",
+        "hero-bg":  "#03102A",
+        "hero-red": "#3BA7F2",
+        "hero-off": "#E8F6FF",
       },
     },
   },

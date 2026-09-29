@@ -4,6 +4,8 @@ import { useRef } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
+import { CinematicFooter } from "@/components/ui/motion-footer";
 
 gsap.registerPlugin(useGSAP);
 
@@ -30,18 +32,20 @@ export default function ThankYouPage() {
   }, { scope: pageRef });
 
   return (
+    <>
+    {/* A full-screen panel in the flow, so the footer can follow it */}
     <main
       ref={pageRef}
       style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "#081C15",
+        position: "relative",
+        height: "100svh",
+        backgroundColor: "#0B3D91",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         overflow: "hidden",
-        color: "#F0EDE8",
+        color: "#E8F6FF",
         zIndex: 999,
       }}
     >
@@ -50,7 +54,7 @@ export default function ThankYouPage() {
         style={{
           position: "absolute",
           inset: 0,
-          background: "radial-gradient(circle at 50% 50%, rgba(82, 183, 136, 0.12) 0%, transparent 65%)",
+          background: "radial-gradient(circle at 50% 50%, rgba(59, 167, 242, 0.12) 0%, transparent 65%)",
           pointerEvents: "none",
         }}
       />
@@ -66,7 +70,7 @@ export default function ThankYouPage() {
           fontSize: "clamp(5rem, 20vw, 18rem)",
           fontWeight: 900,
           fontFamily: "'Arial Black', sans-serif",
-          WebkitTextStroke: "1.5px rgba(82, 183, 136, 0.08)",
+          WebkitTextStroke: "1.5px rgba(59, 167, 242, 0.08)",
           color: "transparent",
           pointerEvents: "none",
           userSelect: "none",
@@ -86,9 +90,9 @@ export default function ThankYouPage() {
             fontFamily: "system-ui, monospace",
             fontSize: "clamp(0.68rem, 1.2vw, 0.8rem)",
             fontWeight: 700,
-            color: "#52B788",
-            background: "rgba(82, 183, 136, 0.15)",
-            border: "1px solid rgba(82, 183, 136, 0.3)",
+            color: "#3BA7F2",
+            background: "rgba(59, 167, 242, 0.15)",
+            border: "1px solid rgba(59, 167, 242, 0.3)",
             padding: "0.3em 0.8em",
             borderRadius: 6,
             letterSpacing: "0.2em",
@@ -105,7 +109,7 @@ export default function ThankYouPage() {
             fontFamily: "'Arial Black', sans-serif",
             fontSize: "clamp(2rem, 5.5vw, 4.5rem)",
             fontWeight: 900,
-            color: "#F0EDE8",
+            color: "#E8F6FF",
             margin: "0 0 0.8rem 0",
             letterSpacing: "-0.02em",
             textTransform: "uppercase",
@@ -119,7 +123,7 @@ export default function ThankYouPage() {
           style={{
             fontFamily: "system-ui, sans-serif",
             fontSize: "clamp(0.85rem, 1.4vw, 1.05rem)",
-            color: "rgba(240, 237, 232, 0.75)",
+            color: "rgba(232, 246, 255, 0.75)",
             maxWidth: "480px",
             margin: "0 auto 2rem auto",
             lineHeight: 1.6,
@@ -140,10 +144,10 @@ export default function ThankYouPage() {
           }}
         >
           <button
-            onClick={(e) => transitionTo("/", e.currentTarget, "#081C15", "HOME")}
+            onClick={(e) => transitionTo("/home", e.currentTarget, "#0B3D91", "HOME")}
             style={{
-              background: "#52B788",
-              color: "#081C15",
+              background: "#3BA7F2",
+              color: "#0B3D91",
               border: "none",
               borderRadius: 8,
               fontFamily: "system-ui, sans-serif",
@@ -162,11 +166,11 @@ export default function ThankYouPage() {
           </button>
 
           <button
-            onClick={(e) => transitionTo("/projects", e.currentTarget, "#081C15", "PROJECTS")}
+            onClick={(e) => transitionTo("/projects", e.currentTarget, "#0B3D91", "PROJECTS")}
             style={{
-              background: "rgba(13, 43, 32, 0.7)",
-              color: "#52B788",
-              border: "1px solid rgba(82, 183, 136, 0.3)",
+              background: "rgba(15, 74, 163, 0.7)",
+              color: "#3BA7F2",
+              border: "1px solid rgba(59, 167, 242, 0.3)",
               borderRadius: 8,
               fontFamily: "system-ui, sans-serif",
               fontSize: "clamp(0.75rem, 1.2vw, 0.88rem)",
@@ -179,12 +183,12 @@ export default function ThankYouPage() {
               transition: "border-color 0.25s ease, color 0.25s ease",
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.borderColor = "rgba(82, 183, 136, 0.7)";
-              e.currentTarget.style.color = "#F0EDE8";
+              e.currentTarget.style.borderColor = "rgba(59, 167, 242, 0.7)";
+              e.currentTarget.style.color = "#E8F6FF";
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.borderColor = "rgba(82, 183, 136, 0.3)";
-              e.currentTarget.style.color = "#52B788";
+              e.currentTarget.style.borderColor = "rgba(59, 167, 242, 0.3)";
+              e.currentTarget.style.color = "#3BA7F2";
             }}
           >
             EXPLORE PROJECTS
@@ -192,5 +196,12 @@ export default function ThankYouPage() {
         </div>
       </div>
     </main>
+
+    {/* Testimonials // client words drifting up in columns */}
+    <TestimonialsSection background="#0B3D91" />
+
+    {/* Footer // curtain reveal with the closing call to action */}
+    <CinematicFooter />
+    </>
   );
 }

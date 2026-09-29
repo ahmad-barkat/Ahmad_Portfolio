@@ -7,17 +7,17 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const LINES = [
-  { id: "l1", text: "I didn't start with a plan.", color: "#B7E4C7", size: "clamp(2rem, 5vw, 4rem)" },
-  { id: "l2", text: "I started with a question:", color: "#B7E4C7", size: "clamp(2rem, 5vw, 4rem)" },
-  { id: "l3", text: "What if I could build this?", color: "#D8F3DC", size: "clamp(2.5rem, 6vw, 5rem)" },
-  { id: "l4", text: "I didn't have all the answers.", color: "#95D5B2", size: "clamp(1.5rem, 4vw, 3rem)" },
-  { id: "l5", text: "I just kept experimenting, breaking things,\nand starting again.", color: "#95D5B2", size: "clamp(1.5rem, 4vw, 3rem)" },
-  { id: "l6", text: "The first website I broke.", color: "#74C69D", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
-  { id: "l7", text: "The tutorial I replayed ten times.", color: "#74C69D", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
-  { id: "l7a", text: "The project I almost gave up on.", color: "#74C69D", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
-  { id: "l7b", text: "The night everything finally clicked.", color: "#74C69D", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
-  { id: "l8", text: "Every late night brought me a little closer\nto the developer I am today.", color: "#74C69D", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
-  { id: "l9", text: "This is where my story Begins.", color: "#52B788", size: "clamp(2.5rem, 6vw, 5rem)" },
+  { id: "l1", text: "I didn't start with a plan.", color: "#A5EEE2", size: "clamp(2rem, 5vw, 4rem)" },
+  { id: "l2", text: "I started with a question:", color: "#A5EEE2", size: "clamp(2rem, 5vw, 4rem)" },
+  { id: "l3", text: "What if I could build this?", color: "#E8F6FF", size: "clamp(2.5rem, 6vw, 5rem)" },
+  { id: "l4", text: "I didn't have all the answers.", color: "#7FE7D6", size: "clamp(1.5rem, 4vw, 3rem)" },
+  { id: "l5", text: "I just kept experimenting, breaking things,\nand starting again.", color: "#7FE7D6", size: "clamp(1.5rem, 4vw, 3rem)" },
+  { id: "l6", text: "The first website I broke.", color: "#5FC7E4", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
+  { id: "l7", text: "The tutorial I replayed ten times.", color: "#5FC7E4", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
+  { id: "l7a", text: "The project I almost gave up on.", color: "#5FC7E4", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
+  { id: "l7b", text: "The night everything finally clicked.", color: "#5FC7E4", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
+  { id: "l8", text: "Every late night brought me a little closer\nto the developer I am today.", color: "#5FC7E4", size: "clamp(1.8rem, 4.5vw, 3.5rem)" },
+  { id: "l9", text: "This is where my story Begins.", color: "#3BA7F2", size: "clamp(2.5rem, 6vw, 5rem)" },
 ];
 
 const N = LINES.length;
@@ -260,18 +260,18 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
           alignItems: "center",
           gap: "0.5em",
           padding: "0.45em 0.9em 0.45em 0.75em",
-          background: "rgba(8, 28, 21, 0.82)",
-          border: "1px solid rgba(82, 183, 136, 0.35)",
+          background: "rgba(11, 61, 145, 0.82)",
+          border: "1px solid rgba(59, 167, 242, 0.35)",
           borderRadius: "100px",
           backdropFilter: "blur(12px)",
           WebkitBackdropFilter: "blur(12px)",
-          boxShadow: "0 4px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(82,183,136,0.08)",
+          boxShadow: "0 4px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(59, 167, 242,0.08)",
           whiteSpace: "nowrap",
         }}>
           <span style={{
             fontFamily: "monospace",
             fontSize: "0.62rem",
-            color: "#95D5B2",
+            color: "#7FE7D6",
             letterSpacing: "0.18em",
             textTransform: "uppercase",
           }}>
@@ -282,7 +282,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
             width="12" height="10" viewBox="0 0 12 10" fill="none"
             style={{ flexShrink: 0, animation: "storyChevron 1.2s ease-in-out infinite" }}
           >
-            <path d="M1 5h10M7 1l4 4-4 4" stroke="#52B788" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M1 5h10M7 1l4 4-4 4" stroke="#3BA7F2" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       </div>
@@ -293,7 +293,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
         style={{
           position: "relative",
           height: `${SECTION_VH * 100}vh`,
-          backgroundColor: "#081C15",
+          backgroundColor: "#0B3D91",
         }}
       >
         {/* CSS sticky panel */}
@@ -310,14 +310,14 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
           {/* Ambient glow */}
           <div style={{
             position: "absolute", inset: 0, pointerEvents: "none",
-            background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(27,67,50,0.45) 0%, transparent 70%)",
+            background: "radial-gradient(ellipse 70% 50% at 50% 50%, rgba(22, 95, 196,0.45) 0%, transparent 70%)",
           }} />
 
           {/* Top hairline */}
           <div style={{
             position: "absolute", top: 0, left: "8%", right: "8%",
             height: "1px",
-            background: "linear-gradient(to right, transparent, #1B4332, transparent)",
+            background: "linear-gradient(to right, transparent, #165FC4, transparent)",
           }} />
 
           {/* All lines stacked in the center */}
@@ -356,7 +356,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
             left: "clamp(1.5rem, 4vw, 3rem)",
             fontFamily: "monospace",
             fontSize: "clamp(0.55rem, 1.2vw, 0.7rem)",
-            color: "#2D6A4F",
+            color: "#2078D8",
             letterSpacing: "0.2em",
             zIndex: 5,
             textTransform: "uppercase" as const,
@@ -382,9 +382,9 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
               fontWeight: 600,
               letterSpacing: "0.15em",
               textTransform: "uppercase" as const,
-              color: "#B7E4C7",
-              backgroundColor: "rgba(27, 67, 50, 0.45)",
-              border: "1px solid rgba(82, 183, 136, 0.4)",
+              color: "#A5EEE2",
+              backgroundColor: "rgba(22, 95, 196, 0.45)",
+              border: "1px solid rgba(59, 167, 242, 0.4)",
               borderRadius: "100px",
               backdropFilter: "blur(12px)",
               cursor: "pointer",
@@ -394,15 +394,15 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
             }}
             onMouseEnter={e => {
               const b = e.currentTarget;
-              b.style.backgroundColor = "rgba(82, 183, 136, 0.25)";
-              b.style.borderColor = "rgba(82, 183, 136, 0.7)";
-              b.style.color = "#D8F3DC";
+              b.style.backgroundColor = "rgba(59, 167, 242, 0.25)";
+              b.style.borderColor = "rgba(59, 167, 242, 0.7)";
+              b.style.color = "#E8F6FF";
             }}
             onMouseLeave={e => {
               const b = e.currentTarget;
-              b.style.backgroundColor = "rgba(27, 67, 50, 0.45)";
-              b.style.borderColor = "rgba(82, 183, 136, 0.4)";
-              b.style.color = "#B7E4C7";
+              b.style.backgroundColor = "rgba(22, 95, 196, 0.45)";
+              b.style.borderColor = "rgba(59, 167, 242, 0.4)";
+              b.style.color = "#A5EEE2";
             }}
           >
             Skip to Nav →
@@ -425,14 +425,14 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
             <span style={{
               fontFamily: "monospace",
               fontSize: "0.6rem",
-              color: "#40916C",
+              color: "#2E93E8",
               letterSpacing: "0.2em",
               textTransform: "uppercase" as const,
             }}>
               scroll
             </span>
             <svg width="14" height="20" viewBox="0 0 14 20" fill="none" aria-hidden="true">
-              <path d="M7 3 L7 17 M3 13 L7 17 L11 13" stroke="#40916C" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M7 3 L7 17 M3 13 L7 17 L11 13" stroke="#2E93E8" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </div>
 
@@ -466,18 +466,17 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                 <circle
                   cx="50" cy="50" r="44"
                   fill="none"
-                  stroke="rgba(27,67,50,0.5)"
+                  stroke="rgba(22, 95, 196,0.5)"
                   strokeWidth="3"
                 />
                 <circle
                   ref={pullArcRef}
                   cx="50" cy="50" r="44"
                   fill="none"
-                  stroke="#52B788"
+                  stroke="#3BA7F2"
                   strokeWidth="3"
                   strokeLinecap="round"
                   style={{
-                    filter: "drop-shadow(0 0 6px rgba(82,183,136,0.7))",
                     transition: "stroke-dashoffset 0s",
                   }}
                 />
@@ -498,7 +497,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                     fontFamily: "monospace",
                     fontSize: "1.3rem",
                     fontWeight: 700,
-                    color: "#52B788",
+                    color: "#3BA7F2",
                     lineHeight: 1,
                     letterSpacing: "-0.02em",
                   }}
@@ -506,7 +505,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                 <span style={{
                   fontFamily: "monospace",
                   fontSize: "0.42rem",
-                  color: "#2D6A4F",
+                  color: "#2078D8",
                   letterSpacing: "0.2em",
                   textTransform: "uppercase" as const,
                 }}>%</span>
@@ -518,7 +517,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
               <span style={{
                 fontFamily: "monospace",
                 fontSize: "clamp(0.55rem, 1.1vw, 0.68rem)",
-                color: "#40916C",
+                color: "#2E93E8",
                 letterSpacing: "0.28em",
                 textTransform: "uppercase" as const,
                 display: "block",
@@ -538,25 +537,24 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                   fontWeight: 700,
                   letterSpacing: "0.18em",
                   textTransform: "uppercase" as const,
-                  color: "#081C15",
-                  backgroundColor: "#52B788",
+                  color: "#0B3D91",
+                  backgroundColor: "#3BA7F2",
                   border: "none",
                   borderRadius: "100px",
-                  boxShadow: "0 0 20px rgba(82, 183, 136, 0.4)",
                   cursor: "pointer",
                   transition: "all 0.25s ease",
                 }}
                 onMouseEnter={e => {
                   const b = e.currentTarget;
-                  b.style.backgroundColor = "#B7E4C7";
+                  b.style.backgroundColor = "#A5EEE2";
                   b.style.transform = "scale(1.05)";
-                  b.style.boxShadow = "0 0 30px rgba(82, 183, 136, 0.7)";
+                  b.style.boxShadow = "0 0 30px rgba(59, 167, 242, 0.7)";
                 }}
                 onMouseLeave={e => {
                   const b = e.currentTarget;
-                  b.style.backgroundColor = "#52B788";
+                  b.style.backgroundColor = "#3BA7F2";
                   b.style.transform = "scale(1)";
-                  b.style.boxShadow = "0 0 20px rgba(82, 183, 136, 0.4)";
+                  b.style.boxShadow = "0 0 20px rgba(59, 167, 242, 0.4)";
                 }}
               >
                 Enter Nav Page →
@@ -589,7 +587,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
               <span style={{
                 fontFamily: "monospace",
                 fontSize: "clamp(0.48rem, 1vw, 0.6rem)",
-                color: "#2D6A4F",
+                color: "#2078D8",
                 letterSpacing: "0.22em",
                 textTransform: "uppercase" as const,
               }}>
@@ -600,7 +598,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                 style={{
                   fontFamily: "monospace",
                   fontSize: "clamp(0.48rem, 1vw, 0.6rem)",
-                  color: "#40916C",
+                  color: "#2E93E8",
                   letterSpacing: "0.15em",
                 }}
               >
@@ -609,7 +607,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
               <span style={{
                 fontFamily: "monospace",
                 fontSize: "clamp(0.48rem, 1vw, 0.6rem)",
-                color: "#2D6A4F",
+                color: "#2078D8",
                 letterSpacing: "0.22em",
                 textTransform: "uppercase" as const,
               }}>
@@ -624,7 +622,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
               margin: "0 clamp(1.5rem, 4vw, 3rem)",
               borderRadius: "2px",
               overflow: "hidden",
-              backgroundColor: "rgba(27, 67, 50, 0.5)",
+              backgroundColor: "rgba(22, 95, 196, 0.5)",
             }}>
               {/* Filled portion */}
               <div
@@ -633,9 +631,8 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                   position: "absolute",
                   inset: 0,
                   width: "0%",
-                  background: "linear-gradient(to right, #2D6A4F, #52B788, #95D5B2)",
+                  background: "linear-gradient(to right, #2078D8, #3BA7F2, #7FE7D6)",
                   borderRadius: "2px",
-                  boxShadow: "0 0 8px rgba(82, 183, 136, 0.6)",
                   willChange: "width",
                   // No transition — updated directly by GSAP scrub onUpdate
                 }}
@@ -651,8 +648,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                   width: "6px",
                   height: "6px",
                   borderRadius: "50%",
-                  background: "#95D5B2",
-                  boxShadow: "0 0 6px #52B788, 0 0 12px rgba(82,183,136,0.5)",
+                  background: "#7FE7D6",
                   transform: "translate(-50%, -50%)",
                   willChange: "left",
                   pointerEvents: "none",
@@ -672,7 +668,7 @@ export default function StorySection({ onComplete }: { onComplete?: () => void }
                   style={{
                     fontFamily: "monospace",
                     fontSize: "clamp(0.42rem, 0.85vw, 0.52rem)",
-                    color: "#1B4332",
+                    color: "#165FC4",
                     letterSpacing: "0.15em",
                     textTransform: "uppercase" as const,
                     // hide some labels on narrow screens

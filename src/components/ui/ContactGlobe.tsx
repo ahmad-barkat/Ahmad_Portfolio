@@ -97,7 +97,9 @@ export default function ContactGlobe() {
     let mx = 0, my = 0;      // smoothed mouse offset (radians)
     let tmx = 0, tmy = 0;    // target
     let orbitAngle = 0;
-    let raf: number;
+    let raf = 0;
+    let last = 0;
+    let visible = true;
 
     const onMouse = (e: MouseEvent) => {
       const rect = canvas.getBoundingClientRect();
@@ -107,12 +109,24 @@ export default function ContactGlobe() {
     window.addEventListener("mousemove", onMouse);
 
     // ── Draw loop ─────────────────────────────────────────────────────────
-    const draw = () => {
+    const draw = (now: number = performance.now()) => {
+      // Out of view: stop drawing until it scrolls back in
+      if (!visible) {
+        raf = 0;
+        last = 0;
+        return;
+      }
+      // Motion is measured in 60fps frames of time, so the globe turns at the
+      // same speed on 60, 120 and 144 Hz screens
+      const k = last ? Math.min(3, (now - last) / (1000 / 60)) : 1;
+      last = now;
+
       ctx.clearRect(0, 0, W, H);
 
-      rotY += 0.0028;
-      mx += (tmx - mx) * 0.045;
-      my += (tmy - my) * 0.045;
+      rotY += 0.0028 * k;
+      const ease = 1 - Math.pow(1 - 0.045, k);
+      mx += (tmx - mx) * ease;
+      my += (tmy - my) * ease;
       const ax = BASE_ROT_X + my;
       const ay = rotY + mx;
 
@@ -128,7 +142,7 @@ export default function ContactGlobe() {
         ctx.beginPath();
         ctx.moveTo(pa.sx, pa.sy);
         ctx.lineTo(pb.sx, pb.sy);
-        ctx.strokeStyle = `rgba(82,183,136,${alpha.toFixed(3)})`;
+        ctx.strokeStyle = `rgba(59, 167, 242,${alpha.toFixed(3)})`;
         ctx.lineWidth = 0.85;
         ctx.stroke();
       }
@@ -140,7 +154,7 @@ export default function ContactGlobe() {
         const p = project(rp, cx, cy, FOV);
         if (i === 0) ctx.moveTo(p.sx, p.sy); else ctx.lineTo(p.sx, p.sy);
       }
-      ctx.strokeStyle = "rgba(149,213,178,0.5)";
+      ctx.strokeStyle = "rgba(127, 231, 214,0.5)";
       ctx.lineWidth = 1.6;
       ctx.stroke();
 
@@ -154,13 +168,13 @@ export default function ContactGlobe() {
         ctx.beginPath();
         ctx.moveTo(pa.sx, pa.sy);
         ctx.lineTo(pb.sx, pb.sy);
-        ctx.strokeStyle = `rgba(116,198,157,${alpha.toFixed(3)})`;
+        ctx.strokeStyle = `rgba(95, 199, 228,${alpha.toFixed(3)})`;
         ctx.lineWidth = 1.1;
         ctx.stroke();
       }
 
       // Satellite + trail
-      orbitAngle += 0.009;
+      orbitAngle += 0.009 * k;
       const mkSat = (a: number): Point3D => ({
         x: ORBIT_R * Math.cos(a),
         y: ORBIT_R * Math.sin(a) * Math.sin(ORBIT_TILT),
@@ -173,7 +187,7 @@ export default function ContactGlobe() {
       ctx.beginPath();
       ctx.moveTo(satP.sx, satP.sy);
       ctx.lineTo(trailP.sx, trailP.sy);
-      ctx.strokeStyle = `rgba(149,213,178,${(0.15 + satP.depth * 0.45).toFixed(2)})`;
+      ctx.strokeStyle = `rgba(127, 231, 214,${(0.15 + satP.depth * 0.45).toFixed(2)})`;
       ctx.lineWidth = 2;
       ctx.stroke();
 
@@ -181,13 +195,13 @@ export default function ContactGlobe() {
       const satSize = 4.5 + satP.depth * 4;
       ctx.beginPath();
       ctx.arc(satP.sx, satP.sy, satSize, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(216,243,220,${(0.5 + satP.depth * 0.5).toFixed(2)})`;
+      ctx.fillStyle = `rgba(232, 246, 255,${(0.5 + satP.depth * 0.5).toFixed(2)})`;
       ctx.fill();
 
       // Core ambient glow
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 0.6);
-      g.addColorStop(0, "rgba(82,183,136,0.07)");
-      g.addColorStop(1, "rgba(8,28,21,0)");
+      g.addColorStop(0, "rgba(59, 167, 242,0.07)");
+      g.addColorStop(1, "rgba(11, 61, 145,0)");
       ctx.fillStyle = g;
       ctx.beginPath();
       ctx.arc(cx, cy, R * 0.6, 0, Math.PI * 2);
@@ -198,8 +212,15 @@ export default function ContactGlobe() {
 
     draw();
 
+    const io = new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible && !raf) raf = requestAnimationFrame(draw);
+    });
+    io.observe(canvas);
+
     return () => {
       cancelAnimationFrame(raf);
+      io.disconnect();
       window.removeEventListener("mousemove", onMouse);
     };
   }, []);

@@ -17,6 +17,9 @@ interface TransitionState {
 
 interface TransitionContextType {
   transitionTo: (href: string, triggerElement: HTMLElement, color: string, label: string) => void;
+  /** True while the expanding-rectangle overlay is covering the screen. Pages use this
+   *  to hold their entrance animation back until the overlay has actually cleared. */
+  isTransitioning: boolean;
 }
 
 const TransitionContext = createContext<TransitionContextType | null>(null);
@@ -194,7 +197,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   }, [pathname, overlayState.active, lenis]);
 
   return (
-    <TransitionContext.Provider value={{ transitionTo }}>
+    <TransitionContext.Provider value={{ transitionTo, isTransitioning: overlayState.active }}>
       {children}
       {overlayState.active && (
         <div
@@ -216,7 +219,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
               position: "absolute",
               fontFamily: "'Arial Black', 'Helvetica Neue', Arial, sans-serif",
               fontWeight: 900,
-              color: overlayState.color === "#081C15" || overlayState.color === "#0D2B20" ? "#52B788" : "#081C15",
+              color: overlayState.color === "#0B3D91" || overlayState.color === "#0F4AA3" ? "#3BA7F2" : "#0B3D91",
               textTransform: "uppercase",
               letterSpacing: "-0.02em",
               whiteSpace: "nowrap",
