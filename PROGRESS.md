@@ -20,7 +20,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono via `next/font/google` in `layout.tsx`, as `--font-sans` / `--font-mono`. Site-wide. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Working tree committed on `master` as `f9d93fe` (2026-09-29). Local `master` is ahead of `origin/master` (not pushed yet). |
+| Git | Everything committed and pushed to `origin/master` (latest: `6fe9b75`, 2026-09-29). |
 
 ---
 
@@ -235,7 +235,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 3. **Full home-page bug check** (requested by the client, not started). Known lead:
    - `Navbar.tsx` calls `gsap.defaults({ ease: "kn-main", duration: 0.7 })`, which changes GSAP defaults for every tween on the site. Scope it to the navbar's own timelines.
    - Also check: every section at 1440×900 and 390×844; console errors and horizontal overflow; Lenis anchor links; the footer curtain; reduced-motion paths; `/` → `/home` through the transition overlay (the entrance must wait for it).
-4. **Push `master`** to GitHub (`git push origin master`); it is ahead of `origin`.
+4. Keep committing and pushing after each batch of client-approved changes.
 
 ---
 
@@ -274,6 +274,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-09-29
+- Committed and pushed all of today's work (`6fe9b75`).
 - Stopped download managers (IDM's "download this video" panel) from offering the `/projects` opening video: `ScrollExpandMedia` now fetches it as data and plays it from a blob URL, and the file is renamed `world-loop.mp4` → `world-loop.dat`. Checked in headless Chrome: the video plays (10s, from `blob:`), the only request is the `.dat` as `application/octet-stream`, and the intro and carousel look as before. Not testable here with IDM itself.
 - Removed the blinking mint cursor bar from the 3D logo on `/projects` (`projects-helix.ts`). The flat logo (navbar, footer, icon) keeps its cursor.
 - Footer heading "Have an idea? Let's build it." vanished on some pages in real Chrome (GPU): gradient text (`background-clip: text`) on a transformed line inside the fixed, clipped footer layer. Now solid ice with a mint full stop (`.ftr-title__line > span`). Checked all pages with a footer in headless Chrome: heading, fades and giant word reveal on each (`plan_ftr.mjs`).
