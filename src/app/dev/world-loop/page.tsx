@@ -6,7 +6,7 @@ import { ProjectHelix, LOOP_SECONDS, REST_PHASE, type HelixState } from "@/compo
 
 /**
  * Dev only: the projects world's idle loop, for recording the opening video
- * of /projects (public/projects/world-loop.mp4). It draws the same stage as
+ * of /projects (public/projects/world-loop.dat, an MP4 named so download managers ignore it). It draws the same stage as
  * ProjectsWorld (backdrop, canvas, vignette) in the state the page starts the
  * dive from, and exposes `window.__worldLoop(t)` to draw the frame `t`
  * seconds into the loop. The recorder steps t over 0..LOOP_SECONDS.

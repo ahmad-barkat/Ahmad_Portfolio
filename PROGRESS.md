@@ -16,7 +16,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Home page (`/home`) | Built. Needs a full bug check (section 7). |
 | Hero entrance | Built. Last tweak (stat dividers fade in) not yet re-recorded. |
 | Projects page (`/projects`) | Built: "Enter my world" (seamless loop video → 3D logo + project helix), then an endless scroll-driven carousel with four clickable cards in front (section 5). Nothing below it. All project content is dummy. |
-| Project pages (`/projects/[slug]`) | Built for all 6 projects: image-to-background zoom from any project image, then glance, case study, problem, challenge, process, result, client review, testimonials, next project, footer (section 5b). All figures are dummy. |
+| Project pages (`/projects/[slug]`) | Built for all 6 projects: image-to-background zoom from any project image, then glance, case study, problem, challenge, process, result, client review, testimonials, footer, scroll to the next project (section 5b). All figures are dummy. |
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono via `next/font/google` in `layout.tsx`, as `--font-sans` / `--font-mono`. Site-wide. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
@@ -41,12 +41,12 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 | Route | File | Notes |
 |---|---|---|
-| `/` | `src/app/page.tsx` | Landing page with its own loader (`WillemLoader`). |
-| `/home` | `src/app/home/page.tsx` | The main home page (was `/about`). |
+| `/` | `src/app/page.tsx` | Landing page with its own loader (`WillemLoader`). Scroll past the menu → Home (`NextPage`). |
+| `/home` | `src/app/home/page.tsx` | The main home page (was `/about`). After the footer: scroll on → Projects (`NextPage`). |
 | `/projects` | `src/app/projects/page.tsx` | "Enter my world" dive into the endless project carousel. Nothing else: no case studies, testimonials or footer (client request, 2026-09-29). |
 | `/projects/[slug]` | `src/app/projects/[slug]/page.tsx` | One page per project (`ProjectDetail`), statically generated for the 6 slugs; in the sitemap. |
 | `/story` | `src/app/story/page.tsx` | Story page (`StorySection`). No footer and no testimonials: the story sends the visitor to `/` when it ends, so nothing after it can be reached. |
-| `/contact` | `src/app/contact/page.tsx` | Contact page (`ContactGlobe`), testimonials, footer. |
+| `/contact` | `src/app/contact/page.tsx` | Contact page (`ContactGlobe`), testimonials, footer; then scroll on → Story (`NextPage`). |
 | `/privacy`, `/terms`, `/thank-you` | `src/app/*/page.tsx` | Legal and form-confirmation pages, each with testimonials before the footer. |
 | 404 | `src/app/not-found.tsx` | |
 
@@ -58,6 +58,13 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - `GlobalPreloader`: first-visit loader, shown once per session via `sessionStorage.app_loaded`.
 - `AnimationGovernor`: pauses CSS animations inside off-screen sections via `[data-offscreen]`.
 - `LenisProvider`, `Navbar`, `Analytics`.
+
+**Scroll to the next page (`src/components/ui/next-page.tsx`, `.np-*` CSS at the end of `globals.css`):**
+
+- From the reference video `scroll-to-next-page.mp4`. At the end of a page (after the footer), a full-screen panel of the next page rises over it: its picture, "Next page"/"Next project", the name in a thin ring, "Keep scrolling". The panel pins for one viewport of scroll while the ring draws closed (ice arc, mint leading dot); when it closes, the next page takes over from the panel's picture.
+- Projects: the image-to-background zoom (`useOpenProject` with a full-screen source and `shade: 1`), so the next project's hero is the identical frame. Pages: a copy of the panel's picture covers the screen (`.np-handoff`, `html[data-handoff="on"]`) while the router swaps pages, then fades as the new page runs its entrance (`usePageReady` waits for `HANDOFF_DONE_EVENT`).
+- Clicking the panel goes straight there. Reduced motion: a plain link, never moves on by itself.
+- Chain: `/` → `/home` → `/projects` (the endless carousel has no end, so no panel); every project → the next (the last → the first); `/contact` → `/story` (which already returns to `/` when it ends). Not on the legal pages or `/thank-you`.
 
 ---
 
@@ -152,13 +159,14 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 - `src/app/dev/world-loop/page.tsx`: **dev only** (404 in production). Draws the world's idle loop for recording the opening video.
 - `src/data/projects.ts`: the shared project list (6 projects, used by the home Work section too) plus a `caseStudy` for every project (shown on its project page, section 5b), `accent`, and `projectPath(slug)`.
 - CSS: `.sx-*`, `.pw-*` near the end of `globals.css`.
-- Media: `public/projects/world-loop.mp4` (10s seamless loop, 1920×816, 1.26 MB) + `world-loop-poster.webp`; project screenshots as full-size WebP.
+- Media: `public/projects/world-loop.dat` (an MP4: 10s seamless loop, 1920×816, 1.26 MB) + `world-loop-poster.webp`; project screenshots as full-size WebP.
+- **No "download this video" pop-ups:** download managers (IDM's browser extension) watch for video requests and offer to download them. `ScrollExpandMedia` therefore fetches the video as plain data and plays it from a blob URL (`mediaMime` gives its real type), and the file is named `.dat` (served as `application/octet-stream`, not on IDM's list), so the page never requests a video. If the fetch fails it falls back to loading the file directly.
 
 ### The opening video lines up with the 3D world
 - The video is a recording of the world's own idle loop: dust and light streaks rushing towards a speck of the logo, which turns once per loop (`LOOP_SECONDS` = 10).
 - Everything in that loop is deterministic (seeded dust, flow and turn on one clock), and `ProjectHelix.syncLoop(t)` sets the scene to any time in it. While the video shows, the page syncs the live scene to `video.currentTime` every frame, then dissolves the video: the frames match, so the hand-off is invisible.
 - The backdrop and vignette are sized in `cqh` (the stage is a size container) and the video covers the screen by height, so the video and the live scene match at any aspect up to 2.35:1. Before the dive the world is centred with the desktop logo size on every screen (narrow screens lift and resize the logo as the camera lands), so phones match too.
-- **To re-record after changing the idle scene:** with the dev server running, `OUT=loop node --experimental-websocket cdp.mjs 1920 816 plan_loop.mjs` (captures 300 PNGs via `window.__worldLoop(t)`), then `ffmpeg -framerate 30 -i loop/f_%04d.png -c:v libx264 -preset slow -crf 23 -tune film -pix_fmt yuv420p -movflags +faststart -an public/projects/world-loop.mp4`, and a poster from frame 0.
+- **To re-record after changing the idle scene:** with the dev server running, `OUT=loop node --experimental-websocket cdp.mjs 1920 816 plan_loop.mjs` (captures 300 PNGs via `window.__worldLoop(t)`), then `ffmpeg -framerate 30 -i loop/f_%04d.png -c:v libx264 -preset slow -crf 23 -tune film -pix_fmt yuv420p -movflags +faststart -an public/projects/world-loop.mp4`, then rename it to `world-loop.dat` (see above), and a poster from frame 0.
 
 ### The intro (timeline beats)
 1. **0 – 1.0 Expand:** a portrait window (the loop video, a portal into the world) over the deep gradient; "ENTER / MY WORLD" splits apart as the window opens to full screen (clip-path, no layout).
@@ -181,7 +189,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 - The logo turns half a turn per step and follows the pointer a little; the scene renders only while on screen.
 
 ### The 3D scene
-- **Logo:** `LOGO_LEGS`/`LOGO_CURSOR` from `Logo.tsx`, extruded with a bevel. Legs in metallic ice (clearcoat, RoomEnvironment reflections), cursor in mint that blinks like a text cursor. Rests at a slight three-quarter turn. The idle turn unwinds during the dive so it always settles in the same pose.
+- **Logo:** `LOGO_LEGS` from `Logo.tsx`, extruded with a bevel, in metallic ice (clearcoat, RoomEnvironment reflections). No cursor crossbar in 3D: the blinking mint bar was removed at the client's request (2026-09-29); the opening video `world-loop.dat` was recorded with it, but the logo is only a speck there, so the hand-off still matches (re-record to be exact). Rests at a slight three-quarter turn. The idle turn unwinds during the dive so it always settles in the same pose.
 - **Helix:** cards on a vertical cylinder facing outwards (wide: 12 per turn; narrow: 9 per turn, rising at the column's pitch), dimmed into the ink by depth.
 - **Dust + streaks:** 1,100 motes and 260 light streaks in a tunnel along the line of the dive, wrapping on one shared phase (in the shader). Streaks show only while diving.
 - Rounded corners, cover crop anchored to the top of each screenshot, un-mirrored back faces and a hairline edge are all in the card shader.
@@ -203,7 +211,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 - CSS: `.ptx*` and `.pd-*` in `globals.css`, just before the footer styles; the case study's pieces are `.cs-*` ("Case study pieces", after the `.pw-*` block).
 
 ### The zoom (from the reference video "image-to-background-zoom")
-- Opened from: home Work cards, the four front cards (or their captions) of the `/projects` carousel, and the "Next project" card at the end of every project page.
+- Opened from: home Work cards, the four front cards (or their captions) of the `/projects` carousel, and the scroll-to-next panel after every project page's footer.
 - An overlay copy of the clicked image starts exactly over it (its visible box, corner radius, object-position; for the 3D card, its projected box and the shader's 6% radius) and grows to the full viewport in 1.1s while the corners square off; the page behind sinks into ink and the hero's shade settles over the image. At 0.6s, with the old page hidden, the router swaps pages. The project page paints its hero identical to the overlay's last frame, waits for its image, then the overlay fades (0.3s) while the hero text reveals. A 9s safety (on GSAP's clock) clears the overlay if the page never takes over.
 - Direct visits (link, reload): the image appears as a small rounded tile in the middle of an ink screen and zooms out to fill it (clip-path + scale), as in the reference; then the text reveals.
 - Hero entrance: the background softens (blur 6px, scale 1.05) as the title rises letter by letter, the summary rises line by line, and the four headline figures count up. The blur stops screenshot text competing with the title.
@@ -218,7 +226,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 6. **04 The process**: week-by-week Gantt chart drawn as you scroll (bars labelled with hours), phase cards with deliverables.
 7. **05 The result**: the screenshot unfolding in a browser frame, statement, three big figures, before/after table (with change pills and mini bars; cards on phones), monthly trend chart with launch marked.
 8. **06 In their words**: the project's client review (dummy).
-9. **Testimonials** (the shared section), **Next project** card (opens with the same zoom), footer.
+9. **Testimonials** (the shared section), footer, then **scroll to the next project** (`NextPage` in the route's `page.tsx`): the next cover rises over the footer, the ring draws, and it opens with the same zoom. Replaced the old "Next project" card (`.pd-next*` removed).
 
 ## 6. Next steps (in order)
 
@@ -266,6 +274,11 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-09-29
+- Stopped download managers (IDM's "download this video" panel) from offering the `/projects` opening video: `ScrollExpandMedia` now fetches it as data and plays it from a blob URL, and the file is renamed `world-loop.mp4` → `world-loop.dat`. Checked in headless Chrome: the video plays (10s, from `blob:`), the only request is the `.dat` as `application/octet-stream`, and the intro and carousel look as before. Not testable here with IDM itself.
+- Removed the blinking mint cursor bar from the 3D logo on `/projects` (`projects-helix.ts`). The flat logo (navbar, footer, icon) keeps its cursor.
+- Footer heading "Have an idea? Let's build it." vanished on some pages in real Chrome (GPU): gradient text (`background-clip: text`) on a transformed line inside the fixed, clipped footer layer. Now solid ice with a mint full stop (`.ftr-title__line > span`). Checked all pages with a footer in headless Chrome: heading, fades and giant word reveal on each (`plan_ftr.mjs`).
+- Scroll to the next page (from the reference video): new `NextPage` (`src/components/ui/next-page.tsx`, `.np-*` CSS). After the footer, the next page's panel rises, pins while a ring draws round its name, then opens it (projects with the image zoom, pages with a picture hand-off). Added to `/` → `/home`, `/home` → `/projects`, every project → the next (looping), `/contact` → `/story`. Replaced the project pages' "Next project" card. `ZoomSource` gained `shade`; `usePageReady` waits for the hand-off. Verified MAB Portfolio → Interactive CV and HRA Studio → MAB Portfolio in headless Chrome (`plan_next.mjs`); typecheck clean. The page-to-page hand-offs (`/` → Home → Projects, Contact → Story) are not filmed yet.
+- Scroll-to-next fixes: the panel's picture was blank after a fast scroll to the end (it lazy-loaded too late), now loads eagerly. The ring's white arc glitched and ran ahead of its dot (`pathLength` + `vector-effect: non-scaling-stroke` break the dash in Chrome); now the dash is the ring's real circumference, tweened as an attribute, with strokes in the ring's own units. Checked: arc and dot agree at every step (13% … 80%).
 - Committed the whole working tree on `master` (`f9d93fe`, 148 files). Not pushed.
 - Case studies moved onto the project pages: each `/projects/[slug]` page now has "01 The case study" after At a glance (brief, what I built, outcome figures that count up, two drifting close-ups), sliding up over the image; the later sections are renumbered 02–06 and their backgrounds still alternate (problem now ink). Wrote DUMMY case studies for MAB Portfolio, Interactive CV and Facebook Clone, so all 6 have one (`caseStudy` is now required). Deleted `CaseStudies.tsx` and its unused `.cs-*` styles (kept the pieces the pages use). Files: `ProjectDetail.tsx`, `projects.ts`, `projects/[slug]/page.tsx`, `globals.css`. Verified at 1440×900 and 390×844 (no overflow, numbers count, close-ups load); typecheck clean.
 - `/projects` carousel made endless and scroll-stepped (client request): wheel/trackpad/keys move the cards in whole steps (a bigger scroll moves more), and every scroll settles with four cards in front in full colour, clickable, with captions (a row either side of the logo on wide screens, a winding column on narrow ones). The page wraps back one loop invisibly, so the scroll never ends; Lenis eases every step. Removed the single reading slot, the info panel, the number rail, the exit through the logo, and the case studies, testimonials and footer from `/projects`. Files: `ProjectsWorld.tsx`, `projects-helix.ts`, `projects/page.tsx`, `dev/world-loop/page.tsx`, `.pw-*` CSS. Verified in headless Chrome at 1440×900 (1 notch = 1 card, 5 notches = 3, a long fling wraps mid-flight and lands on a stop, hover + click targets, scrolling up returns to the intro), 390×844 and 768×1024; typecheck clean.

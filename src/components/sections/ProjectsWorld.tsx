@@ -461,7 +461,7 @@ export function ProjectsWorld() {
         <ScrollExpandMedia
           ref={heroRef}
           mediaType="video"
-          mediaSrc="/projects/world-loop.mp4"
+          mediaSrc="/projects/world-loop.dat"
           posterSrc="/projects/world-loop-poster.webp"
           title="Enter My World"
           date={`Selected work · ${pad(COUNT)} projects`}

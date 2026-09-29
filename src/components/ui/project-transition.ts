@@ -28,6 +28,8 @@ export interface ZoomSource {
   /** The file the source shows now, so the first frame is already decoded */
   src?: string;
   objectPosition?: string;
+  /** How far the hero's shade is already drawn over the source (0..1) */
+  shade?: number;
 }
 
 interface Arrival {
@@ -145,7 +147,7 @@ export function useOpenProject() {
       const H = window.innerHeight;
       gsap.set(media, { left: rect.left, top: rect.top, width: rect.width, height: rect.height, borderRadius: source.radius ?? 16 });
       gsap.set(img, { objectPosition: source.objectPosition || "50% 0%" });
-      gsap.set(shade, { opacity: 0 });
+      gsap.set(shade, { opacity: source.shade ?? 0 });
       gsap.set(veil, { opacity: 0 });
 
       let resolveGrown!: () => void;

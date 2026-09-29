@@ -8,6 +8,7 @@ import { usePageTransition } from "@/components/ui/TransitionProvider";
 import ContactGlobe from "@/components/ui/ContactGlobe";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import { NextPage } from "@/components/ui/next-page";
 
 
 gsap.registerPlugin(useGSAP);
@@ -1109,6 +1110,9 @@ export default function ContactPage() {
 
     {/* Footer // curtain reveal with the closing call to action */}
     <CinematicFooter />
+
+    {/* Keep scrolling // the story rises over the footer and opens */}
+    <NextPage href="/story" title="Story" meta="The interactive experience" image="/laptop/001.png" />
     </>
   );
 }

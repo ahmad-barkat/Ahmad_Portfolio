@@ -12,9 +12,9 @@ import RevealText from "@/components/ui/RevealText";
 import { TextRoll } from "@/components/ui/TextRoll";
 import { StarRow, FACE_FILLS } from "@/components/ui/review-bits";
 import { usePageReady } from "@/components/ui/page-ready";
-import { peekArrival, finishArrival, useOpenProject } from "@/components/ui/project-transition";
+import { peekArrival, finishArrival } from "@/components/ui/project-transition";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { PROJECTS, projectPath } from "@/data/projects";
+import { PROJECTS } from "@/data/projects";
 import { PROJECT_DETAILS, type Stat, type ProjectDetail as Detail } from "@/data/project-details";
 
 if (typeof window !== "undefined") {
@@ -167,24 +167,22 @@ function TrendChart({ trend }: { trend: Detail["results"]["trend"] }) {
  *    in the middle of the screen and zooms out to become the background, as
  *    in the reference, and then the text reveals.
  * The image stays behind the hero and the "at a glance" panel as you scroll,
- * darkening, until the problem section slides up over it.
+ * darkening, until the case study slides up over it. The next project
+ * follows after the footer (NextPage, in the route's page.tsx).
  */
 export function ProjectDetail({ slug }: { slug: string }) {
   const project = PROJECTS.find((p) => p.slug === slug)!;
   const d = PROJECT_DETAILS[slug];
   const cs = project.caseStudy;
   const index = PROJECTS.indexOf(project);
-  const next = PROJECTS[(index + 1) % PROJECTS.length];
 
   const rootRef = useRef<HTMLDivElement>(null);
   const mediaRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
-  const nextMediaRef = useRef<HTMLDivElement>(null);
   const [arriving] = useState(() => peekArrival(slug));
   const [intro, setIntro] = useState<"pending" | "arrive" | "done">(arriving ? "arrive" : "pending");
   const started = useRef(false);
   const pageReady = usePageReady();
-  const openProject = useOpenProject();
 
   const totalWeeks = Math.max(...d.process.map((p) => p.start + p.weeks));
   const totalHours = d.process.reduce((s, p) => s + p.hours, 0);
@@ -394,23 +392,11 @@ export function ProjectDetail({ slug }: { slug: string }) {
             { y: i % 2 ? -30 : -10, ease: "none", scrollTrigger: { trigger: tile, start: "top bottom", end: "bottom top", scrub: true } },
           );
         });
-
-        gsap.fromTo(
-          ".pd-next__img",
-          { scale: 1.18 },
-          { scale: 1, ease: "none", scrollTrigger: { trigger: ".pd-next__card", start: "top bottom", end: "bottom 60%", scrub: true } },
-        );
       });
       return () => mm.revert();
     },
     { scope: rootRef },
   );
-
-  const openNext = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
-    e.preventDefault();
-    if (nextMediaRef.current) openProject(next.slug, nextMediaRef.current);
-  };
 
   const solved = d.problem.statement.split(/(?<=\.)\s/)[0];
 
@@ -916,30 +902,6 @@ export function ProjectDetail({ slug }: { slug: string }) {
 
       {/* ── Testimonials, as on the home page ── */}
       <TestimonialsSection />
-
-      {/* ── Next project: opens with the same zoom ── */}
-      <section className="pd-next" aria-label="Next project">
-        <div className="pd-wrap">
-          <a href={projectPath(next.slug)} className="pd-next__card" onClick={openNext}>
-            <div ref={nextMediaRef} className="pd-next__media">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img className="pd-next__img" src={next.cover} alt="" loading="lazy" />
-              <div className="pd-next__shade" />
-            </div>
-            <div className="pd-next__info">
-              <span className="pd-eyebrow">Next project</span>
-              <h2 className="pd-next__title">{next.title}</h2>
-              <span className="pd-next__kind">{next.kind}</span>
-              <span className="ftr-link pd-next__cta">
-                <TextRoll className="ftr-link__roll" style={{ lineHeight: 1.25 }}>
-                  View project
-                </TextRoll>
-                <ArrowUpRight aria-hidden="true" strokeWidth={2} />
-              </span>
-            </div>
-          </a>
-        </div>
-      </section>
     </div>
   );
 }

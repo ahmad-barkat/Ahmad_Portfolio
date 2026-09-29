@@ -1,6 +1,5 @@
 import * as THREE from "three";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
-import { LOGO_CURSOR } from "@/components/ui/Logo";
 
 /**
  * The projects "world": the logo in 3D at the centre, with the project cards
@@ -272,7 +271,6 @@ export class ProjectHelix {
   private camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 600);
   private world = new THREE.Group();
   private logo = new THREE.Group();
-  private cursor: THREE.Mesh<THREE.BufferGeometry, THREE.MeshPhysicalMaterial>;
   private cards: Card[] = [];
   private dust: THREE.Points<THREE.BufferGeometry, THREE.PointsMaterial>;
   private streaks!: THREE.LineSegments<THREE.BufferGeometry, THREE.LineBasicMaterial>;
@@ -325,32 +323,24 @@ export class ProjectHelix {
 
     this.scene.add(this.world);
     this.world.add(this.logo);
-    this.cursor = this.buildLogo();
+    this.buildLogo();
     this.buildCards(covers);
     this.dust = this.buildDust();
     this.scene.add(this.dust);
   }
 
-  /** The mark from Logo.tsx, extruded: caret legs in ice, cursor in mint */
+  /**
+   * The mark's legs from Logo.tsx, extruded in metallic ice. The 3D logo has
+   * no cursor crossbar (removed at the client's request, 2026-09-29).
+   */
   private buildLogo() {
     // LOGO_LEGS in Logo.tsx: M6 42 24 5 42 42H34.5L24 20.4 13.5 42Z (y down)
     const pts: [number, number][] = [[6, 42], [24, 5], [42, 42], [34.5, 42], [24, 20.4], [13.5, 42]];
     const legs = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x - 24, 23.5 - y)));
-    const c = LOGO_CURSOR;
-    const cx = c.x - 24;
-    const cy = 23.5 - c.y - c.height;
-    const bar = new THREE.Shape();
-    bar.moveTo(cx, cy);
-    bar.lineTo(cx + c.width, cy);
-    bar.lineTo(cx + c.width, cy + c.height);
-    bar.lineTo(cx, cy + c.height);
-    bar.closePath();
 
     const extrude = { depth: 6, bevelEnabled: true, bevelThickness: 1.1, bevelSize: 0.75, bevelSegments: 6, curveSegments: 1 };
     const legsGeo = new THREE.ExtrudeGeometry(legs, extrude);
-    const barGeo = new THREE.ExtrudeGeometry(bar, { ...extrude, bevelSize: 0.6 });
     legsGeo.translate(0, 0, -3);
-    barGeo.translate(0, 0, -3);
 
     const ice = new THREE.MeshPhysicalMaterial({
       color: 0xd2e8ff,
@@ -359,20 +349,8 @@ export class ProjectHelix {
       clearcoat: 1,
       clearcoatRoughness: 0.18,
     });
-    const mint = new THREE.MeshPhysicalMaterial({
-      color: 0x7fe7d6,
-      emissive: 0x7fe7d6,
-      emissiveIntensity: 0.28,
-      metalness: 0.2,
-      roughness: 0.32,
-      clearcoat: 1,
-      transparent: true,
-    });
     this.logo.add(new THREE.Mesh(legsGeo, ice));
-    const cursor = new THREE.Mesh(barGeo, mint);
-    this.logo.add(cursor);
-    this.disposables.push(legsGeo, barGeo, ice, mint);
-    return cursor;
+    this.disposables.push(legsGeo, ice);
   }
 
   private buildCards(covers: string[]) {
@@ -650,9 +628,6 @@ export class ProjectHelix {
     const restZ = CAM_Z + (CAM_FAR - CAM_Z) * (1 - e);
     this.camera.position.set(this.look.x * 0.35 * d, this.look.y * 0.25 * d, restZ);
     this.camera.lookAt(0, 0, 0);
-    // The crossbar is a text cursor, so it blinks like one once settled
-    const blink = 0.5 + 0.5 * Math.cos(time * Math.PI * 1.9);
-    this.cursor.material.opacity = 1 - S.cards * 0.55 * Math.pow(blink, 3);
 
     // Cards: on the helix, or stepping out into the front
     const half = CARD_COUNT / 2;

@@ -8,6 +8,7 @@ import { WorkSection } from "@/components/sections/WorkSection";
 import { TechStackSection } from "@/components/sections/TechStackSection";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import { NextPage } from "@/components/ui/next-page";
 
 export default function HomePage() {
   return (
@@ -35,6 +36,14 @@ export default function HomePage() {
 
       {/* Footer // curtain reveal with the closing call to action */}
       <CinematicFooter />
+
+      {/* Keep scrolling // the projects page rises over the footer and opens */}
+      <NextPage
+        href="/projects"
+        title="Projects"
+        meta="Build things that matter"
+        image="/projects/world-loop-poster.webp"
+      />
     </div>
   );
 }

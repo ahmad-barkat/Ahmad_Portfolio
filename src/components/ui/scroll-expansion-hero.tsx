@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef, type ReactNode } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from "react";
 import Image from "next/image";
 import { gsap } from "gsap";
 import HeadingReveal from "@/components/ui/HeadingReveal";
@@ -25,6 +25,8 @@ import { cn } from "@/lib/utils";
 export interface ScrollExpandMediaProps {
   mediaType?: "video" | "image";
   mediaSrc: string;
+  /** The video's real format, whatever its file is named (default MP4) */
+  mediaMime?: string;
   posterSrc?: string;
   bgImageSrc?: string;
   /** The first word goes left, the rest goes right */
@@ -69,6 +71,7 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
     {
       mediaType = "video",
       mediaSrc,
+      mediaMime = "video/mp4",
       posterSrc,
       bgImageSrc,
       title = "",
@@ -95,6 +98,40 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
 
     const [firstWord, ...rest] = title.split(" ");
     const restOfTitle = rest.join(" ");
+
+    // The video is fetched as plain data and played from memory (a blob
+    // URL), so the page never makes a request for a video file. Download
+    // managers such as IDM watch for those requests and pop up a "download
+    // this video" panel; with none to see, they stay quiet. The file itself
+    // can then use a non-video extension (e.g. .dat) that they ignore too.
+    // If the fetch fails, the element falls back to loading it directly.
+    useEffect(() => {
+      if (mediaType !== "video") return;
+      const video = videoRef.current;
+      if (!video) return;
+      let cancelled = false;
+      let url = "";
+      const play = (src: string) => {
+        if (cancelled) return;
+        video.src = src;
+        video.play().catch(() => {});
+      };
+      fetch(mediaSrc)
+        .then((r) => {
+          if (!r.ok) throw new Error(`${r.status}`);
+          return r.blob();
+        })
+        .then((blob) => {
+          if (cancelled) return;
+          url = URL.createObjectURL(new Blob([blob], { type: mediaMime }));
+          play(url);
+        })
+        .catch(() => play(mediaSrc));
+      return () => {
+        cancelled = true;
+        if (url) URL.revokeObjectURL(url);
+      };
+    }, [mediaSrc, mediaMime, mediaType]);
 
     useImperativeHandle(ref, () => ({
       expand(tl, at, duration) {
@@ -174,7 +211,6 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
                 <video
                   ref={videoRef}
                   className="sx-media__el"
-                  src={mediaSrc}
                   poster={posterSrc}
                   autoPlay
                   muted

@@ -5612,82 +5612,6 @@ html.lenis, html.lenis body {
   color: rgba(232, 246, 255, 0.55);
 }
 
-/* -- Next project -- */
-.pd-next {
-  position: relative;
-  padding-block: clamp(5rem, 12vh, 8rem);
-  background: #041b3f;
-}
-
-.pd-next__card {
-  position: relative;
-  display: grid;
-  min-height: clamp(22rem, 62vh, 38rem);
-  overflow: hidden;
-  border: 1px solid rgba(232, 246, 255, 0.1);
-  border-radius: 28px;
-  color: inherit;
-  text-decoration: none;
-}
-
-.pd-next__media {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  border-radius: inherit;
-}
-
-.pd-next__img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 50% 0%;
-  will-change: transform;
-}
-
-.pd-next__shade {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(0deg, rgba(4, 27, 63, 0.94) 0%, rgba(4, 27, 63, 0.45) 55%, rgba(4, 27, 63, 0.15) 100%);
-  transition: opacity 0.5s ease;
-}
-
-.pd-next__card:hover .pd-next__shade { opacity: 0.8; }
-
-.pd-next__card:focus-visible { outline: 2px solid #7fe7d6; outline-offset: 4px; }
-
-.pd-next__info {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  align-self: end;
-  gap: 0.6rem;
-  padding: clamp(1.5rem, 3vw, 2.75rem);
-}
-
-.pd-next__title {
-  margin: 0.2rem 0 0;
-  font-size: clamp(2.2rem, 6vw, 5.5rem);
-  font-weight: 900;
-  line-height: 0.92;
-  letter-spacing: -0.04em;
-  text-transform: uppercase;
-}
-
-.pd-next__kind {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: #3ba7f2;
-}
-
-.pd-next__cta { margin-top: 0.75rem; }
-
 @media (prefers-reduced-motion: reduce) {
   .pd .pd-bg__media { visibility: visible !important; }
   .pd .pd-h-in,
@@ -5879,17 +5803,17 @@ html.lenis, html.lenis body {
   padding-bottom: 0.06em;
 }
 
+/* Solid colour, not gradient text: Chrome can drop background-clip:text on a
+   transformed line inside the fixed, clipped footer layer (the heading then
+   vanishes on some pages) */
 .ftr-title__line > span {
   display: block;
-  background: linear-gradient(180deg, #e8f6ff 20%, rgba(232, 246, 255, 0.5) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #e8f6ff;
 }
 
 .ftr-title em {
   font-style: normal;
-  -webkit-text-fill-color: #7fe7d6;
+  color: #7fe7d6;
 }
 
 .ftr-lede {
@@ -7685,4 +7609,203 @@ html.lenis, html.lenis body {
     width: 88%;
     margin-left: auto;
   }
+}
+
+/* ==========================================================================
+   Scroll to the next page (next-page.tsx)
+   A full-screen panel of the next page rises over the end of this one; it
+   holds while scrolling on draws the ring round its name, then the next page
+   takes over from the panel's own picture.
+   ========================================================================== */
+.np {
+  position: relative;
+  z-index: 2;
+  background: #041b3f;
+}
+
+.np-stage {
+  position: relative;
+  height: 100vh;
+  height: 100svh;
+  overflow: hidden;
+}
+
+.np-panel {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #e8f6ff;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.np-panel:focus-visible {
+  outline: 2px solid #7fe7d6;
+  outline-offset: -8px;
+}
+
+/* -- The picture of the next page -- */
+.np-media {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background: var(--grad-deep-light), var(--grad-deep);
+}
+
+.np-media__inner {
+  position: absolute;
+  inset: 0;
+  will-change: transform;
+}
+
+.np-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Cut-outs stand on the bottom edge, like the home hero's portrait */
+.np-media[data-fit="contain"] .np-img {
+  top: 10%;
+  height: 90%;
+  object-fit: contain;
+  object-position: 50% 100%;
+}
+
+/* Keeps the name readable over any picture; clears as the page opens */
+.np-dim {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(closest-side, rgba(4, 27, 63, 0.62), rgba(4, 27, 63, 0.38));
+}
+
+/* -- The name in its ring -- */
+.np-center {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: min(90vw, 62rem);
+  padding: 0 1rem;
+  text-align: center;
+  will-change: transform;
+}
+
+.np-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: clamp(15rem, 46vmin, 27rem);
+  height: auto;
+  overflow: visible;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.np-ring circle { fill: none; }
+
+/* Strokes in the ring's own units (100 across), not non-scaling-stroke:
+   that makes Chrome measure the dash in screen pixels, so the arc broke
+   into flickering bits as it drew. The arc's dash is set on the element
+   (its real circumference) and drawn by next-page.tsx. */
+.np-ring__track {
+  stroke: rgba(232, 246, 255, 0.2);
+  stroke-width: 0.35;
+}
+
+.np-ring__arc {
+  stroke: #e8f6ff;
+  stroke-width: 0.55;
+}
+
+/* The leading dot: shown once the ring starts to draw */
+.np-ring__head {
+  visibility: hidden;
+  opacity: 0;
+}
+
+.np-ring__head circle { fill: #7fe7d6; }
+
+.np-eyebrow {
+  position: relative;
+  margin: 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7fe7d6;
+}
+
+.np-title {
+  position: relative;
+  margin: 0.7rem 0 0;
+  font-size: clamp(2.4rem, 7vw, 6rem);
+  font-weight: 900;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: #e8f6ff;
+}
+
+.np-meta {
+  position: relative;
+  margin: 1rem 0 0;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(232, 246, 255, 0.66);
+}
+
+/* -- Keep scrolling -- */
+.np-hint {
+  position: absolute;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2rem);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: rgba(232, 246, 255, 0.6);
+}
+
+.np-hint i {
+  width: 1px;
+  height: 2rem;
+  background: linear-gradient(180deg, #7fe7d6, transparent);
+  transform-origin: top;
+  animation: pw-scroll 2.2s var(--expo-out) infinite;
+}
+
+/* -- The cover that holds the screen while the page changes -- */
+.np-handoff {
+  position: fixed;
+  inset: 0;
+  z-index: 999960;
+  pointer-events: none;
+}
+
+.np-handoff .np-media { position: absolute; }
+
+@media (prefers-reduced-motion: reduce) {
+  .np-ring__arc { stroke-dashoffset: 0; }
+  .np-hint { display: none; }
 }

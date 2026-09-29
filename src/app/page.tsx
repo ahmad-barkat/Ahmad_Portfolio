@@ -8,6 +8,7 @@ import { usePageTransition } from "@/components/ui/TransitionProvider";
 import { useNavHistory } from "@/hooks/useNavHistory";
 import { TextRoll } from "@/components/ui/TextRoll";
 import WillemLoader from "@/components/ui/WillemLoader";
+import { NextPage } from "@/components/ui/next-page";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -695,6 +696,15 @@ export default function NavDirectoryPage() {
         </div>
       </footer>
       </div>
+
+      {/* Keep scrolling // the home page rises under the menu and opens */}
+      <NextPage
+        href="/home"
+        title="Home"
+        meta="Code is a craft, not just a skill"
+        image="/hero-base-cutout.webp"
+        fit="contain"
+      />
     </>
   );
 }
