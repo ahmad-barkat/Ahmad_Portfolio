@@ -20,7 +20,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono via `next/font/google` in `layout.tsx`, as `--font-sans` / `--font-mono`. Site-wide. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Large uncommitted working tree on `master` (old components deleted, new ones untracked). Last commit: `3b82402 updated hero of about`. |
+| Git | Working tree committed on `master` as `f9d93fe` (2026-09-29). Local `master` is ahead of `origin/master` (not pushed yet). |
 
 ---
 
@@ -227,7 +227,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 3. **Full home-page bug check** (requested by the client, not started). Known lead:
    - `Navbar.tsx` calls `gsap.defaults({ ease: "kn-main", duration: 0.7 })`, which changes GSAP defaults for every tween on the site. Scope it to the navbar's own timelines.
    - Also check: every section at 1440×900 and 390×844; console errors and horizontal overflow; Lenis anchor links; the footer curtain; reduced-motion paths; `/` → `/home` through the transition overlay (the entrance must wait for it).
-4. **Commit the working tree** once the client is happy; it has a lot of uncommitted deletions and new files.
+4. **Push `master`** to GitHub (`git push origin master`); it is ahead of `origin`.
 
 ---
 
@@ -266,6 +266,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-09-29
+- Committed the whole working tree on `master` (`f9d93fe`, 148 files). Not pushed.
 - Case studies moved onto the project pages: each `/projects/[slug]` page now has "01 The case study" after At a glance (brief, what I built, outcome figures that count up, two drifting close-ups), sliding up over the image; the later sections are renumbered 02–06 and their backgrounds still alternate (problem now ink). Wrote DUMMY case studies for MAB Portfolio, Interactive CV and Facebook Clone, so all 6 have one (`caseStudy` is now required). Deleted `CaseStudies.tsx` and its unused `.cs-*` styles (kept the pieces the pages use). Files: `ProjectDetail.tsx`, `projects.ts`, `projects/[slug]/page.tsx`, `globals.css`. Verified at 1440×900 and 390×844 (no overflow, numbers count, close-ups load); typecheck clean.
 - `/projects` carousel made endless and scroll-stepped (client request): wheel/trackpad/keys move the cards in whole steps (a bigger scroll moves more), and every scroll settles with four cards in front in full colour, clickable, with captions (a row either side of the logo on wide screens, a winding column on narrow ones). The page wraps back one loop invisibly, so the scroll never ends; Lenis eases every step. Removed the single reading slot, the info panel, the number rail, the exit through the logo, and the case studies, testimonials and footer from `/projects`. Files: `ProjectsWorld.tsx`, `projects-helix.ts`, `projects/page.tsx`, `dev/world-loop/page.tsx`, `.pw-*` CSS. Verified in headless Chrome at 1440×900 (1 notch = 1 card, 5 notches = 3, a long fling wraps mid-flight and lands on a stop, hover + click targets, scrolling up returns to the intro), 390×844 and 768×1024; typecheck clean.
 - Hero genjutsu hover rebuilt (`genjutsu-reveal.tsx`, `.gj*` CSS): the torn SVG-noise brush (stuttered, mixed both faces) replaced by a smooth circular ripple with crimson hairline rings, on CSS masks. Stats got a real Naruto face (上忍 rank, S-rank missions, chakra meter) in `HeroAside.tsx`. Verified on `/home` at 1440×900 (faces never overlap); typecheck clean.
