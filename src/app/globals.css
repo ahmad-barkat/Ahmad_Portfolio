@@ -5296,13 +5296,12 @@ html.lenis, html.lenis body {
   z-index: 2;
   margin-top: clamp(2rem, 6vh, 4rem);
   border-radius: 32px 32px 0 0;
-  background: #072a5e;
-  box-shadow: 0 -40px 80px -40px rgba(1, 8, 22, 0.7);
+  background: rgba(7, 42, 94, 0.42);
 }
 
 .pd-problem {
   z-index: 2;
-  background: #041b3f;
+  background: rgba(4, 27, 63, 0.45);
 }
 
 .pd-split {
@@ -5391,7 +5390,7 @@ html.lenis, html.lenis body {
 .pd-pain p { margin: 0.6rem 0 0; font-size: 0.92rem; line-height: 1.55; color: rgba(232, 246, 255, 0.66); }
 
 /* -- 02 The challenge -- */
-.pd-challenge { background: #072a5e; }
+.pd-challenge { background: rgba(7, 42, 94, 0.42); }
 
 .pd-challenge__grid {
   display: grid;
@@ -5476,7 +5475,7 @@ html.lenis, html.lenis body {
 .pd-constraints tr + tr { border-top: 1px solid rgba(232, 246, 255, 0.08); }
 
 /* -- 03 The process: a week-by-week chart -- */
-.pd-process { background: #041b3f; }
+.pd-process { background: rgba(4, 27, 63, 0.45); }
 
 .pd-gantt { margin-top: clamp(2.5rem, 6vh, 3.5rem); }
 
@@ -5594,7 +5593,7 @@ html.lenis, html.lenis body {
 .pd-phase p { margin: 0.55rem 0 1rem; font-size: 0.88rem; line-height: 1.55; color: rgba(232, 246, 255, 0.66); }
 
 /* -- 04 The result -- */
-.pd-results { background: #072a5e; }
+.pd-results { background: rgba(7, 42, 94, 0.42); }
 
 .pd-shot { margin: clamp(2.5rem, 6vh, 3.5rem) 0 0; }
 
@@ -5650,7 +5649,7 @@ html.lenis, html.lenis body {
 
 @media (min-width: 1100px) { .pd-results__grid { grid-template-columns: 1.25fr 1fr; align-items: start; } }
 
-.pd-results .pd-panel { background: rgba(4, 27, 63, 0.5); }
+.pd-results .pd-panel { background: rgba(4, 27, 63, 0.62); }
 
 .pd-table { width: 100%; border-collapse: collapse; }
 
@@ -5819,7 +5818,7 @@ html.lenis, html.lenis body {
 }
 
 /* -- The client's words -- */
-.pd-review { background: #041b3f; }
+.pd-review { background: rgba(4, 27, 63, 0.45); }
 
 .pd-quote {
   display: flex;

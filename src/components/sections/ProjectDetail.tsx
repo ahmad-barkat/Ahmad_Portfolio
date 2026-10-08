@@ -293,7 +293,7 @@ export function ProjectDetail({ slug }: { slug: string }) {
         gsap.fromTo(
           ".pd-bg__dark",
           { opacity: 0 },
-          { opacity: 0.84, ease: "none", scrollTrigger: { trigger: ".pd-hero", start: "top top", end: "bottom top", scrub: true } },
+          { opacity: 0.55, ease: "none", scrollTrigger: { trigger: ".pd-hero", start: "top top", end: "bottom top", scrub: true } },
         );
         gsap.fromTo(
           ".pd-bg__zoom",
@@ -665,7 +665,6 @@ export function ProjectDetail({ slug }: { slug: string }) {
             </ul>
           </div>
         </section>
-      </div>
 
       {/* ── 03 The challenge ── */}
       <section className="pd-sec pd-challenge" aria-labelledby="pd-challenge-title">
@@ -885,6 +884,7 @@ export function ProjectDetail({ slug }: { slug: string }) {
           </figure>
         </div>
       </section>
+      </div>
 
       {/* ── Testimonials, as on the home page ── */}
       <TestimonialsSection />

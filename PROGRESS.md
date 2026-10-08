@@ -375,6 +375,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-08
+- Project pages (client request): the project's image now stays as the background behind every section down to the testimonials (footer unchanged). `.pd-top` now wraps all sections through the client review, so the sticky `.pd-bg` lasts the whole page; the sections (case study, problem, challenge, process, results, review) use translucent navy instead of opaque, and the scroll darkening stops at 0.55 (was 0.84). Files: `ProjectDetail.tsx`, `.pd-*` CSS. Checked the process section in the browser pane (image visible, text readable); typecheck clean. Check the other sections and phone width.
 - Fixed the menu opening with its links missing (only hairlines and the panel showed) after navigating through the menu: the link-click animation hides the rows with `autoAlpha: 0` (`visibility: hidden`) and the open animation only restored `opacity`. The open tween now animates `autoAlpha`. File: `Navbar.tsx`. Typecheck clean; not yet redeployed.
 - Committed and pushed everything from 2026-10-03 (security pass, Amethyst project, hire page, mail button, contact rebuild) to `origin/master` and deployed to Vercel (project `code-by-ahmad`). `ABOUT_AHMAD.md` left out of git (personal notes). Dev server running on http://localhost:3000.
 
