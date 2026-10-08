@@ -132,8 +132,8 @@ export default function Navbar() {
 
         gsap.fromTo(
           links,
-          { yPercent: 140, rotate: 3, opacity: 0 },
-          { yPercent: 0, rotate: 0, opacity: 1, duration: 0.75, stagger: 0.05, ease: "power4.out", delay: 0.35, overwrite: "auto" }
+          { yPercent: 140, rotate: 3, autoAlpha: 0 },
+          { yPercent: 0, rotate: 0, autoAlpha: 1, duration: 0.75, stagger: 0.05, ease: "power4.out", delay: 0.35, overwrite: "auto" }
         );
 
         gsap.fromTo(
