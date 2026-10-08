@@ -21,6 +21,7 @@ const MENU_LINKS = [
   { label: "Home",     color: "#3BA7F2", href: "/home",    idx: "02", shape: "2" },
   { label: "Projects", color: "#2E93E8", href: "/projects", idx: "03", shape: "3" },
   { label: "Contact",  color: "#A5EEE2", href: "/contact",  idx: "04", shape: "4" },
+  { label: "Hire me",  color: "#7FE7D6", href: "/hire",     idx: "05", shape: "1" },
 ];
 
 export default function Navbar() {
@@ -32,6 +33,8 @@ export default function Navbar() {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
+  const menuCtx = useRef<gsap.Context | null>(null);
+  const closeTl = useRef<gsap.core.Timeline | null>(null);
   const { isCurrent, isVisited } = useNavHistory();
 
   // ── 2. Full-Screen Kinetic Overlay Logic (Preserved from Sterling Gate) ───
@@ -109,6 +112,9 @@ export default function Navbar() {
       if (!navWrap || !menuPanel || !overlay) return;
 
       if (isMenuOpen) {
+        // A close still playing would hide the menu when it ends
+        closeTl.current?.kill();
+        closeTl.current = null;
         navWrap.style.display = "flex";
         navWrap.setAttribute("data-nav", "open");
         document.body.style.overflow = "hidden";
@@ -154,6 +160,7 @@ export default function Navbar() {
             gsap.set(menuPanel, { visibility: "hidden" });
           },
         });
+        closeTl.current = tl;
 
         tl.to(links, { opacity: 0, yPercent: -40, duration: 0.25, stagger: 0.03, ease: "power2.in" })
           .to(fadeItems, { opacity: 0, duration: 0.2 }, "-=0.15")
@@ -162,8 +169,12 @@ export default function Navbar() {
       }
     }, containerRef);
 
-    return () => ctx.revert();
+    // Not reverted when the state flips: reverting would snap the panels back
+    // to their parked place and the close would have nothing left to animate
+    menuCtx.current = ctx;
   }, [isMenuOpen]);
+
+  useEffect(() => () => menuCtx.current?.revert(), []);
 
   // While open: the page behind stands still (Lenis ignores overflow:
   // hidden), focus moves to the menu's close button, and back to the

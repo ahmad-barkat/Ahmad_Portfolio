@@ -50,6 +50,15 @@ const NAV_ITEMS = [
     sub: "Start a project, book a call or just say hello.",
     href: "/contact",
   },
+  {
+    label: "HIRE ME",
+    idx: "05",
+    color: "#7FE7D6",
+    textColor: "#E8F6FF",
+    quote: "OPEN TO ROLES, REMOTE OR RELOCATING.",
+    sub: "Hire me for a full-time role, or start a project together.",
+    href: "/hire",
+  },
 ];
 
 /* Lead-in before the first rectangle flies in. Short on purpose — the arrival

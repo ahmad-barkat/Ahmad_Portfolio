@@ -185,7 +185,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 ## 4a. Landing page (`/`, `src/app/page.tsx`)
 
-- Navigation rectangles for `/home` (Home), `/projects` (Projects), `/contact` (Contact).
+- Navigation rectangles for `/home` (Home), `/projects` (Projects), `/contact` (Contact), `/hire` (Hire me).
 - **Contact rectangle line:** "Start a project, book a call or just say hello." (was "Open to engineering roles, tech collaborations & conversations.", which read like job hunting; updated 2026-10-01).
 - After scrolling past the menu, transitions to the Home page (`NextPage`).
 
@@ -375,6 +375,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-08
+- Hire me in the menu and on the nav page (client request): a fifth row "Hire me" (`/hire`, mint) in `MENU_LINKS` (`Navbar.tsx`, reuses ambient shape 1) and a fifth rectangle "HIRE ME" in `NAV_ITEMS` (`src/app/page.tsx`, alternates from the right). Menu close animation fixed: the open/close effect reverted its own tweens on every state flip, snapping the panels back to their parked place before the close could play; it now only reverts on unmount, and a close in progress is killed if the menu reopens. Checked in the browser pane: the fifth row exists, and the panel/links stay in place at the start of the close (before: snapped away at once). The pane draws about 2 fps, so the smoothness itself is not seen: watch the close once on the real site. Typecheck clean. Check the 5 rows fit on a short phone screen, and the nav page's 5th rectangle at 1440x900 and 390x844.
 - Project pages (client request): the project's image now stays as the background behind every section down to the testimonials (footer unchanged). `.pd-top` now wraps all sections through the client review, so the sticky `.pd-bg` lasts the whole page; the sections (case study, problem, challenge, process, results, review) use translucent navy instead of opaque, and the scroll darkening stops at 0.55 (was 0.84). Files: `ProjectDetail.tsx`, `.pd-*` CSS. Checked the process section in the browser pane (image visible, text readable); typecheck clean. Check the other sections and phone width.
 - Fixed the menu opening with its links missing (only hairlines and the panel showed) after navigating through the menu: the link-click animation hides the rows with `autoAlpha: 0` (`visibility: hidden`) and the open animation only restored `opacity`. The open tween now animates `autoAlpha`. File: `Navbar.tsx`. Typecheck clean; not yet redeployed.
 - Committed and pushed everything from 2026-10-03 (security pass, Amethyst project, hire page, mail button, contact rebuild) to `origin/master` and deployed to Vercel (project `code-by-ahmad`). `ABOUT_AHMAD.md` left out of git (personal notes). Dev server running on http://localhost:3000.
