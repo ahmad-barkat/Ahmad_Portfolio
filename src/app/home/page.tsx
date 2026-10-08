@@ -2,6 +2,7 @@
 
 import { LandoAboutHero } from "@/components/sections/LandoAboutHero";
 import { AboutMeSection } from "@/components/sections/AboutMeSection";
+import { WhyIBuildSection } from "@/components/sections/WhyIBuildSection";
 import { ServicesSection } from "@/components/sections/ServicesSection";
 import { ProcessSection } from "@/components/sections/ProcessSection";
 import { WorkSection } from "@/components/sections/WorkSection";
@@ -18,6 +19,9 @@ export default function HomePage() {
 
       {/* About Me Section // Origin Story & Dual Persona */}
       <AboutMeSection />
+
+      {/* Why I build // the year told through the projects, ending on the visitor's */}
+      <WhyIBuildSection />
 
       {/* Services // pinned horizontal showcase with the particle field */}
       <ServicesSection />

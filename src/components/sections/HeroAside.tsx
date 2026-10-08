@@ -8,12 +8,14 @@ import { useLenis } from "@/components/ui/LenisProvider";
 import { GenjutsuReveal, Sharingan, SharinganDefs } from "@/components/ui/genjutsu-reveal";
 import { RevealText } from "@/components/ui/RevealText";
 
-/* PLACEHOLDER figures — replace with your real numbers before launch. */
+/* Real figures (client, 2026-10-01): one year of experience, the six
+   projects on the site, and the reply time promised on /contact. Keep them
+   true: they sit next to the 2026 timeline in "Why I build". */
 /** The figures, and their shinobi face: rank, missions and chakra */
 const STATS = [
-  { value: 5, suffix: "+", label: "Years of experience", short: "Years", alt: "Jōnin · 5 years of training", altShort: "Jōnin", altValue: "上忍", altSuffix: "", kanji: "位" },
-  { value: 40, suffix: "+", label: "Projects delivered", short: "Projects", alt: "S-rank missions cleared", altShort: "S-rank", altValue: "40", altSuffix: "+", kanji: "任" },
-  { value: 98, suffix: "", label: "Avg. Lighthouse score", short: "Lighthouse", alt: "Chakra control", altShort: "Chakra", altValue: "98", altSuffix: "%", kanji: "気", meter: 98 },
+  { value: 1, suffix: "", label: "Year of experience", short: "Year", alt: "Chūnin · 1 year of training", altShort: "Chūnin", altValue: "中忍", altSuffix: "", kanji: "位", rank: true },
+  { value: 6, suffix: "", label: "Projects shipped in 2026", short: "Projects", alt: "Missions cleared in 2026", altShort: "Missions", altValue: "6", altSuffix: "", kanji: "任" },
+  { value: 24, suffix: "h", label: "Reply time, or sooner", short: "Reply", alt: "Chakra on standby", altShort: "Chakra", altValue: "24", altSuffix: "h", kanji: "気", meter: 86 },
 ];
 
 const AVAILABILITY = "Open to new projects";
@@ -195,7 +197,7 @@ export function HeroAside() {
           </p>
           <p className="hs-statement hs-in">
             <RevealText>
-              Websites that feel as <em>considered</em> as the brands behind them.
+              I design and build fast, <em>memorable</em> websites and web apps for growing businesses.
             </RevealText>
           </p>
           <p className="hs-status hs-in">
@@ -221,7 +223,7 @@ export function HeroAside() {
                     </span>
                   )}
                   <dt>{s.alt}</dt>
-                  <dd className={s.altSuffix === "" ? "gj-rank" : undefined} lang={s.altSuffix === "" ? "ja" : undefined}>
+                  <dd className={s.rank ? "gj-rank" : undefined} lang={s.rank ? "ja" : undefined}>
                     {s.altValue}
                     {s.altSuffix && <i>{s.altSuffix}</i>}
                   </dd>
@@ -332,7 +334,7 @@ export function HeroAside() {
             {STATS.map((s) => (
               <div key={s.label}>
                 <dt>{s.altShort}</dt>
-                <dd className={s.altSuffix === "" ? "gj-rank" : undefined} lang={s.altSuffix === "" ? "ja" : undefined}>
+                <dd className={s.rank ? "gj-rank" : undefined} lang={s.rank ? "ja" : undefined}>
                   {s.altValue}
                   {s.altSuffix && <i>{s.altSuffix}</i>}
                 </dd>
@@ -355,11 +357,17 @@ export function HeroAside() {
       </GenjutsuReveal>
 
       <div className="hs-m__foot">
+        {/* What Ahmad does, in one line: the desktop columns say it, phones need it too */}
+        <p className="hero-mobile-line hs-m__offer">
+          <RevealText>
+            I design and build fast, <em>memorable</em> websites and web apps for growing businesses.
+          </RevealText>
+        </p>
         {proof(true)}
         <div className="hero-mobile-line">
           <span>
             <RevealText>
-              Full-stack developer <i aria-hidden="true">·</i> Dubai
+              Full-stack developer <i aria-hidden="true">·</i> Worldwide
             </RevealText>
           </span>
           <span aria-hidden="true" className="hero-mobile-line__scroll">

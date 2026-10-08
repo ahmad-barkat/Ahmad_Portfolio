@@ -7,6 +7,8 @@ import Navbar from "@/components/ui/Navbar";
 import Analytics from "@/components/ui/Analytics";
 import GlobalPreloader from "@/components/ui/GlobalPreloader";
 import AnimationGovernor from "@/components/ui/AnimationGovernor";
+import MailFab from "@/components/ui/mail-fab";
+import { PROFILE, personJsonLd } from "@/data/profile";
 
 const BASE_URL = "https://ahmadbarkat.dev";
 
@@ -15,47 +17,47 @@ const BASE_URL = "https://ahmadbarkat.dev";
 const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
 
+const TITLE = "Ahmad Barkat | Full-Stack Developer, open to remote & relocation";
+const DESCRIPTION =
+  "Ahmad Barkat is a full-stack developer (Next.js, React, TypeScript) open to full-time roles, remote or with visa sponsorship, and freelance projects. See his work, skills and how to reach him.";
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
-  title: {
-    default: "AHMAD Barkat | Software Engineer & UI Architect",
-    template: "%s | AHMAD Barkat",
-  },
-  description:
-    "Portfolio of AHMAD Barkat — a Software Engineer specialising in interactive web experiences, creative UI architecture, and high-performance applications.",
+  title: { default: TITLE, template: "%s | Ahmad Barkat" },
+  description: DESCRIPTION,
   keywords: [
-    "AHMAD Barkat",
-    "Software Engineer",
-    "Frontend Developer",
-    "UI Architect",
-    "Next.js Portfolio",
+    "Ahmad Barkat",
+    "Full-Stack Developer",
+    "Next.js Developer",
     "React Developer",
-    "Interactive Web Design",
-    "GSAP Animations",
-    "Pakistan Developer",
+    "TypeScript Developer",
+    "Remote Developer",
+    "Developer open to relocation",
+    "Visa sponsorship",
+    "Hire developer from Pakistan",
+    "Freelance web developer",
   ],
-  authors: [{ name: "AHMAD Barkat", url: BASE_URL }],
-  creator: "AHMAD Barkat",
+  authors: [{ name: PROFILE.name, url: BASE_URL }],
+  creator: PROFILE.name,
   robots: {
     index: true,
     follow: true,
-    googleBot: { index: true, follow: true },
+    googleBot: { index: true, follow: true, "max-snippet": -1, "max-image-preview": "large" },
   },
   alternates: { canonical: BASE_URL },
   openGraph: {
-    type: "website",
+    type: "profile",
     locale: "en_US",
     url: BASE_URL,
-    siteName: "AHMAD Barkat Portfolio",
-    title: "AHMAD Barkat | Software Engineer & UI Architect",
-    description:
-      "Explore the portfolio of AHMAD Barkat — creative software engineering, interactive experiences, and premium digital craftsmanship.",
-    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "AHMAD Barkat Portfolio — Software Engineer" }],
+    siteName: "Ahmad Barkat",
+    title: TITLE,
+    description: DESCRIPTION,
+    images: [{ url: "/opengraph-image", width: 1200, height: 630, alt: "Ahmad Barkat, Full-Stack Developer" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AHMAD Barkat | Software Engineer",
-    description: "Software Engineer & UI Architect building interactive web experiences.",
+    title: TITLE,
+    description: DESCRIPTION,
     images: ["/opengraph-image"],
   },
   icons: {
@@ -72,12 +74,17 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         className="font-sans"
         style={{ margin: 0, padding: 0 }}
       >
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd()).replace(/</g, "\u003c") }}
+        />
         <LenisProvider>
           <TransitionProvider>
             <Analytics />
             <AnimationGovernor />
             <GlobalPreloader />
             <Navbar />
+            <MailFab />
             {children}
           </TransitionProvider>
         </LenisProvider>

@@ -13,12 +13,11 @@ import { usePageTransition } from "@/components/ui/TransitionProvider";
 import { useLenis } from "@/components/ui/LenisProvider";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "@/components/ui/Logo";
+import { EMAIL_HREF, GITHUB_URL, LINKEDIN_URL, WHATSAPP_HREF } from "@/data/contact";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
 }
-
-const EMAIL = "ahmad.barkat.dev@gmail.com";
 
 const MARQUEE = [
   "Full-Stack Development",
@@ -40,13 +39,14 @@ interface FooterLinkItem {
 const EXPLORE: FooterLinkItem[] = [
   { label: "Home", href: "/home", color: "#3BA7F2" },
   { label: "Projects", href: "/projects", color: "#2E93E8" },
-  { label: "Story", href: "/story", color: "#7FE7D6" },
+  { label: "Hire me", href: "/hire", color: "#3BA7F2" },
   { label: "Contact", href: "/contact", color: "#3BA7F2" },
 ];
 
 const ELSEWHERE: FooterLinkItem[] = [
-  { label: "GitHub", href: "https://github.com/ahmadbarkat", external: true },
-  { label: "LinkedIn", href: "https://linkedin.com/in/ahmadbarkat", external: true },
+  { label: "WhatsApp", href: WHATSAPP_HREF, external: true },
+  { label: "LinkedIn", href: LINKEDIN_URL, external: true },
+  { label: "GitHub", href: GITHUB_URL, external: true },
 ];
 
 const LEGAL: FooterLinkItem[] = [
@@ -296,8 +296,7 @@ export function CinematicFooter() {
               </ButtonWithIcon>
             </Magnetic>
             <FooterLink
-              item={{ label: EMAIL, href: `mailto:${EMAIL}` }}
-              className="ftr-link--email"
+              item={{ label: "Write me an email", href: EMAIL_HREF }}
               onNavigate={navigate}
             />
           </div>

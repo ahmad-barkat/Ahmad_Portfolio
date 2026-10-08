@@ -8,6 +8,7 @@ import { useNavHistory } from "@/hooks/useNavHistory";
 import { TextRoll } from "./TextRoll";
 import ButtonWithIcon from "./button-with-icon";
 import { LogoLockup } from "./Logo";
+import { useLenis } from "./LenisProvider";
 
 // Register GSAP plugins safely on client
 if (typeof window !== "undefined") {
@@ -20,7 +21,6 @@ const MENU_LINKS = [
   { label: "Home",     color: "#3BA7F2", href: "/home",    idx: "02", shape: "2" },
   { label: "Projects", color: "#2E93E8", href: "/projects", idx: "03", shape: "3" },
   { label: "Contact",  color: "#A5EEE2", href: "/contact",  idx: "04", shape: "4" },
-  { label: "Story",    color: "#7FE7D6", href: "/story",    idx: "05", shape: "5" },
 ];
 
 export default function Navbar() {
@@ -28,6 +28,10 @@ export default function Navbar() {
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { transitionTo } = usePageTransition();
+  const lenis = useLenis();
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
+  const wasOpen = useRef(false);
   const { isCurrent, isVisited } = useNavHistory();
 
   // ── 2. Full-Screen Kinetic Overlay Logic (Preserved from Sterling Gate) ───
@@ -118,10 +122,12 @@ export default function Navbar() {
         gsap.to(overlay, { opacity: 1, duration: 0.4, ease: "power2.out" });
         gsap.set(menuPanel, { visibility: "visible" });
 
+        // The CSS parks the panels at translateX(101%), which GSAP reads as a
+        // pixel `x`; zero it, or they finish at 0% + that offset, off screen
         gsap.fromTo(
           panels,
-          { xPercent: 101 },
-          { xPercent: 0, duration: 0.7, stagger: 0.07, ease: "kn-main", overwrite: "auto" }
+          { xPercent: 101, x: 0 },
+          { xPercent: 0, x: 0, duration: 0.7, stagger: 0.07, ease: "kn-main", overwrite: "auto" }
         );
 
         gsap.fromTo(
@@ -158,6 +164,23 @@ export default function Navbar() {
 
     return () => ctx.revert();
   }, [isMenuOpen]);
+
+  // While open: the page behind stands still (Lenis ignores overflow:
+  // hidden), focus moves to the menu's close button, and back to the
+  // hamburger when it closes
+  useEffect(() => {
+    if (isMenuOpen) {
+      wasOpen.current = true;
+      lenis?.stop();
+      const t = window.setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 350);
+      return () => window.clearTimeout(t);
+    }
+    lenis?.start();
+    if (wasOpen.current) {
+      wasOpen.current = false;
+      triggerRef.current?.focus({ preventScroll: true });
+    }
+  }, [isMenuOpen, lenis]);
 
   // Close on ESC
   useEffect(() => {
@@ -268,6 +291,7 @@ export default function Navbar() {
             {/* 3. RIGHT ITEM: Hamburger Menu Button */}
             <div className="nav-dock-slot nav-dock-slot--right">
               <button
+                ref={triggerRef}
                 onClick={toggleMenu}
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
@@ -336,13 +360,6 @@ export default function Navbar() {
                 <path className="kn-shape-el" d="M100 100 Q150 50,200 100 Q250 150,200 200 Q150 250,100 200 Q50 150,100 100" fill="rgba(59, 167, 242,0.10)" />
                 <path className="kn-shape-el" d="M250 200 Q300 150,350 200 Q400 250,350 300 Q300 350,250 300 Q200 250,250 200"  fill="rgba(32, 120, 216,0.09)"  />
               </svg>
-
-              {/* Shape 5 */}
-              <svg className="kn-bg-shape kn-bg-shape-5" viewBox="0 0 400 400" fill="none">
-                <line className="kn-shape-el" x1="0"   y1="100" x2="300" y2="400" stroke="rgba(59, 167, 242,0.13)" strokeWidth="28" />
-                <line className="kn-shape-el" x1="100" y1="0"   x2="400" y2="300" stroke="rgba(32, 120, 216,0.11)"  strokeWidth="22" />
-                <line className="kn-shape-el" x1="200" y1="0"   x2="400" y2="200" stroke="rgba(22, 95, 196,0.10)"   strokeWidth="18" />
-              </svg>
             </div>
           </div>
 
@@ -351,7 +368,16 @@ export default function Navbar() {
             {/* Top bar */}
             <div className="kn-top-bar">
               <LogoLockup className="kn-logo" />
-              <span className="kn-esc-hint">Press ESC to close</span>
+              <div className="kn-top-actions">
+                <span className="kn-esc-hint" aria-hidden="true">
+                  <kbd>Esc</kbd> to close
+                </span>
+                {/* The menu covers the dock's hamburger, so it carries its own
+                    close button, drawn with the same bars as the cross */}
+                <button ref={closeRef} type="button" className="kn-close" onClick={closeMenu} aria-label="Close menu">
+                  <span className="kn-close__x" aria-hidden="true" />
+                </button>
+              </div>
             </div>
 
             {/* Nav links */}
@@ -370,6 +396,7 @@ export default function Navbar() {
                       role="button"
                       tabIndex={0}
                       className="kn-nav-link"
+                      data-roll
                       style={{ "--link-color": link.color } as React.CSSProperties}
                       onClick={(e) => handleLinkClick(link.href, link.color, link.label, e.currentTarget as HTMLElement)}
                       onKeyDown={(e) => {

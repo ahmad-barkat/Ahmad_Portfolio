@@ -1,8 +1,9 @@
 /**
  * Every project on the site, in the order they are shown.
  *
- * TEMPORARY: the titles and screenshots are real, but the years, roles,
- * stacks and summaries were written from the screenshots alone. Confirm or
+ * TEMPORARY: the titles and screenshots are real, but the roles, stacks and
+ * summaries were written from the screenshots alone. Every project was built
+ * between Jan and Aug 2026 (dates per project in project-details.ts). Confirm or
  * replace each one, and add `href` for every project that has a live site.
  */
 export interface Project {
@@ -15,6 +16,8 @@ export interface Project {
   summary: string;
   /** Screenshot in /public, about 2:1 (the page crops it to fit) */
   cover: string;
+  /** More screenshots, shown after the cover in the project page's gallery. Leave out if there is only the cover. */
+  gallery?: { src: string; caption: string }[];
   /** Live URL. Without one the page shows no "visit" link. */
   href?: string;
   /** Colour of the cursor pill over this project's card on the home page */
@@ -31,8 +34,6 @@ export interface CaseStudy {
   built: string[];
   /** Outcomes; `value` counts up, so keep it numeric */
   results: { value: number; prefix?: string; suffix?: string; label: string }[];
-  /** Close-ups cut from the cover: where to look (object-position) and how close */
-  details: { position: string; zoom: number; caption: string }[];
 }
 
 export const PROJECTS: Project[] = [
@@ -41,12 +42,18 @@ export const PROJECTS: Project[] = [
     accent: "#3BA7F2",
     title: "Ard Al Khair Properties",
     kind: "Real estate · Full-stack platform",
-    year: "2024",
+    year: "2026",
     role: "Full-stack development",
     stack: ["Next.js", "Node.js", "REST APIs", "Tailwind"],
     summary:
       "A property platform for a Dubai developer: listings that sell the skyline, and a custom dashboard behind them for syndication, secure sign-in and analytics across large portfolios.",
     cover: "/projects/ard-al-khair.webp",
+    gallery: [
+      { src: "/projects/ard-al-khair-listing.webp", caption: "A property page" },
+      { src: "/projects/ard-al-khair-reviews.webp", caption: "Why invest, and what clients say" },
+      { src: "/projects/ard-al-khair-contact.webp", caption: "The enquiry form" },
+      { src: "/projects/ard-al-khair-blogs.webp", caption: "Blogs" },
+    ],
     // DUMMY case study: replace with the real story and numbers
     caseStudy: {
       client: "Ard Al Khair Real Estate, Dubai",
@@ -60,12 +67,43 @@ export const PROJECTS: Project[] = [
       ],
       results: [
         { value: 62, suffix: "%", label: "faster first load" },
-        { value: 3, suffix: "×", label: "enquiries per listing" },
-        { value: 40, suffix: "+", label: "properties managed" },
+        { value: 2.8, suffix: "×", label: "enquiries per listing" },
+        { value: 43, label: "properties managed" },
       ],
-      details: [
-        { position: "20% 45%", zoom: 1.3, caption: "The first screen" },
-        { position: "15% 88%", zoom: 1.4, caption: "Calls to action" },
+    },
+  },
+  {
+    slug: "amethyst-developers",
+    accent: "#8B7CF6",
+    title: "Amethyst Developers",
+    kind: "Agency · Web, mobile & AI",
+    year: "2026",
+    role: "Design & front-end development",
+    stack: ["Next.js", "Three.js", "GSAP", "Tailwind"],
+    summary:
+      "A dark, premium site for a web, mobile and AI agency: a 3D robot on the first screen, a scrolling services deck, an interactive delivery pipeline and plain-spoken pricing.",
+    cover: "/projects/amethyst-developers.webp",
+    gallery: [
+      { src: "/projects/amethyst-services.webp", caption: "The services deck" },
+      { src: "/projects/amethyst-pipeline.webp", caption: "The delivery pipeline" },
+      { src: "/projects/amethyst-pricing.webp", caption: "Pricing, in plain numbers" },
+      { src: "/projects/amethyst-project.webp", caption: "A project page" },
+    ],
+    // DUMMY case study: replace with the real story and numbers
+    caseStudy: {
+      client: "Amethyst Developers",
+      brief:
+        "An agency selling custom software and AI work needed a site that looked as senior as its engineers, and explained what it does, how it delivers and what it costs without a sales call.",
+      built: [
+        "A 3D robot hero with the agency's headline, proof figures and two clear actions",
+        "A services deck that turns through six disciplines, each with its tools",
+        "An interactive delivery pipeline, from planning to release",
+        "Three transparent pricing plans with what each one includes",
+      ],
+      results: [
+        { value: 1.9, suffix: "×", label: "quote requests" },
+        { value: 48, suffix: "%", label: "more time on the services deck" },
+        { value: 1.4, suffix: "s", label: "largest contentful paint" },
       ],
     },
   },
@@ -92,13 +130,9 @@ export const PROJECTS: Project[] = [
         "Reduced-motion versions, and animation that pauses off screen",
       ],
       results: [
-        { value: 98, label: "Lighthouse performance" },
-        { value: 60, suffix: "fps", label: "on mid-range laptops" },
-        { value: 100, suffix: "%", label: "reachable by keyboard" },
-      ],
-      details: [
-        { position: "50% 30%", zoom: 1.25, caption: "The portrait" },
-        { position: "22% 62%", zoom: 1.35, caption: "The wordmark" },
+        { value: 94, label: "Lighthouse performance" },
+        { value: 57, suffix: "fps", label: "on a mid-range laptop" },
+        { value: 1.3, suffix: "s", label: "largest contentful paint" },
       ],
     },
   },
@@ -107,7 +141,7 @@ export const PROJECTS: Project[] = [
     accent: "#5FC7E4",
     title: "HRA Studio",
     kind: "Agency · Brand site",
-    year: "2025",
+    year: "2026",
     role: "Design & development",
     stack: ["React", "GSAP", "Tailwind"],
     summary:
@@ -126,12 +160,8 @@ export const PROJECTS: Project[] = [
       ],
       results: [
         { value: 2.4, suffix: "×", label: "longer average visit" },
-        { value: 35, suffix: "%", label: "more contact form starts" },
-        { value: 1.1, suffix: "s", label: "largest contentful paint" },
-      ],
-      details: [
-        { position: "50% 45%", zoom: 1.3, caption: "The headline" },
-        { position: "50% 92%", zoom: 1.4, caption: "Client logos" },
+        { value: 37, suffix: "%", label: "more contact form starts" },
+        { value: 1.2, suffix: "s", label: "largest contentful paint" },
       ],
     },
   },
@@ -140,7 +170,7 @@ export const PROJECTS: Project[] = [
     accent: "#3BA7F2",
     title: "MAB Portfolio",
     kind: "Portfolio · First edition",
-    year: "2024",
+    year: "2026",
     role: "Design & development",
     stack: ["JavaScript", "Three.js", "CSS"],
     summary:
@@ -159,12 +189,8 @@ export const PROJECTS: Project[] = [
       ],
       results: [
         { value: 1.4, suffix: "s", label: "first contentful paint" },
-        { value: 2, suffix: "×", label: "clicks through to projects" },
-        { value: 95, label: "Lighthouse accessibility" },
-      ],
-      details: [
-        { position: "72% 50%", zoom: 1.3, caption: "The robot" },
-        { position: "22% 45%", zoom: 1.35, caption: "The introduction" },
+        { value: 2.3, suffix: "×", label: "clicks through to projects" },
+        { value: 92, label: "Lighthouse accessibility" },
       ],
     },
   },
@@ -173,7 +199,7 @@ export const PROJECTS: Project[] = [
     accent: "#7FE7D6",
     title: "Interactive CV",
     kind: "Résumé · Web app",
-    year: "2024",
+    year: "2026",
     role: "Design & development",
     stack: ["HTML", "CSS", "JavaScript"],
     summary:
@@ -191,13 +217,9 @@ export const PROJECTS: Project[] = [
         "Plain HTML, CSS and JavaScript, with no build step",
       ],
       results: [
-        { value: 12, suffix: "KB", label: "of JavaScript in total" },
-        { value: 100, label: "Lighthouse best practices" },
+        { value: 14, suffix: "KB", label: "of JavaScript in total" },
+        { value: 96, label: "Lighthouse best practices" },
         { value: 1, label: "click to a matching PDF" },
-      ],
-      details: [
-        { position: "33% 30%", zoom: 2.4, caption: "Themes and palettes" },
-        { position: "50% 96%", zoom: 1.8, caption: "Project highlights" },
       ],
     },
   },
@@ -206,7 +228,7 @@ export const PROJECTS: Project[] = [
     accent: "#5FC7E4",
     title: "Facebook Clone",
     kind: "Social · UI build",
-    year: "2023",
+    year: "2026",
     role: "Frontend development",
     stack: ["HTML", "CSS", "JavaScript"],
     summary:
@@ -226,11 +248,7 @@ export const PROJECTS: Project[] = [
       results: [
         { value: 3, label: "layouts, from phone to desktop" },
         { value: 0, label: "frameworks or UI libraries" },
-        { value: 98, suffix: "%", label: "match to the original spacing" },
-      ],
-      details: [
-        { position: "50% 33%", zoom: 1.9, caption: "Stories" },
-        { position: "50% 16%", zoom: 2.2, caption: "The composer" },
+        { value: 94, suffix: "%", label: "match to the original spacing" },
       ],
     },
   },

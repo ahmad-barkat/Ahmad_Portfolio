@@ -6,7 +6,7 @@ import Loader from "./Loader";
 import { PRELOADER_DONE_EVENT } from "./page-ready";
 
 /* Pages that run their own full-screen intro and must not get a second curtain */
-const SELF_LOADING_ROUTES = ["/story", "/"];
+const SELF_LOADING_ROUTES = ["/"];
 
 export default function GlobalPreloader() {
   const pathname = usePathname();

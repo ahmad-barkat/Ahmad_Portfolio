@@ -12,7 +12,6 @@ const config: Config = {
       fontFamily: {
         sans:    ["var(--font-sans)", "system-ui", "sans-serif"],
         mono:    ["var(--font-mono)", "monospace"],
-        display: ["Cartefield", "serif"],
         serif:   ["Georgia", "Times New Roman", "serif"],
       },
       colors: {

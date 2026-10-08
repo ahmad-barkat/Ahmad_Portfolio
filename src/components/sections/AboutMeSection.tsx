@@ -20,11 +20,11 @@ export function AboutMeSection() {
 
   const [isHovering, setIsHovering] = useState(false);
 
-  const headingText = "I AM STILL ALIVE.";
+  const headingText = "HI, I'M AHMAD.";
 
   // Every letter is its own inline-block so it can be staggered, which also lets
   // the browser break a line between any two of them. Now that the heading only
-  // gets 7 columns it does exactly that ("I AM STILL A / LIVE."), so the letters
+  // gets 7 columns it would ("HI, I'M AH / MAD."), so the letters
   // are grouped into unbreakable words and wrapping happens at spaces only.
   const headingWords = React.useMemo(() => {
     let cursor = 0;
@@ -153,7 +153,7 @@ export function AboutMeSection() {
         <div className="flex items-center gap-3 mb-8">
           <span className="w-8 h-[1px] bg-[#3BA7F2]" />
           <span className="font-mono text-[10px] sm:text-[11px] tracking-[0.32em] uppercase text-[#3BA7F2] font-bold">
-            ORIGIN STORY // THE PROTAGONIST
+            ABOUT // THE PERSON BEHIND THE WORK
           </span>
         </div>
 
@@ -206,11 +206,11 @@ export function AboutMeSection() {
 
             <div ref={contentRef} className="flex flex-col gap-7">
 
-              {/* S-Rank badge */}
+              {/* Role badge */}
               <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#3BA7F2]/30 bg-[#03102A]/90 backdrop-blur-md w-fit">
                 <span className="w-2 h-2 rounded-full bg-[#7FE7D6]" />
                 <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.28em] text-[#3BA7F2] uppercase font-bold">
-                  CLASS: S-RANK CREATIVE ARCHITECT
+                  FULL-STACK DEVELOPER · WORKING WORLDWIDE
                 </span>
               </div>
 
@@ -219,33 +219,32 @@ export function AboutMeSection() {
                 I&apos;m{" "}
                 <span className="text-[#E8F6FF] font-bold underline decoration-[#3BA7F2] decoration-2 underline-offset-4">
                   AHMAD Barkat
-                </span>{" "}
-                — a Full-Stack Engineer and Creative UI Architect who treats software like a legendary blade being forged under heat and pressure. Half modern software architect, half anime protagonist powered by iced matcha, dark chocolate, and boss-battle orchestral soundtracks at 2AM.
+                </span>
+                , a full-stack developer who designs and builds websites and web apps for startups and growing businesses. Over the past year I&apos;ve shipped seven projects, from a property platform for a Dubai developer to agency and brand sites and interactive portfolios, each taken from first sketch to launch.
               </p>
 
-              {/* Humour paragraph */}
+              {/* Working together */}
               <p className="max-w-[44rem] font-sans text-sm sm:text-base text-[#E8F6FF]/70 leading-relaxed">
-                While other devs settle for cookie-cutter templates, I spend my waking hours debugging reality, choreographing silky 60–120 FPS GSAP timelines, and{" "}
-                <span className="text-[#3BA7F2] font-semibold">taming the nine-tailed beast of browser layout quirks</span>{" "}
-                into complete submission. The dragon behind me? That&apos;s my spirit animal. We have an agreement — it doesn&apos;t set production on fire and I don&apos;t write jQuery.
+                You work with one person the whole way through. The person on your first call is the one{" "}
+                <span className="text-[#3BA7F2] font-semibold">designing your screens, writing your code and answering your messages</span>
+                , and the one still there when something needs fixing after launch.
               </p>
 
               {/* Stack paragraph */}
               <p className="max-w-[44rem] font-sans text-sm sm:text-base text-[#E8F6FF]/70 leading-relaxed">
-                My ninjutsu of choice:{" "}
-                <strong className="text-[#E8F6FF]">Next.js 15</strong>,{" "}
-                <strong className="text-[#E8F6FF]">TypeScript</strong>,{" "}
-                <strong className="text-[#E8F6FF]">Three.js</strong>,{" "}
-                <strong className="text-[#E8F6FF]">GSAP ScrollTrigger</strong>, and bespoke WebGL shaders. I build interfaces that don&apos;t just render on a flat screen — they carry tangible weight, physical momentum, and an uncompromising standard of digital luxury.
+                I work mostly in <strong className="text-[#E8F6FF]">Next.js</strong>,{" "}
+                <strong className="text-[#E8F6FF]">React</strong> and <strong className="text-[#E8F6FF]">TypeScript</strong>,
+                adding <strong className="text-[#E8F6FF]">GSAP</strong> and <strong className="text-[#E8F6FF]">Three.js</strong> only
+                when motion or 3D helps the product. I care as much about how fast a page loads and who can use it as about how it looks.
               </p>
 
               {/* Stat badges */}
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "SPECIAL JUTSU", value: "Sub-MS Motion & Physics" },
-                  { label: "CHAKRA TYPE", value: "100% Strict TypeScript" },
-                  { label: "NINJA WAY", value: "Zero Jargon, Zero Bloat" },
-                  { label: "BOSS WEAKNESS", value: "Obsessing Over Easing Curves" },
+                  { label: "SPECIALITY", value: "Fast, animated websites" },
+                  { label: "CORE STACK", value: "Next.js · React · TypeScript" },
+                  { label: "HOURS", value: "UTC+5, overlaps UK, EU & Gulf" },
+                  { label: "REPLIES", value: "Within one working day" },
                 ].map(({ label, value }) => (
                   <div
                     key={label}
@@ -267,7 +266,7 @@ export function AboutMeSection() {
                   href="/contact"
                   className="group relative inline-flex items-center gap-2.5 px-6 sm:px-8 py-3 rounded-full bg-[#3BA7F2] text-[#072A5E] font-sans font-black text-xs uppercase tracking-widest transition-all duration-300 hover:bg-[#7FE7D6] active:scale-95"
                 >
-                  <span>SUMMON ME TO WORK</span>
+                  <span>START A PROJECT</span>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="transition-transform duration-300 group-hover:translate-x-1">
                     <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -276,7 +275,7 @@ export function AboutMeSection() {
                   href="/projects"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-[#3BA7F2]/30 hover:border-[#7FE7D6] text-[#E8F6FF] font-mono text-xs uppercase tracking-wider transition-all duration-300 hover:text-[#7FE7D6]"
                 >
-                  <span>EXPLORE MY JUTSU</span>
+                  <span>SEE MY WORK</span>
                 </Link>
             </div>
           </div>

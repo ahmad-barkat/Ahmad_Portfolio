@@ -47,8 +47,8 @@ const FOV = 30;
 const CAM_Z = VIEW_H / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2));
 /** Far enough out that the logo is a speck */
 const CAM_FAR = 240;
-/** Cards on the strand; must be a multiple of the project count */
-const CARD_COUNT = 30;
+/** Cards on the strand; must be a multiple of the project count (5 x 7 projects) */
+const CARD_COUNT = 35;
 const CARD_ASPECT = 1.45;
 
 /** The dust streams through this depth range, wrapping at the ends */
@@ -290,6 +290,8 @@ export class ProjectHelix {
   /** Idle clock: the logo's turn and the dust's travel, integrated per frame */
   private idle = 0;
   private idleBase = 0;
+  /** Logo turn per project: three whole turns per loop of the list, so the loop's jump back is invisible */
+  private turnPerStep = Math.PI;
   private dustPhase = 0;
   private lastTime = -1;
   private dustUniform = { value: 0 };
@@ -355,6 +357,7 @@ export class ProjectHelix {
 
   private buildCards(covers: string[]) {
     if (!covers.length) return;
+    this.turnPerStep = (Math.PI * 6) / covers.length;
     const geometry = new THREE.PlaneGeometry(1, 1);
     this.disposables.push(geometry);
     const loader = new THREE.TextureLoader();
@@ -620,7 +623,7 @@ export class ProjectHelix {
     const idleTurn = (this.idle - this.idleBase) * idleWeight;
     const breath = Math.sin(this.idle) * idleWeight + Math.sin(time * 0.9) * e;
     this.logo.rotation.y =
-      S.spin + idleTurn + (offset - REST_PHASE) * Math.PI - 0.38 + this.look.x * 0.25 * d;
+      S.spin + idleTurn + (offset - REST_PHASE) * this.turnPerStep - 0.38 + this.look.x * 0.25 * d;
     this.logo.rotation.x = Math.sin(time * 0.6) * 0.05 * e;
     this.logo.position.y = L.logoY * e + breath * 0.06;
 

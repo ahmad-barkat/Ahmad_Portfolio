@@ -107,7 +107,7 @@ function change(before: number, after: number, lowerIsBetter?: boolean) {
   return { text: `${pct > 0 ? "+" : "−"}${Math.abs(pct)}%`, better };
 }
 
-/** The monthly trend, with launch marked; the line draws itself in */
+/** The trend either side of launch, with launch marked; the line draws itself in */
 function TrendChart({ trend }: { trend: Detail["results"]["trend"] }) {
   const W = 600;
   const H = 240;
@@ -128,7 +128,7 @@ function TrendChart({ trend }: { trend: Detail["results"]["trend"] }) {
   return (
     <div className="pd-trend__chart">
       <div className="pd-trend__plot">
-      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${trend.label}, month by month; launch in ${trend.months[trend.launch]}`}>
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={`${trend.label}, before and after launch (${trend.months[trend.launch]})`}>
         {[0.25, 0.5, 0.75].map((f) => (
           <line key={f} className="pd-trend__grid" x1="0" x2={W} y1={top + f * (H - top - bottom)} y2={top + f * (H - top - bottom)} />
         ))}
@@ -174,6 +174,8 @@ export function ProjectDetail({ slug }: { slug: string }) {
   const project = PROJECTS.find((p) => p.slug === slug)!;
   const d = PROJECT_DETAILS[slug];
   const cs = project.caseStudy;
+  // Every screenshot we have: the cover, then the rest of the gallery
+  const gallery = [{ src: project.cover, caption: "The first screen" }, ...(project.gallery ?? [])];
   const index = PROJECTS.indexOf(project);
 
   const rootRef = useRef<HTMLDivElement>(null);
@@ -383,15 +385,6 @@ export function ProjectDetail({ slug }: { slug: string }) {
             0,
           );
         }
-
-        // Case study close-ups drift at different speeds
-        gsap.utils.toArray<HTMLElement>(".cs-detail").forEach((tile, i) => {
-          gsap.fromTo(
-            tile,
-            { y: i % 2 ? 90 : 30 },
-            { y: i % 2 ? -30 : -10, ease: "none", scrollTrigger: { trigger: tile, start: "top bottom", end: "bottom top", scrub: true } },
-          );
-        });
       });
       return () => mm.revert();
     },
@@ -616,21 +609,14 @@ export function ProjectDetail({ slug }: { slug: string }) {
               </div>
             </div>
 
-            {/* Close-ups cut from the screenshot, drifting at their own pace */}
-            <div className="cs-details">
-              {cs.details.map((c) => (
-                <figure key={c.caption} className="cs-detail">
-                  <div className="cs-detail__view">
-                    <Image
-                      src={project.cover}
-                      alt={`${project.title}: ${c.caption.toLowerCase()}`}
-                      fill
-                      sizes="(min-width: 1024px) 60vw, (min-width: 768px) 65vw, 130vw"
-                      style={{ objectPosition: c.position, transform: `scale(${c.zoom})`, transformOrigin: c.position }}
-                      className="cs-detail__img"
-                    />
+            {/* Every screenshot of the project: the cover, then the rest of the gallery */}
+            <div className="cs-gallery" data-count={gallery.length}>
+              {gallery.map((g) => (
+                <figure key={g.src} className="cs-shot">
+                  <div className="cs-shot__view">
+                    <img src={g.src} alt={`${project.title}: ${g.caption.toLowerCase()}`} loading="lazy" decoding="async" />
                   </div>
-                  <figcaption>{c.caption}</figcaption>
+                  <figcaption>{g.caption}</figcaption>
                 </figure>
               ))}
             </div>

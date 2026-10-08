@@ -47,17 +47,8 @@ const NAV_ITEMS = [
     color: "#A5EEE2",
     textColor: "#E8F6FF",
     quote: "LET'S BUILD SOMETHING TOGETHER.",
-    sub: "Open to engineering roles, tech collaborations & conversations.",
+    sub: "Start a project, book a call or just say hello.",
     href: "/contact",
-  },
-  {
-    label: "STORY",
-    idx: "05",
-    color: "#7FE7D6",
-    textColor: "#E8F6FF",
-    quote: "THE INTERACTIVE EXPERIENCE.",
-    sub: "Interactive laptop story, 3D experience & developer timeline.",
-    href: "/story",
   },
 ];
 
@@ -394,6 +385,7 @@ export default function NavDirectoryPage() {
                 key={item.label}
                 ref={(el) => { barRefs.current[i] = el; }}
                 className="nav-bar-item"
+                data-roll
                 style={{
                   marginLeft: isRight ? "auto" : 0,
                   marginRight: isRight ? 0 : "auto",

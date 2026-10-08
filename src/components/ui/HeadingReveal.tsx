@@ -172,8 +172,25 @@ export function HeadingReveal({
       style: { ...style },
       id: id,
     },
-    renderTokens(children, "hr")
+    // Split letters are read one by one by some screen readers (and by
+    // search engines as separate words), so the visible letters are hidden
+    // from them and the plain text is given once instead
+    <>
+      <span className="sr-only">{textOf(children)}</span>
+      <span aria-hidden="true">{renderTokens(children, "hr")}</span>
+    </>
   );
+}
+
+/** The plain text of a heading's children (line breaks become spaces) */
+function textOf(node: React.ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") return String(node).replace(/\s*\n\s*/g, " ");
+  if (Array.isArray(node)) return node.map(textOf).join("");
+  if (React.isValidElement(node)) {
+    if (node.type === "br") return " ";
+    return textOf((node.props as { children?: React.ReactNode })?.children);
+  }
+  return "";
 }
 
 export default HeadingReveal;
