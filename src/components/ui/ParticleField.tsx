@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import * as THREE from "three";
+import type * as THREE from "three";
+import { loadThree } from "./load-three";
 import { useActivate } from "./use-activate";
 import gsap from "gsap";
 import { sampleShape, type ShapeDrawer } from "./particle-shapes";
@@ -28,9 +29,9 @@ export const FIELD_FIT = 0.4;
 const DELAY_SPAN = 0.4;
 
 const PALETTE = [
-  { color: new THREE.Color("#3BA7F2"), weight: 0.5 },
-  { color: new THREE.Color("#7FE7D6"), weight: 0.32 },
-  { color: new THREE.Color("#E8F6FF"), weight: 0.18 },
+  { hex: "#3BA7F2", weight: 0.5 },
+  { hex: "#7FE7D6", weight: 0.32 },
+  { hex: "#E8F6FF", weight: 0.18 },
 ];
 
 const vertexShader = /* glsl */ `
@@ -133,213 +134,225 @@ export function ParticleField({ shapes, position, onReady, className }: Particle
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!active || !wrap || !shapes.length) return;
+    let gone = false;
+    let teardown: void | (() => void);
+    loadThree().then((THREE) => {
+      if (gone) return;
+      teardown = ((): void | (() => void) => {
 
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const vw = window.innerWidth;
-    // Sized to the field: a phone's field is a quarter of a desktop's area.
-    const COUNT = vw >= 1024 ? 11000 : vw >= 768 ? 8000 : 5000;
+        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const vw = window.innerWidth;
+        // Sized to the field: a phone's field is a quarter of a desktop's area.
+        const COUNT = vw >= 1024 ? 11000 : vw >= 768 ? 8000 : 5000;
 
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({
-        alpha: true,
-        antialias: false,
-        powerPreference: "high-performance",
-      });
-    } catch {
-      onReadyRef.current?.(false);
-      return;
-    }
+        let renderer: THREE.WebGLRenderer;
+        try {
+          renderer = new THREE.WebGLRenderer({
+            alpha: true,
+            antialias: false,
+            powerPreference: "high-performance",
+          });
+        } catch {
+          onReadyRef.current?.(false);
+          return;
+        }
 
-    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
-    renderer.setPixelRatio(pixelRatio);
-    renderer.setClearColor(0x000000, 0);
-    const canvas = renderer.domElement;
-    canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;";
-    wrap.appendChild(canvas);
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        renderer.setPixelRatio(pixelRatio);
+        renderer.setClearColor(0x000000, 0);
+        const canvas = renderer.domElement;
+        canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;display:block;";
+        wrap.appendChild(canvas);
 
-    let width = Math.max(1, wrap.clientWidth);
-    let height = Math.max(1, wrap.clientHeight);
-    renderer.setSize(width, height, false);
+        let width = Math.max(1, wrap.clientWidth);
+        let height = Math.max(1, wrap.clientHeight);
+        renderer.setSize(width, height, false);
 
-    // Orthographic, one world unit per CSS pixel, origin at the field's centre.
-    const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000);
-    camera.position.z = 10;
-    const scene = new THREE.Scene();
+        // Orthographic, one world unit per CSS pixel, origin at the field's centre.
+        const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000);
+        camera.position.z = 10;
+        const scene = new THREE.Scene();
 
-    const n = shapes.length;
-    const targets = shapes.map((draw) => sampleShape(draw, COUNT, 384));
+        const n = shapes.length;
+        const targets = shapes.map((draw) => sampleShape(draw, COUNT, 384));
 
-    const a = new Float32Array(targets[0]);
-    const b = new Float32Array(targets[Math.min(1, n - 1)]);
-    const scatter = new Float32Array(COUNT * 3);
-    const halo = new Float32Array(COUNT * 3);
-    const delay = new Float32Array(COUNT);
-    const rand = new Float32Array(COUNT);
-    const loose = new Float32Array(COUNT);
-    const colors = new Float32Array(COUNT * 3);
+        const a = new Float32Array(targets[0]);
+        const b = new Float32Array(targets[Math.min(1, n - 1)]);
+        const scatter = new Float32Array(COUNT * 3);
+        const halo = new Float32Array(COUNT * 3);
+        const delay = new Float32Array(COUNT);
+        const rand = new Float32Array(COUNT);
+        const loose = new Float32Array(COUNT);
+        const colors = new Float32Array(COUNT * 3);
 
-    for (let i = 0; i < COUNT; i++) {
-      const ang = Math.random() * Math.PI * 2;
-      const m = 0.15 + Math.random() * 0.45;
-      scatter[i * 3] = Math.cos(ang) * m;
-      scatter[i * 3 + 1] = Math.sin(ang) * m;
-      scatter[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
+        const palette = PALETTE.map((p) => ({ color: new THREE.Color(p.hex), weight: p.weight }));
+        for (let i = 0; i < COUNT; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const m = 0.15 + Math.random() * 0.45;
+          scatter[i * 3] = Math.cos(ang) * m;
+          scatter[i * 3 + 1] = Math.sin(ang) * m;
+          scatter[i * 3 + 2] = (Math.random() - 0.5) * 0.2;
 
-      // Heavily skewed: nearly every particle hugs the line, a few wander off it.
-      const l = Math.pow(Math.random(), 4);
-      loose[i] = l;
-      const ha = Math.random() * Math.PI * 2;
-      const hm = 0.008 + Math.random() * 0.012 + l * 0.24;
-      halo[i * 3] = Math.cos(ha) * hm;
-      halo[i * 3 + 1] = Math.sin(ha) * hm;
-      halo[i * 3 + 2] = 0;
+          // Heavily skewed: nearly every particle hugs the line, a few wander off it.
+          const l = Math.pow(Math.random(), 4);
+          loose[i] = l;
+          const ha = Math.random() * Math.PI * 2;
+          const hm = 0.008 + Math.random() * 0.012 + l * 0.24;
+          halo[i * 3] = Math.cos(ha) * hm;
+          halo[i * 3 + 1] = Math.sin(ha) * hm;
+          halo[i * 3 + 2] = 0;
 
-      delay[i] = Math.random() * DELAY_SPAN;
-      rand[i] = Math.random();
+          delay[i] = Math.random() * DELAY_SPAN;
+          rand[i] = Math.random();
 
-      let pick = Math.random();
-      const swatch = PALETTE.find((p) => (pick -= p.weight) <= 0) ?? PALETTE[0];
-      colors[i * 3] = swatch.color.r;
-      colors[i * 3 + 1] = swatch.color.g;
-      colors[i * 3 + 2] = swatch.color.b;
-    }
+          let pick = Math.random();
+          const swatch = palette.find((p) => (pick -= p.weight) <= 0) ?? palette[0];
+          colors[i * 3] = swatch.color.r;
+          colors[i * 3 + 1] = swatch.color.g;
+          colors[i * 3 + 2] = swatch.color.b;
+        }
 
-    const geometry = new THREE.BufferGeometry();
-    const aAttr = new THREE.BufferAttribute(a, 3);
-    const bAttr = new THREE.BufferAttribute(b, 3);
-    geometry.setAttribute("position", aAttr);
-    geometry.setAttribute("aB", bAttr);
-    geometry.setAttribute("aScatter", new THREE.BufferAttribute(scatter, 3));
-    geometry.setAttribute("aHalo", new THREE.BufferAttribute(halo, 3));
-    geometry.setAttribute("aDelay", new THREE.BufferAttribute(delay, 1));
-    geometry.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
-    geometry.setAttribute("aLoose", new THREE.BufferAttribute(loose, 1));
-    geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
+        const geometry = new THREE.BufferGeometry();
+        const aAttr = new THREE.BufferAttribute(a, 3);
+        const bAttr = new THREE.BufferAttribute(b, 3);
+        geometry.setAttribute("position", aAttr);
+        geometry.setAttribute("aB", bAttr);
+        geometry.setAttribute("aScatter", new THREE.BufferAttribute(scatter, 3));
+        geometry.setAttribute("aHalo", new THREE.BufferAttribute(halo, 3));
+        geometry.setAttribute("aDelay", new THREE.BufferAttribute(delay, 1));
+        geometry.setAttribute("aRand", new THREE.BufferAttribute(rand, 1));
+        geometry.setAttribute("aLoose", new THREE.BufferAttribute(loose, 1));
+        geometry.setAttribute("aColor", new THREE.BufferAttribute(colors, 3));
 
-    const small = vw < 768;
-    const uniforms = {
-      uMix: { value: 0 },
-      uGather: { value: reduce ? 1 : 0 },
-      uTime: { value: 0 },
-      uScale: { value: Math.min(width, height) * FIELD_FIT },
-      uFlow: { value: reduce ? 0 : small ? 2.6 : 3.4 },
-      uScatter: { value: reduce ? 0 : 1 },
-      uSize: { value: small ? 2.1 : 2.3 },
-      uPixelRatio: { value: pixelRatio },
-      uRepel: { value: 0 },
-      uMouse: { value: new THREE.Vector2(-9999, -9999) },
-    };
+        const small = vw < 768;
+        const uniforms = {
+          uMix: { value: 0 },
+          uGather: { value: reduce ? 1 : 0 },
+          uTime: { value: 0 },
+          uScale: { value: Math.min(width, height) * FIELD_FIT },
+          uFlow: { value: reduce ? 0 : small ? 2.6 : 3.4 },
+          uScatter: { value: reduce ? 0 : 1 },
+          uSize: { value: small ? 2.1 : 2.3 },
+          uPixelRatio: { value: pixelRatio },
+          uRepel: { value: 0 },
+          uMouse: { value: new THREE.Vector2(-9999, -9999) },
+        };
 
-    const material = new THREE.ShaderMaterial({
-      uniforms,
-      vertexShader,
-      fragmentShader,
-      transparent: true,
-      depthWrite: false,
-      depthTest: false,
-      blending: THREE.AdditiveBlending,
+        const material = new THREE.ShaderMaterial({
+          uniforms,
+          vertexShader,
+          fragmentShader,
+          transparent: true,
+          depthWrite: false,
+          depthTest: false,
+          blending: THREE.AdditiveBlending,
+        });
+
+        const points = new THREE.Points(geometry, material);
+        points.frustumCulled = false;
+        scene.add(points);
+
+        // ── Position → which pair of symbols, and how far between them ──────────
+        let segment = 0;
+        let smooth = Math.min(n - 1, Math.max(0, position.current));
+
+        const setSegment = (s: number) => {
+          if (s === segment) return;
+          segment = s;
+          a.set(targets[s]);
+          b.set(targets[Math.min(s + 1, n - 1)]);
+          aAttr.needsUpdate = bAttr.needsUpdate = true;
+        };
+
+        // ── Cursor ────────────────────────────────────────────────────────────────
+        const mouse = { x: -9999, y: -9999 };
+        const onMove = (e: PointerEvent) => {
+          mouse.x = e.clientX;
+          mouse.y = e.clientY;
+        };
+        if (!reduce) window.addEventListener("pointermove", onMove, { passive: true });
+
+        // ── Frame ─────────────────────────────────────────────────────────────────
+        const render = (time: number, deltaMs = 16) => {
+          const target = Math.min(n - 1, Math.max(0, position.current));
+          // A short, frame-rate independent ease on top of the scroll smoothing, so
+          // a hard flick still pours from one symbol into the next.
+          smooth = reduce ? target : smooth + (target - smooth) * (1 - Math.exp(-deltaMs / 110));
+          if (Math.abs(target - smooth) < 1e-4) smooth = target;
+
+          const s = Math.min(n - 2, Math.floor(smooth));
+          setSegment(Math.max(0, s));
+          uniforms.uMix.value = n > 1 ? smooth - segment : 0;
+
+          if (!reduce) {
+            uniforms.uTime.value = time;
+            const r = wrap.getBoundingClientRect();
+            const mx = mouse.x - r.left;
+            const my = mouse.y - r.top;
+            const inside = mx >= 0 && my >= 0 && mx <= r.width && my <= r.height;
+            uniforms.uMouse.value.set(mx - width / 2, height / 2 - my);
+            uniforms.uRepel.value += ((inside ? 1 : 0) - uniforms.uRepel.value) * 0.08;
+          }
+
+          renderer.render(scene, camera);
+        };
+
+        let ticking = false;
+        let started = false;
+        const start = () => {
+          if (ticking) return;
+          ticking = true;
+          gsap.ticker.add(render);
+          if (!started) {
+            started = true;
+            if (!reduce) gsap.to(uniforms.uGather, { value: 1, duration: 2.2, ease: "none" });
+          }
+        };
+        const stop = () => {
+          if (!ticking) return;
+          ticking = false;
+          gsap.ticker.remove(render);
+        };
+
+        // Only spend GPU time while the field is actually on screen.
+        const io = new IntersectionObserver(
+          ([entry]) => (entry.isIntersecting ? start() : stop()),
+          { rootMargin: "120px 0px" }
+        );
+        io.observe(wrap);
+
+        const ro = new ResizeObserver(() => {
+          width = Math.max(1, wrap.clientWidth);
+          height = Math.max(1, wrap.clientHeight);
+          renderer.setSize(width, height, false);
+          camera.left = -width / 2;
+          camera.right = width / 2;
+          camera.top = height / 2;
+          camera.bottom = -height / 2;
+          camera.updateProjectionMatrix();
+          uniforms.uScale.value = Math.min(width, height) * FIELD_FIT;
+          if (!ticking) render(uniforms.uTime.value);
+        });
+        ro.observe(wrap);
+
+        onReadyRef.current?.(true);
+
+        return () => {
+          io.disconnect();
+          ro.disconnect();
+          stop();
+          gsap.killTweensOf(uniforms.uGather);
+          window.removeEventListener("pointermove", onMove);
+          geometry.dispose();
+          material.dispose();
+          renderer.dispose();
+          canvas.remove();
+        };
+      })();
     });
-
-    const points = new THREE.Points(geometry, material);
-    points.frustumCulled = false;
-    scene.add(points);
-
-    // ── Position → which pair of symbols, and how far between them ──────────
-    let segment = 0;
-    let smooth = Math.min(n - 1, Math.max(0, position.current));
-
-    const setSegment = (s: number) => {
-      if (s === segment) return;
-      segment = s;
-      a.set(targets[s]);
-      b.set(targets[Math.min(s + 1, n - 1)]);
-      aAttr.needsUpdate = bAttr.needsUpdate = true;
-    };
-
-    // ── Cursor ────────────────────────────────────────────────────────────────
-    const mouse = { x: -9999, y: -9999 };
-    const onMove = (e: PointerEvent) => {
-      mouse.x = e.clientX;
-      mouse.y = e.clientY;
-    };
-    if (!reduce) window.addEventListener("pointermove", onMove, { passive: true });
-
-    // ── Frame ─────────────────────────────────────────────────────────────────
-    const render = (time: number, deltaMs = 16) => {
-      const target = Math.min(n - 1, Math.max(0, position.current));
-      // A short, frame-rate independent ease on top of the scroll smoothing, so
-      // a hard flick still pours from one symbol into the next.
-      smooth = reduce ? target : smooth + (target - smooth) * (1 - Math.exp(-deltaMs / 110));
-      if (Math.abs(target - smooth) < 1e-4) smooth = target;
-
-      const s = Math.min(n - 2, Math.floor(smooth));
-      setSegment(Math.max(0, s));
-      uniforms.uMix.value = n > 1 ? smooth - segment : 0;
-
-      if (!reduce) {
-        uniforms.uTime.value = time;
-        const r = wrap.getBoundingClientRect();
-        const mx = mouse.x - r.left;
-        const my = mouse.y - r.top;
-        const inside = mx >= 0 && my >= 0 && mx <= r.width && my <= r.height;
-        uniforms.uMouse.value.set(mx - width / 2, height / 2 - my);
-        uniforms.uRepel.value += ((inside ? 1 : 0) - uniforms.uRepel.value) * 0.08;
-      }
-
-      renderer.render(scene, camera);
-    };
-
-    let ticking = false;
-    let started = false;
-    const start = () => {
-      if (ticking) return;
-      ticking = true;
-      gsap.ticker.add(render);
-      if (!started) {
-        started = true;
-        if (!reduce) gsap.to(uniforms.uGather, { value: 1, duration: 2.2, ease: "none" });
-      }
-    };
-    const stop = () => {
-      if (!ticking) return;
-      ticking = false;
-      gsap.ticker.remove(render);
-    };
-
-    // Only spend GPU time while the field is actually on screen.
-    const io = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? start() : stop()),
-      { rootMargin: "120px 0px" }
-    );
-    io.observe(wrap);
-
-    const ro = new ResizeObserver(() => {
-      width = Math.max(1, wrap.clientWidth);
-      height = Math.max(1, wrap.clientHeight);
-      renderer.setSize(width, height, false);
-      camera.left = -width / 2;
-      camera.right = width / 2;
-      camera.top = height / 2;
-      camera.bottom = -height / 2;
-      camera.updateProjectionMatrix();
-      uniforms.uScale.value = Math.min(width, height) * FIELD_FIT;
-      if (!ticking) render(uniforms.uTime.value);
-    });
-    ro.observe(wrap);
-
-    onReadyRef.current?.(true);
-
     return () => {
-      io.disconnect();
-      ro.disconnect();
-      stop();
-      gsap.killTweensOf(uniforms.uGather);
-      window.removeEventListener("pointermove", onMove);
-      geometry.dispose();
-      material.dispose();
-      renderer.dispose();
-      canvas.remove();
+      gone = true;
+      teardown?.();
     };
   }, [active, shapes, position]);
 
