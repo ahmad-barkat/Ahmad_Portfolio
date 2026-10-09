@@ -25,7 +25,7 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
  *
  * Before the dive the world idles on a loop of `LOOP_SECONDS`: the dust
  * streams past and the logo turns once. The opening video is a recording of
- * exactly that loop (see /dev/world-loop), and `syncLoop` sets the scene to
+ * exactly that loop, and `syncLoop` sets the scene to
  * the video's current time, so the hand-off from video to live 3D is exact.
  */
 export interface HelixState {
