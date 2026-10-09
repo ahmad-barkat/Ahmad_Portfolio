@@ -307,8 +307,8 @@ export function AboutMeSection() {
               className="relative z-10 w-full max-w-[720px] aspect-[1281/974] lg:w-[138%] lg:max-w-none"
             >
               <LiquidMaskReveal
-                imageBase="/dragon-skitched.webp?v=2"
-                imageHover="/dragon-filled.webp?v=2"
+                imageBase="/dragon-skitched.webp?v=3"
+                imageHover="/dragon-filled.webp?v=3"
                 altBase="Dragon — Crimson Sketch Form"
                 altHover="Dragon — Unleashed Wrath Form"
                 fitMode="contain-center"

@@ -79,7 +79,7 @@ export const LandoAboutHero: React.FC = () => {
           counters.forEach((el) => (el.textContent = el.dataset.count ?? ""));
           gsap.set(q(".hero-wordmark .hr-reveal-char"), { yPercent: 0 });
           gsap.fromTo(
-            q('[data-parallax-layer="1"] > div, .hero-portrait-enter, .hero-wordmark-enter, .hs-in, .hero-mobile-line'),
+            q('[data-parallax-layer="1"] > div, .hero-wordmark-enter, .hs-in, .hero-mobile-line'),
             { opacity: 0 },
             { opacity: 1, duration: 0.6, ease: "power1.out", clearProps: "opacity", onComplete: done },
           );
@@ -97,11 +97,12 @@ export const LandoAboutHero: React.FC = () => {
           0,
         );
 
-        // The portrait unveils from the bottom up
+        // The portrait settles into place. It is never hidden: as the largest
+        // image it has to paint before any script runs
         tl.fromTo(
           q(".hero-portrait-enter"),
-          { opacity: 0, y: 70, scale: 1.05, clipPath: "inset(100% 0% 0% 0%)" },
-          { opacity: 1, y: 0, scale: 1, clipPath: "inset(0% 0% 0% 0%)", duration: 1.6, clearProps: "transform,clipPath" },
+          { y: 40, scale: 1.04 },
+          { y: 0, scale: 1, duration: 1.6, clearProps: "transform" },
           0.1,
         );
 
@@ -279,7 +280,7 @@ export const LandoAboutHero: React.FC = () => {
       >
         {/* Without scripts there is no entrance, so nothing may wait for one */}
         <noscript>
-          <style>{`[data-intro-state] * { opacity: 1 !important; transform: none !important; }`}</style>
+          <style>{`[data-intro-state] * { opacity: 1 !important; transform: none !important; clip-path: none !important; }`}</style>
         </noscript>
         {/* ── LAYER 1 // DEEPEST: atmospheric plate ── */}
         <div
@@ -363,9 +364,10 @@ export const LandoAboutHero: React.FC = () => {
                  The hover plate is a cutout too (the figure plus the red moon
                  behind him), so `knockout` clears the portrait under the brush
                  and the hero ground shows through instead of both figures. */
-              imageBase="/hero-base-cutout.webp?v=3"
+              imageBase="/hero-base-cutout.webp?v=4"
               imageHover="/hero-hover-cutout.webp?v=1"
               knockout
+              priority
               altBase="Ahmad Barkat — Executive Portrait"
               altHover="Ahmad Barkat — Shinobi Identity"
               fitMode="cover"

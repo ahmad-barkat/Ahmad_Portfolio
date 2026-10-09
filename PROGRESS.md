@@ -5,7 +5,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - **Project:** `D:\Ahmad Updated Portfolio\Ahmad_Portfolio`
 - **Stack:** Next.js 15 (App Router), React 19, TypeScript, Tailwind 3, GSAP (ScrollTrigger, useGSAP), Lenis, three.js, motion.
 - **Dev server:** `npm run dev` on http://localhost:3000. Keep it running while working.
-- **Last updated:** 2026-10-08
+- **Last updated:** 2026-10-09
 
 ---
 
@@ -323,20 +323,17 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 2. **Meanings for Japanese terms site-wide** (client request, 2026-09-30): proposed and waiting for the client's go-ahead. Use `JpTerm` for small kanji and anime words (写輪眼, 上忍, 位 任 気, 忍, Jōnin, S-rank, Chakra, Shinobi) and a permanent caption for big decorative kanji (龍 on About), as on the contact page.
 3. **Projects page content:** swap the dummy project details, case studies (`caseStudy` in `src/data/projects.ts`) and project-page data (`src/data/project-details.ts`) for real ones when the client sends them.
 4. **Verify the latest hero entrance tweak:** record the entrance on desktop and phone; confirm the stat dividers fade in with their numbers. Test in a production build (`npm run build && npm start`); in dev, hydration delays the start by about 3–4s.
-5. **Full home-page bug check** (requested by the client, not started). Known lead:
-   - `Navbar.tsx` calls `gsap.defaults({ ease: "kn-main", duration: 0.7 })`, which changes GSAP defaults for every tween on the site. Scope it to the navbar's own timelines.
-   - Also check: every section at 1440×900 and 390×844; console errors and horizontal overflow; Lenis anchor links; the footer curtain; reduced-motion paths; `/` → `/home` through the transition overlay (the entrance must wait for it).
+5. **Check the 2026-10-09 speed pass on a real phone:** the hero portrait entrance (now a slide/scale settle, no fade), the Services pin on phones, the deferred sections waking as you scroll (nothing should pop or jump), the footer curtain, and the `/projects` card images (headless could not draw them). Mobile Lighthouse is about 51; the hero alone caps it at about 66 on the simulated mid-range phone, so going higher needs a lighter hero design (client decision).
 6. Keep committing and pushing after each batch of client-approved changes.
 
 ---
 
 ## 7. Known issues
 
-- `Navbar.tsx` sets global GSAP defaults (see step 4 above).
 - Project page heroes use desktop screenshots; on phones the cover crop shows a zoomed part of the screenshot (softened by the hero blur). Portrait crops per project would look better.
 - In dev, the first visit to a project page compiles the route; the overlay holds on the full image until the page arrives (up to 9s). Production is near-instant.
 - Screens wider than 2.35:1 would see a small size mismatch at the video hand-off (the video then covers by width).
-- A "GSAP target [object NodeList] not found" warning appears in the console on every page (seen on `/`, `/privacy`, `/contact`), so it comes from shared code (navbar or layout), not a single page.
+- Mobile Lighthouse performance is about 51 (desktop about 90–94). The cost is the hero's GSAP entrance, WebGL and layout on a 4× throttled CPU; the hero alone scores about 66.
 - Calendly's calendar takes about 5–10 s to draw on the dev server (it is Calendly's page). The "Powered by Calendly" ribbon can only be removed on a paid Calendly plan.
 
 ---
@@ -373,6 +370,9 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 ## 10. Changelog
 
 Newest first. One line per change: date, what changed, files touched.
+
+### 2026-10-09
+- Speed, accessibility and responsive pass (client request, every item approved). Lighthouse on a local production build: desktop perf 57 → 90–94, mobile 37 → about 51; a11y 96 → 100 on mobile (desktop's last flag, the 'Why I build' year label, fixed after the run), best practices and SEO 100. Changes: new `src/components/ui/use-activate.ts` (`useActivate`: true once an element is near the viewport and the page has settled after the first input or ~6s idle; `queueScrollRefresh`: one debounced `ScrollTrigger.refresh()`). WebGL scenes (`liquid-mask-reveal.tsx`, `ParticleField.tsx`, `TechStackSection.tsx`) and the scroll animations of `WhyIBuildSection`, `ServicesSection`, `ProcessSection`, `WorkSection`, `motion-footer.tsx`, `next-page.tsx` now set up only when near. Tech Stack on phones: no antialias, lighter spheres, pixel ratio ≤ 1.5. Hero LCP: the portrait is no longer hidden at load (slides/scales into place instead of fading), `fetchPriority="high"`, and the page fade starts at opacity 0.01 so Chrome counts it. Images recompressed: `dragon-filled.webp`, `dragon-skitched.webp` (1100×836), `hero-base-cutout.webp` (cache-busted `?v=3`/`?v=4`). Navbar: GSAP defaults set once at module load (same ease and duration, now consistent everywhere), empty-target tweens guarded (fixes the "[object NodeList] not found" warning), duplicate `aria-label` removed. Contrast: Work counter, 'Why I build' statement (starts at 0.4, min 24px) and year label. Work tab `aria-label` replaced with sr-only text. **Services is now scroll-pinned on phones too** (cards slide with scroll, shorter pin: 0.6 of desktop distance); the swipe carousel is only kept for reduced motion. Checked: every page (`/`, `/home`, `/projects`, two project pages, `/contact`, `/hire`, `/privacy`, `/terms`, 404) at 360, 390, 768, 1024, 1440, 1920 has no horizontal overflow and no console errors; Services pin screenshotted at 390×844 and 360×740; the 5-row menu fits 360×640; `/projects` steps and snaps on touch scroll. Files: above plus `globals.css`, `AboutMeSection.tsx`, `LandoAboutHero.tsx`, `WillemLoader.tsx`, `Navbar.tsx`.
 
 ### 2026-10-08
 - Hire me in the menu and on the nav page (client request): a fifth row "Hire me" (`/hire`, mint) in `MENU_LINKS` (`Navbar.tsx`, reuses ambient shape 1) and a fifth rectangle "HIRE ME" in `NAV_ITEMS` (`src/app/page.tsx`, alternates from the right). Menu close animation fixed: the open/close effect reverted its own tweens on every state flip, snapping the panels back to their parked place before the close could play; it now only reverts on unmount, and a close in progress is killed if the menu reopens. Checked in the browser pane: the fifth row exists, and the panel/links stay in place at the start of the close (before: snapped away at once). The pane draws about 2 fps, so the smoothness itself is not seen: watch the close once on the real site. Typecheck clean. Check the 5 rows fit on a short phone screen, and the nav page's 5th rectangle at 1440x900 and 390x844.

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { useActivate } from "./use-activate";
 import gsap from "gsap";
 import { sampleShape, type ShapeDrawer } from "./particle-shapes";
 
@@ -127,10 +128,11 @@ export function ParticleField({ shapes, position, onReady, className }: Particle
   const wrapRef = useRef<HTMLDivElement>(null);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
+  const active = useActivate(wrapRef);
 
   useEffect(() => {
     const wrap = wrapRef.current;
-    if (!wrap || !shapes.length) return;
+    if (!active || !wrap || !shapes.length) return;
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const vw = window.innerWidth;
@@ -339,7 +341,7 @@ export function ParticleField({ shapes, position, onReady, className }: Particle
       renderer.dispose();
       canvas.remove();
     };
-  }, [shapes, position]);
+  }, [active, shapes, position]);
 
   return <div ref={wrapRef} aria-hidden="true" className={className} />;
 }

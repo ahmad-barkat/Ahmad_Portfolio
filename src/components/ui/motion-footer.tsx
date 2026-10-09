@@ -14,6 +14,7 @@ import { useLenis } from "@/components/ui/LenisProvider";
 import { cn } from "@/lib/utils";
 import { LogoMark } from "@/components/ui/Logo";
 import { EMAIL_HREF, GITHUB_URL, LINKEDIN_URL, WHATSAPP_HREF } from "@/data/contact";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -176,8 +177,12 @@ export function CinematicFooter() {
     return () => io.disconnect();
   }, []);
 
+  const sceneOn = useActivate(wrapRef, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const mm = gsap.matchMedia();
       mm.add("(prefers-reduced-motion: no-preference)", () => {
         const wrap = wrapRef.current!;
@@ -219,7 +224,7 @@ export function CinematicFooter() {
       });
       return () => mm.revert();
     },
-    { scope: wrapRef },
+    { scope: wrapRef, dependencies: [sceneOn] },
   );
 
   const navigate = (item: FooterLinkItem, el: HTMLElement) => {

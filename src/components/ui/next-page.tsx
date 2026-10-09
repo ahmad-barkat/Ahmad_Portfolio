@@ -8,6 +8,7 @@ import { useGSAP } from "@gsap/react";
 import { useLenis } from "./LenisProvider";
 import { useOpenProject } from "./project-transition";
 import { HANDOFF_DONE_EVENT } from "./page-ready";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -131,8 +132,12 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
   const goRef = useRef(go);
   goRef.current = go;
 
+  const sceneOn = useActivate(rootRef, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const root = rootRef.current;
       if (!root) return;
       const q = gsap.utils.selector(root);
@@ -172,7 +177,7 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
         };
       });
     },
-    { scope: rootRef },
+    { scope: rootRef, dependencies: [sceneOn] },
   );
 
   const onClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

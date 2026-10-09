@@ -10,9 +10,13 @@ import ButtonWithIcon from "./button-with-icon";
 import { LogoLockup } from "./Logo";
 import { useLenis } from "./LenisProvider";
 
-// Register GSAP plugins safely on client
+// The site's house ease. It is set once, when this module loads, so every
+// tween on every page gets the same default no matter which component mounts
+// first (it used to be set from an effect, so early tweens missed it).
 if (typeof window !== "undefined") {
   gsap.registerPlugin(CustomEase);
+  if (!CustomEase.get("kn-main")) CustomEase.create("kn-main", "0.65, 0.01, 0.05, 0.99");
+  gsap.defaults({ ease: "kn-main", duration: 0.7 });
 }
 
 // Nav links for the full-screen kinetic navigation overlay
@@ -40,15 +44,6 @@ export default function Navbar() {
   // ── 2. Full-Screen Kinetic Overlay Logic (Preserved from Sterling Gate) ───
   useEffect(() => {
     if (!containerRef.current) return;
-
-    try {
-      if (!CustomEase.get("kn-main")) {
-        CustomEase.create("kn-main", "0.65, 0.01, 0.05, 0.99");
-      }
-      gsap.defaults({ ease: "kn-main", duration: 0.7 });
-    } catch {
-      gsap.defaults({ ease: "power2.out", duration: 0.7 });
-    }
 
     const ctx = gsap.context(() => {
       const menuItems = containerRef.current!.querySelectorAll<HTMLElement>(".kn-menu-item[data-shape]");
@@ -142,7 +137,8 @@ export default function Navbar() {
           { yPercent: 0, rotate: 0, autoAlpha: 1, duration: 0.75, stagger: 0.05, ease: "power4.out", delay: 0.35, overwrite: "auto" }
         );
 
-        gsap.fromTo(
+        // The badges exist only for visited pages, so the list can be empty
+        if (fadeItems.length) gsap.fromTo(
           fadeItems,
           { opacity: 0, y: 15 },
           { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out", delay: 0.45, overwrite: "auto" }
@@ -162,8 +158,9 @@ export default function Navbar() {
         });
         closeTl.current = tl;
 
-        tl.to(links, { opacity: 0, yPercent: -40, duration: 0.25, stagger: 0.03, ease: "power2.in" })
-          .to(fadeItems, { opacity: 0, duration: 0.2 }, "-=0.15")
+        tl.to(links, { opacity: 0, yPercent: -40, duration: 0.25, stagger: 0.03, ease: "power2.in" });
+        if (fadeItems.length) tl.to(fadeItems, { opacity: 0, duration: 0.2, ease: "kn-main" }, "-=0.15");
+        tl
           .to(panels, { xPercent: 101, duration: 0.5, stagger: 0.06, ease: "kn-main" }, "-=0.1")
           .to(overlay, { opacity: 0, duration: 0.3, ease: "power2.out" }, "-=0.3");
       }
@@ -282,7 +279,6 @@ export default function Navbar() {
             <div className="nav-dock-slot nav-dock-slot--left">
               <ButtonWithIcon
                 onClick={handleHireMeClick}
-                aria-label="Hire AHMAD Barkat"
               >
                 Let&apos;s Collaborate
               </ButtonWithIcon>

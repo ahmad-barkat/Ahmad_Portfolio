@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import * as THREE from "three";
+import { useActivate } from "./use-activate";
 
 export interface LiquidMaskRevealProps {
   imageBase: string;
@@ -37,6 +38,8 @@ export interface LiquidMaskRevealProps {
    *  the brush or both subjects show through each other. The base is then drawn in the
    *  shader alongside the hover image (both plates must share one aspect ratio). */
   knockout?: boolean;
+  /** The page's largest image: fetch the base plate first */
+  priority?: boolean;
 }
 
 export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
@@ -64,11 +67,15 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
   parallaxAmount = 50,
   parallaxSmoothing = 0,
   knockout = false,
+  priority = false,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  // The plain <img> shows until the shader is live, so the WebGL stage can
+  // wait until the visitor is near it and the page has settled
+  const active = useActivate(containerRef);
   // Read by the render loop each frame, so a new size needs no restart
   const brushPxRef = useRef(brushPx);
   brushPxRef.current = brushPx;
@@ -109,7 +116,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
     const canvas = canvasRef.current;
     const baseImg = imgRef.current;
     const container = containerRef.current;
-    if (!canvas || !container) return;
+    if (!active || !canvas || !container) return;
 
     let isAnimating = false;
     let rafId = 0;
@@ -975,6 +982,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
       renderer.dispose();
     };
   }, [
+    active,
     imageBase,
     imageHover,
     radius,
@@ -1019,6 +1027,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         alt={altBase}
         draggable={false}
         decoding="async"
+        fetchPriority={priority ? "high" : "auto"}
         className={`absolute inset-0 w-full h-full ${fitClass} ${imageClassName} pointer-events-none select-none`}
       />
 

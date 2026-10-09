@@ -20,9 +20,9 @@ const HERO_GROUND = "#072A5E";
 /* Layered covers revealed one after another — index 0 sits on top and fades first.
    Same URLs (and cache keys) as the hero and the dragon reveal, so they are reused. */
 const DEFAULT_IMAGES: LoaderImage[] = [
-  { src: "/hero-base-cutout.webp?v=3", position: "56% 22%", zoom: 1.55, backdrop: HERO_GROUND },
+  { src: "/hero-base-cutout.webp?v=4", position: "56% 22%", zoom: 1.55, backdrop: HERO_GROUND },
   { src: "/hero-hover-cutout.webp?v=1", position: "50% 24%", zoom: 1.45, backdrop: HERO_GROUND },
-  { src: "/dragon-filled.webp?v=2", position: "50% 42%", backdrop: HERO_GROUND },
+  { src: "/dragon-filled.webp?v=3", position: "50% 42%", backdrop: HERO_GROUND },
 ];
 
 const toImage = (img: string | LoaderImage): LoaderImage =>

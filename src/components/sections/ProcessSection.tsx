@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import ButtonWithIcon from "@/components/ui/button-with-icon";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -283,8 +284,12 @@ export function ProcessSection() {
   const dotsId = `prc-dots-${uid}`;
   const { transitionTo } = usePageTransition();
 
+  const sceneOn = useActivate(sectionRef, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const section = sectionRef.current;
       const track = trackRef.current;
       const view = viewRef.current;
@@ -620,7 +625,7 @@ export function ProcessSection() {
 
       return () => mm.revert();
     },
-    { scope: sectionRef }
+    { scope: sectionRef, dependencies: [sceneOn] }
   );
 
   const handleStart = (e: React.MouseEvent<HTMLButtonElement>) => {

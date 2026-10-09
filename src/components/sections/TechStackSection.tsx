@@ -8,6 +8,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import { TECH_ICONS } from "./tech-stack-icons";
+import { useActivate } from "@/components/ui/use-activate";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -250,6 +251,8 @@ export function TechStackSection() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
+  // The scene (and its environment map) builds only once the visitor nears it
+  const active = useActivate(stageRef);
 
   // Copy entrance
   useGSAP(
@@ -274,12 +277,14 @@ export function TechStackSection() {
     const stage = stageRef.current;
     const canvas = canvasRef.current;
     const chip = chipRef.current;
-    if (!stage || !canvas || !chip) return;
+    if (!active || !stage || !canvas || !chip) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    // Phones get a lighter build: plain edges, fewer facets, a lower pixel ratio
+    const light = window.matchMedia("(max-width: 767px), (pointer: coarse)").matches;
 
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+      renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: !light, powerPreference: "high-performance" });
     } catch {
       stage.dataset.fallback = "true";
       return;
@@ -306,7 +311,7 @@ export function TechStackSection() {
 
     const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 400);
 
-    const geometry = new THREE.SphereGeometry(1, 64, 48);
+    const geometry = light ? new THREE.SphereGeometry(1, 40, 30) : new THREE.SphereGeometry(1, 64, 48);
     const pentagons = pentagonNormals();
     const hexagons = hexagonNormals();
     // The site's royal blue and ice white
@@ -426,7 +431,7 @@ export function TechStackSection() {
         target.y = home.y;
       }
 
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, light ? 1.5 : 1.75));
       renderer.setSize(W, H, false);
     };
 
@@ -810,7 +815,7 @@ export function TechStackSection() {
       pmrem.dispose();
       renderer.dispose();
     };
-  }, []);
+  }, [active]);
 
   return (
     <section

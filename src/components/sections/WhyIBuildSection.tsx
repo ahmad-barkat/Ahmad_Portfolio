@@ -11,6 +11,7 @@ import JpTerm from "@/components/ui/jp-term";
 import { TextRoll } from "@/components/ui/TextRoll";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 import { projectPath } from "@/data/projects";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 
 gsap.registerPlugin(ScrollTrigger, useGSAP);
 
@@ -100,17 +101,22 @@ export function WhyIBuildSection() {
   const [active, setActive] = useState(0);
   const { transitionTo } = usePageTransition();
 
+  const sceneOn = useActivate(root, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const el = root.current;
       if (!el) return;
       const mm = gsap.matchMedia();
 
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        // The statement: each word goes from faint to full as it scrolls through
+        // The statement: each word goes from faint to full as it scrolls through.
+        // Faint is 0.4, the lowest that still reads at 3:1 contrast as large text.
         gsap.fromTo(
           el.querySelectorAll(".wb-statement__w"),
-          { opacity: 0.16 },
+          { opacity: 0.4 },
           {
             opacity: 1,
             ease: "none",
@@ -195,7 +201,7 @@ export function WhyIBuildSection() {
 
       return () => mm.revert();
     },
-    { scope: root },
+    { scope: root, dependencies: [sceneOn] },
   );
 
   const openProject = (

@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import { ParticleField, FIELD_FIT } from "@/components/ui/ParticleField";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 import {
   drawBolt,
   drawCode,
@@ -100,8 +101,12 @@ const SERVICES: Service[] = [
 const SHAPES = SERVICES.map((s) => s.shape);
 
 // Kept in step with the matching media queries in globals.css (.svc-*).
-const PINNED = "(min-width: 768px) and (prefers-reduced-motion: no-preference)";
-const CAROUSEL = "(max-width: 767px), (prefers-reduced-motion: reduce)";
+// Every screen size scrolls through the cards; only reduced motion gets the
+// plain swipe carousel.
+const PINNED = "(prefers-reduced-motion: no-preference)";
+const CAROUSEL = "(prefers-reduced-motion: reduce)";
+// Phones travel the same six cards in less scroll than a desktop
+const PHONE = "(max-width: 767px)";
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -191,8 +196,12 @@ export function ServicesSection() {
 
   const handleIndex = useCallback((i: number) => setActive(i), []);
 
+  const sceneOn = useActivate(sectionRef, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const section = sectionRef.current;
       const track = trackRef.current;
       if (!section || !track) return;
@@ -221,9 +230,12 @@ export function ServicesSection() {
         });
       });
 
-      // Desktop / tablet: pin the section and scrub the track sideways. One vertical
-      // pixel moves the track 1/0.9 px, and snap settles on whole cards.
+      // Pin the section and scrub the track sideways. On desktop one vertical
+      // pixel moves the track 1/0.9 px; phones move faster (1/0.6 px), so the
+      // pin never outstays its welcome on a small screen. Snap settles on
+      // whole cards.
       mm.add(PINNED, () => {
+        const pace = window.matchMedia(PHONE).matches ? 0.6 : 0.9;
         const update = makeFocusDriver(cards, handleIndex, progressRef.current, morphRef);
         // offsetLeft ignores transforms, so the card scale never skews the step.
         const step = () => cards[1].offsetLeft - cards[0].offsetLeft;
@@ -240,7 +252,7 @@ export function ServicesSection() {
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => `+=${distance() * 0.9}`,
+            end: () => `+=${distance() * pace}`,
             pin: true,
             scrub: 0.9,
             anticipatePin: 1,
@@ -261,8 +273,8 @@ export function ServicesSection() {
         return clear;
       });
 
-      // Phones and reduced motion: a native swipe carousel. Nothing hijacks
-      // vertical scrolling; focus is read from where the track has been swiped to.
+      // Reduced motion: a native swipe carousel. Nothing hijacks vertical
+      // scrolling; focus is read from where the track has been swiped to.
       mm.add(CAROUSEL, () => {
         const update = makeFocusDriver(cards, handleIndex, null, morphRef);
         let raf = 0;
@@ -302,7 +314,7 @@ export function ServicesSection() {
         mm.revert();
       };
     },
-    { scope: sectionRef }
+    { scope: sectionRef, dependencies: [sceneOn] }
   );
 
   const goTo = (i: number) => {

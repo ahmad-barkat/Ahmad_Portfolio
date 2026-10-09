@@ -13,6 +13,7 @@ import { useLenis } from "@/components/ui/LenisProvider";
 import { TextRoll } from "@/components/ui/TextRoll";
 import { useOpenProject } from "@/components/ui/project-transition";
 import { PROJECTS as ALL_PROJECTS, projectPath } from "@/data/projects";
+import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -36,8 +37,12 @@ export function WorkSection() {
   const { transitionTo } = usePageTransition();
   const zoomInto = useOpenProject();
 
+  const sceneOn = useActivate(sectionRef, "200% 0px");
   useGSAP(
     () => {
+      // Set up only once the visitor nears the section (see use-activate.ts)
+      if (!sceneOn) return;
+      queueScrollRefresh();
       const section = sectionRef.current;
       const deck = deckRef.current;
       if (!section || !deck) return;
@@ -208,7 +213,7 @@ export function WorkSection() {
 
       return () => mm.revert();
     },
-    { scope: sectionRef }
+    { scope: sectionRef, dependencies: [sceneOn] }
   );
 
   const goTo = (i: number) => {
@@ -296,7 +301,6 @@ export function WorkSection() {
                   type="button"
                   className="wrk-tab"
                   onClick={() => goTo(i)}
-                  aria-label={`Project ${index}: ${project.title}`}
                 >
                   <span className="wrk-tab__idx">
                     <i aria-hidden="true" />
@@ -340,6 +344,8 @@ export function WorkSection() {
                       <TextRoll className="ftr-link__roll" style={{ lineHeight: 1.25 }}>
                         View project
                       </TextRoll>
+                      {/* Four "View project" links: say which one */}
+                      <span className="sr-only">: {project.title}</span>
                       <ArrowUpRight aria-hidden="true" strokeWidth={2} />
                     </a>
                   </div>
