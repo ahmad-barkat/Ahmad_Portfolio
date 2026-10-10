@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
 import "./globals.css";
 import LenisProvider from "@/components/ui/LenisProvider";
 import TransitionProvider from "@/components/ui/TransitionProvider";
@@ -16,6 +16,8 @@ const BASE_URL = "https://ahmadbarkat.dev";
 // numbers. Self-hosted by next/font, exposed as --font-sans / --font-mono.
 const sans = Geist({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
 const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono", display: "swap" });
+// One accent face: the italic serif word in the home hero's headline
+const serif = Instrument_Serif({ subsets: ["latin"], weight: "400", style: "italic", variable: "--font-serif", display: "swap" });
 
 const TITLE = "Ahmad Barkat | Full-Stack Developer, open to remote & relocation";
 const DESCRIPTION =
@@ -68,7 +70,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`dark ${sans.variable} ${mono.variable}`}>
+    <html lang="en" suppressHydrationWarning className={`dark ${sans.variable} ${mono.variable} ${serif.variable}`}>
       <body
         suppressHydrationWarning
         className="font-sans"

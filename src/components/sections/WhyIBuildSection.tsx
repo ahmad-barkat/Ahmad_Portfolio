@@ -27,13 +27,6 @@ const BEATS: {
   project?: { slug: string; name: string };
 }[] = [
   {
-    when: "Jan",
-    span: "4 weeks",
-    title: "Took apart the app everyone scrolls",
-    text: "I rebuilt the Facebook feed pixel by pixel to see how something that big holds together. Most of it, it turns out, is small decisions nobody notices.",
-    project: { slug: "facebook-clone", name: "Facebook Clone" },
-  },
-  {
     when: "Feb",
     span: "3 weeks",
     title: "Made my résumé worth reading",
@@ -75,26 +68,11 @@ const BEATS: {
   },
 ];
 
-const PROMISES = [
-  {
-    title: "Straight answers",
-    text: "If something won't work, or will cost more than it's worth, you'll hear it from me early.",
-  },
-  {
-    title: "Progress you can see",
-    text: "A live link from the first week, updated as we go. You never have to ask where things are.",
-  },
-  {
-    title: "Work that lasts",
-    text: "Fast pages, clean code and a handover you can use long after launch.",
-  },
-];
-
 /**
  * Why I build: the human part of the home page. A statement that lights up
  * word by word as it scrolls past, then the year told through the projects
  * (a line draws down the beats while the month beside them turns over),
- * ending on an open slot for the visitor's project, then three promises.
+ * ending on an open slot for the visitor's project.
  */
 export function WhyIBuildSection() {
   const root = useRef<HTMLElement>(null);
@@ -155,19 +133,6 @@ export function WhyIBuildSection() {
             ease: "power3.out",
             scrollTrigger: { trigger: b, start: "top 85%", once: true },
           });
-        });
-
-        gsap.from(".wb-promise", {
-          y: 24,
-          opacity: 0,
-          duration: 0.9,
-          stagger: 0.1,
-          ease: "power3.out",
-          scrollTrigger: {
-            trigger: ".wb-promises",
-            start: "top 85%",
-            once: true,
-          },
         });
       });
 
@@ -273,7 +238,7 @@ export function WhyIBuildSection() {
               {String(BEATS.length).padStart(2, "0")}
             </span>
             <p className="wb-aside__note">
-              Six builds in eight months, each one a little harder than the
+              Five builds in seven months, each one a little harder than the
               last.
             </p>
           </div>
@@ -341,20 +306,6 @@ export function WhyIBuildSection() {
           </div>
         </div>
 
-        <div className="wb-promises">
-          <p className="wb-promises__label">What you can count on</p>
-          <ul className="wb-promises__list">
-            {PROMISES.map((p, i) => (
-              <li key={p.title} className="wb-promise">
-                <span className="wb-promise__num">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h3 className="wb-promise__title">{p.title}</h3>
-                <p className="wb-promise__text">{p.text}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
       </div>
     </section>
   );

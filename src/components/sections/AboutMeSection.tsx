@@ -220,7 +220,7 @@ export function AboutMeSection() {
                 <span className="text-[#E8F6FF] font-bold underline decoration-[#3BA7F2] decoration-2 underline-offset-4">
                   AHMAD Barkat
                 </span>
-                , a full-stack developer who designs and builds websites and web apps for startups and growing businesses. Over the past year I&apos;ve shipped seven projects, from a property platform for a Dubai developer to agency and brand sites and interactive portfolios, each taken from first sketch to launch.
+                , a full-stack developer who designs and builds websites and web apps for startups and growing businesses. Over the past year I&apos;ve shipped six projects, from a property platform for a Dubai developer to agency and brand sites and interactive portfolios, each taken from first sketch to launch.
               </p>
 
               {/* Working together */}

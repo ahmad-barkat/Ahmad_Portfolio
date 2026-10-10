@@ -3,7 +3,7 @@
  *
  * TEMPORARY: the titles and screenshots are real, but the roles, stacks and
  * summaries were written from the screenshots alone. Every project was built
- * between Jan and Aug 2026 (dates per project in project-details.ts). Confirm or
+ * between Feb and Aug 2026 (dates per project in project-details.ts). Confirm or
  * replace each one, and add `href` for every project that has a live site.
  */
 export interface Project {
@@ -220,35 +220,6 @@ export const PROJECTS: Project[] = [
         { value: 14, suffix: "KB", label: "of JavaScript in total" },
         { value: 96, label: "Lighthouse best practices" },
         { value: 1, label: "click to a matching PDF" },
-      ],
-    },
-  },
-  {
-    slug: "facebook-clone",
-    accent: "#5FC7E4",
-    title: "Facebook Clone",
-    kind: "Social · UI build",
-    year: "2026",
-    role: "Frontend development",
-    stack: ["HTML", "CSS", "JavaScript"],
-    summary:
-      "A faithful rebuild of the Facebook feed: stories, composer, contacts and posts, laid out pixel by pixel to learn how a large product holds together.",
-    cover: "/projects/facebook-clone.webp",
-    // DUMMY case study: replace with the real story and numbers
-    caseStudy: {
-      client: "Learning project",
-      brief:
-        "To learn how a large product holds together, the brief was to rebuild the Facebook home feed by hand, down to the spacing, icons and states.",
-      built: [
-        "The three-column feed: shortcuts, stories and posts, contacts",
-        "A post composer with live video, photo and feeling actions",
-        "Story cards and photo grids that hold their shape at every width",
-        "Hover and active states matched to the original",
-      ],
-      results: [
-        { value: 3, label: "layouts, from phone to desktop" },
-        { value: 0, label: "frameworks or UI libraries" },
-        { value: 94, suffix: "%", label: "match to the original spacing" },
       ],
     },
   },

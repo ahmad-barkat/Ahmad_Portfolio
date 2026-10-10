@@ -100,7 +100,7 @@ export function llmsText(): string {
     "",
     "## Pages",
     `- [Home](${SITE_URL}/home): about, services, process and tech stack`,
-    `- [Projects](${SITE_URL}/projects): seven projects built in 2026`,
+    `- [Projects](${SITE_URL}/projects): six projects built in 2026`,
     `- [Hire me](${SITE_URL}/hire): availability, location, skills and how to reach me`,
     `- [Contact](${SITE_URL}/contact): project brief form and a 30-minute call booking`,
     "",

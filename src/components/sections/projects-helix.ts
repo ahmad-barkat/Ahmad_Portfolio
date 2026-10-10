@@ -47,8 +47,8 @@ const FOV = 30;
 const CAM_Z = VIEW_H / 2 / Math.tan(THREE.MathUtils.degToRad(FOV / 2));
 /** Far enough out that the logo is a speck */
 const CAM_FAR = 240;
-/** Cards on the strand; must be a multiple of the project count (5 x 7 projects) */
-const CARD_COUNT = 35;
+/** Cards on the strand; must be a multiple of the project count (5 x 6 projects) */
+const CARD_COUNT = 30;
 const CARD_ASPECT = 1.45;
 
 /** The dust streams through this depth range, wrapping at the ends */

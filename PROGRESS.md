@@ -5,7 +5,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - **Project:** `D:\Ahmad Updated Portfolio\Ahmad_Portfolio`
 - **Stack:** Next.js 15 (App Router), React 19, TypeScript, Tailwind 3, GSAP (ScrollTrigger, useGSAP), Lenis, three.js, motion.
 - **Dev server:** `npm run dev` on http://localhost:3000. Keep it running while working.
-- **Last updated:** 2026-10-09
+- **Last updated:** 2026-10-10
 
 ---
 
@@ -14,15 +14,15 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Area | Status |
 |---|---|
 | Home page (`/home`) | Built. Needs a full bug check (section 7). |
-| Hero entrance | Built. Last tweak (stat dividers fade in) not yet re-recorded. |
+| Hero entrance | Rebuilt 2026-10-09 (section 4, Hero). Not yet seen on a real phone. |
 | Projects page (`/projects`) | Built: "Enter my world" (seamless loop video → 3D logo + project helix), then an endless scroll-driven carousel with four clickable cards in front (section 5). Nothing below it. All project content is dummy. |
-| Project pages (`/projects/[slug]`) | Built for all 7 projects: image-to-background zoom from any project image, then glance, case study, problem, challenge, process, result, client review, testimonials, footer, scroll to the next project (section 5b). All figures are dummy. |
+| Project pages (`/projects/[slug]`) | Built for all 6 projects: image-to-background zoom from any project image, then glance, case study, problem, challenge, process, result, client review, testimonials, footer, scroll to the next project (section 5b). All figures are dummy. |
 | Contact page (`/contact`) | Rebuilt 2026-09-30: hero, project brief form (Formspree), direct channels, FAQ (section 5c). Form sends through Formspree (form `mvkgldyb`). Budgets, reply time and FAQ figures are placeholders. |
 | Hire page (`/hire`) | Built 2026-10-02 for recruiters and AI assistants (section 5d). Education, languages, CV file still missing. |
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
-| Font | Geist (sans) + Geist Mono via `next/font/google` in `layout.tsx`, as `--font-sans` / `--font-mono`. Site-wide. |
+| Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Everything committed and pushed to `origin/master` (latest: `6fe9b75`, 2026-09-29). Contact page rebuild not committed yet. |
+| Git | Pushed to origin/master up to fc39495 (2026-10-09). The 2026-10-09 hero redesign is not committed yet. |
 
 ---
 
@@ -79,15 +79,19 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 ## 4. Home page (`src/app/home/page.tsx`)
 
-1. **Hero:** `LandoAboutHero` + `HeroAside`.
-2. **About:** `AboutMeSection` (the crimson dragon with the liquid reveal).
-3. **Why I build:** `WhyIBuildSection` (`src/components/sections/WhyIBuildSection.tsx`, `.wb-*` CSS, `id="why"`).
-4. **Services:** `ServicesSection`.
-5. **Process:** `ProcessSection` (pinned road map).
-6. **Tech Stack:** `TechStackSection` (3D footballs).
-7. **Work:** `WorkSection` (stacked project cards).
-8. **Testimonials:** `TestimonialsSection` (shared, see below).
-9. **Footer:** `CinematicFooter` (`src/components/ui/motion-footer.tsx`), a curtain reveal.
+The page is ordered as an argument (client-approved 2026-10-10): the promise, the problem, the proof and who made it, the call to action, the outcome, how, the evidence, the plan, the person, social proof, the last call to action.
+
+1. **Hero:** `LandoAboutHero` + `HeroFront` + `ProjectArc` (the promise). Container `id="hero"`.
+2. **Stand out from the noise:** `NoiseSection` (`from="hero"`): the problem, the one that stands out (built by Ahmad), the call to action. Slides in sideways over the hero. See below.
+3. **Outcomes:** `OutcomesSection` (`src/components/sections/OutcomesSection.tsx`, `.oc-*` CSS, `id="outcomes"`): the solution. See below.
+4. **Services:** `ServicesSection` (particle field + card orbit).
+5. **Tech Stack:** `TechStackSection` (3D footballs).
+6. **Work:** `WorkSection` (stacked project cards).
+7. **Process:** `ProcessSection` (pinned road map).
+8. **About:** `AboutMeSection` (the crimson dragon with the liquid reveal).
+9. **Why I build:** `WhyIBuildSection` (`id="why"`).
+10. **Testimonials:** `TestimonialsSection` (shared, see below).
+11. **Footer:** `CinematicFooter` (`src/components/ui/motion-footer.tsx`), a curtain reveal.
 
 ### Footer
 - `CinematicFooter` is on every page except `/projects` (whose carousel never ends). Services marquee, "Have an idea? Let's build it." call to action, logo and status line. Its email link reads "Write me an email"; "Elsewhere" lists WhatsApp, LinkedIn and GitHub (all from `src/data/contact.ts`).
@@ -96,20 +100,17 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - `LogoMark` / `LogoLockup`: an "A" whose crossbar is a text cursor.
 - Used in the navbar centre, the menu, the footer, `src/app/icon.svg` and the OpenGraph image.
 
-### Hero (`LandoAboutHero.tsx`, `HeroAside.tsx`)
-- **Portrait:** WebGL liquid-mask reveal (`liquid-mask-reveal.tsx`) between `/hero-base-cutout.webp` and `/hero-hover-cutout.webp`.
-  - Uses the dragon's reveal settings (`DRAGON_REVEAL` in `src/components/ui/reveal-presets.ts`).
-  - Brush size matched in px to the dragon (`useDragonMetrics`); noise scaled by width.
-- **Side columns (desktop):** intro statement; client proof (avatars, stars, "N client reviews" link); stats (Year / Projects / Reply); rotating client quote with word-by-word `ReadingText`.
-- **Phones:** a stats row (Year / Projects / Reply), a proof pill, and the offer line "I design and build fast, memorable websites and web apps for growing businesses."
-- **Genjutsu hover faces** (`src/components/ui/genjutsu-reveal.tsx`): each side block has a hidden anime "alt face".
-  - Hover paints with the dragon's brush (the same reveal as the About dragon and the portrait): soft ink discs trail the pointer, torn by drifting fractal noise with the dragon shader's constants (`DRAGON_REVEAL`, brush size from `useDragonBrushPx`), and shred away behind it. The normal face takes the exact complement of the mask, so one face tears into the other with nothing between them. SVG masks (`feTurbulence` + arithmetic composite).
-  - Restored on 2026-09-30 at the client's request: a 2026-09-29 rebuild had replaced it with a plain circle + crimson rings, which broke the link with the dragon. The old version was never committed; it was recovered from that session's transcript. Keep this brush.
-  - Touch: a tap spreads ink out from the finger across the block, which then shreds away. Reduced motion: instant swap.
-  - Stats' shinobi face: 中忍 "Chūnin · 1 year of training" (Year), "Missions cleared in 2026" (Projects), "Chakra on standby" with a chakra meter at 86 (Reply time 24h). Kanji 位 任 気 fill on each reveal. Phones: Year / Projects / Reply.
-- **AHMAD wordmark:** its clipped 90px text-shadow was removed (it caused hard-edged rectangles).
-- **Background:** `var(--grad-deep)`.
-- **Offer line (desktop):** "I design and build fast, memorable websites and web apps for growing businesses." (was "Websites that feel as considered as the brands behind them.")
+### Hero (`LandoAboutHero.tsx`, `HeroFront.tsx`, `project-arc.tsx`), redesigned 2026-10-09
+- Modelled on a client reference (an ad agency hero): one headline as the single focus, the portrait in the centre, a curved reel of project cards circling behind it, a rotating badge top right, a proof pill bottom left and a short note bottom right. Navbar unchanged. The side columns (stats, rotating quote) and their genjutsu hover faces were removed; the AHMAD wordmark was kept at the client's request.
+- **Headline (the page's h1):** "Websites that / turn visitors / into *clients.*" (client's choice, 2026-10-09) in Geist 600; "clients." is Instrument Serif italic in mint. Top left. Its place and size are CSS variables on `.hero-stage` (`--hx-title-top`, `--hx-title-size`), shared with the wordmark. `.hx-title`.
+- **AHMAD wordmark** (restored 2026-10-09, client request): behind the portrait in parallax layer 2 with the reel, `clamp(4.5rem, min(14vw, 22vh), 14rem)`. On desktop it starts a short gap under the headline's three lines (`.hero-wordmark-box` top = title top + 3 × title size + `clamp(0.75rem, 3vh, 2rem)`), so the two never meet. On phones and portrait tablets it sits behind the face (24vw, `margin-top: 14svh`). Rises letter by letter at 0.35s.
+- **Portrait:** unchanged WebGL liquid-mask reveal (`liquid-mask-reveal.tsx`, `DRAGON_REVEAL`). On phones and portrait tablets (`max-width: 767px` or `max-aspect-ratio: 4/5`) it is a 70svh panel on the bottom edge (`.hero-portrait-box`) so the headline sits above the head.
+- **Project reel (`ProjectArc`, `src/components/ui/project-arc.tsx`, `.pa*` CSS), a U since 2026-10-10 (client reference):** the cards ride a U: in raised on the left (level with the AHMAD wordmark, out at the screen edge), a steep dive just before its letters, a dip beneath it hidden behind the figure, and out on the right a touch higher. Each card leans with the curve (`LEAN` 0.85), turns in perspective to face the middle (`TURN` 18°), has its own fixed tilt (`JITTER` 6°) and is larger at the ends than in the dip (`DEPTH`). The path is sampled once into a lookup table; one rAF loop moves the cards at 40px/s, only while the hero is on screen; reduced motion: still. It never crosses the wordmark (`avoid=".hero-wordmark"`, every card plus 18px checked); on phones the U rides above it, beside the face. Thumbnails in `public/projects/thumbs/`. Fades out as the hero scrolls away.
+- **"Open to work" badge:** React Bits `TextLoop` (`src/components/ui/text-loop.tsx`, typed; added `fit` to crop the viewBox to the circle, and it pauses off screen; CSS `.text-loop*` in globals.css) rotating "OPEN TO WORK ✦" in Geist Mono round an ice disc with an arrow; mint disc on hover. Links to `/contact` with the page transition. `.hx-badge`.
+- **Proof pill (bottom left, `.hx-proof`):** ice pill with reviewer faces, stars, rating and "N client reviews" (rolls with `data-roll` + `TextRoll`), scrolls to `#reviews`. Turns mint on hover. While there are no published reviews (production today: all reviews are samples), it shows 3 project thumbnails, "6 projects shipped" and "See the work", linking to `/projects`.
+- **Note (bottom right, `.hx-note`):** "Websites and web apps, designed and built by one developer, not an agency." Sits left of the mail button on the same baseline. Hidden on phones.
+- Small phones (≤380px): smaller badge, pill drops its 4th face and arrow so it clears the mail button.
+- Checked in headless Chrome at 1920×1080, 1440×900, 1280×720, 1024×768, 768×1024, 390×844, 360×640: no horizontal overflow, no console errors.
 
 ### About (`AboutMeSection.tsx`)
 - Rewritten in a professional voice (2026-10-01): "HI, I'M AHMAD." heading (was "I AM STILL ALIVE."), "FULL-STACK DEVELOPER · WORKING WORLDWIDE" badge, bio about designing and building websites and web apps for startups and growing businesses (six projects shipped over the past year), "You work with one person the whole way through…" paragraph, plain-words stack description, and badges for Speciality / Core stack / Hours (UTC+5, overlaps UK, EU & Gulf) / Replies. Buttons: "START A PROJECT" and "SEE MY WORK" (were "SUMMON ME TO WORK" and "EXPLORE MY JUTSU").
@@ -117,23 +118,44 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 ### Genjutsu hover faces continued
 - The noise is a 256px tile; the filter region always reaches back to the tile under the trail's top-left corner (tile grid drifts with the noise). Before 2026-09-30 the tile sat fixed at the block's top-left, so on anything taller or wider than 256px (the contact kanji) the ink showed as hard-edged rectangles.
+- Since the 2026-10-09 hero redesign the genjutsu reveal is only used by the contact hero's kanji; the hero-only alt-face CSS was removed.
 
 ### Hero page entrance
 - `src/components/ui/page-ready.ts`: `usePageReady()` is true once the first-visit preloader has lifted and no transition overlay is active.
   - The preloader sets `html[data-preloader="on"]` while showing and fires `app:preloader-done`.
 - One GSAP timeline in `LandoAboutHero.tsx` ("Page entrance" comment):
-  - 0.00s background settles · 0.10s portrait unveils bottom-up (clip-path) · 0.35s AHMAD rises letter by letter · 0.80s left column eyebrow line and words · 0.95s stats rise and count up · 1.25s client proof (faces, then stars) · 1.40s quote. Phones get their own rows.
+  - 0.00s background settles · 0.10s portrait settles (never hidden) · 0.30s headline rises line by line · 0.35s AHMAD rises letter by letter · 0.60s project reel drifts in · 0.90s badge turns in · 1.05s proof pill and note rise.
 - `data-intro-state`: `pending` → `running` → `done`. The quote's reading clock is paused while pending. 6-second fallback, `<noscript>` style, simple fade for reduced motion.
 - `src/components/ui/RevealText.tsx` splits text into masked words (`.rw` / `.rw-i`).
 - `HeadingReveal` has a `manual` prop so a parent timeline can drive its letters (`.hr-reveal-char`). **Accessibility (2026-10-01):** it now hides the split letters and gives the plain text once in a `.sr-only` span, so screen readers and search engines read the whole heading, not letter by letter.
-- Old CSS entrance timers removed (`hero-wordmark-enter`, `hero-portrait-enter`, `.hs-in`, mobile-line animations). The `HeroAside` count-up moved into the hero timeline.
-- Fixed: `.hs-eyebrow span` also styled the word spans; now `.hs-eyebrow > span:not(.rw)`.
-- `.hs-stat` and `.hs-m__stats` containers fade in (opacity 0 → 1) so their dividers don't show before the numbers.
 
 ### Gradients (`globals.css` `:root`, OKLCH from the theme)
 - `--grad-signature` + `--grad-signature-light`: Tech Stack stage.
 - `--grad-deep` + `--grad-deep-light`: hero background and footer (`.ftr`); white text contrast at least 5.6:1.
 - `--grad-soft` + `--grad-soft-light`: via `.sec-gradient` on About; its `::before` fades into navy at top and bottom so there are no seams.
+
+### Stand out from the noise (`NoiseSection.tsx`, `.ns-*` CSS), reworked 2026-10-10
+- Three acts in one pinned scene (5.2 units of 0.8 screen; 0.6 on phones), following the client's hierarchy: hit the pain, show the one that stands out and who made it, then the call to action.
+- **Entrance:** the wrapper (`.ns-wrap`) overlaps the hero's screen (margin -1 screen, `--ns-h` = innerHeight). The hero (`#hero`) pins (`start: "bottom bottom"`, `pinSpacing: false`) and its layers drift left at their own pace (`EXIT_DEPTH`: plate 0.12, wordmark + reel 0.24, portrait 0.38, front 0.6 of the width, front fading) while the stage slides in from the right. The hero's old vertical scroll parallax was removed (`LandoAboutHero.tsx`).
+- **Act one (the problem):** a 15 × 11 wall of grey look-alike website tiles (canvas templates: "LOGO", "We are passionate about quality.", stock-photo placeholder, "Learn more") on a plane leaning back 32°. One tile, the centre one, is a colourful "Your Brand" concept in the site's colours, a little larger, with a mint hairline, gently breathing: the only colour on screen. Headline "Stand out from / the *noise…*"; top right "Most websites, every day" and three pain lines; with each line the grey tiles become identical (`--same`).
+- **Act two (the proof and who made it):** the standout tile lifts and turns to face the viewer, the crowd dims (`--dim`), then a full browser window (`.ns-window`, "yourbrand.com") grows out of the tile's box into place (right side on desktop, top on phones): a concept site "YourBrand · Be the one they *remember.*" with moving abstract art. Its credit bar slides up: Ahmad's A mark draws itself stroke by stroke (mint/sky cursor blinking), "Designed & built by **Ahmad Barkat**" and a mailto link `code.by.ahmad.dev@gmail.com`.
+- **Act three (the call to action):** "That one? / I *built* it.", a lede, `ButtonWithIcon` "Make my site stand out" (to /contact) and a link "See real projects" (to /projects). Then the A flies from the credit up into the navbar logo (`.nav-logo .logo-mark`), changing colour on the way, and the navbar logo answers with a small nudge.
+- On phones the pitch sits under the window; its top uses the window's measured height (`--ns-win-h`, set in the component).
+- Reduced motion: no pin or slide; the window, its credit and the pitch, still.
+- Copy is a draft for the client to check.
+- Checked in headless Chrome at 1440×900, 768×1024, 390×844 and 360×640 through the sequence; typecheck clean.
+
+### Outcomes (`OutcomesSection.tsx`, `.oc-*` CSS), added 2026-10-10
+- The solution step after the call to action: eyebrow "The result", "What standing out gets *you.*", a short intro, three cards each with a small picture that plays once on entry: **Found** "Search-ready from day one." (a search with yourbrand.com rising to the top), **Fast** "Loads before they lose interest." (a gauge sweeping to a "<2s" load goal), **Chosen** "Built to turn visitors into enquiries." (enquiry notes arriving). Closing line "Your goals, *built into every page.*" with `ButtonWithIcon` "Start your project".
+- These are promises about the work, not client figures; real results go here as numbers when the client has them.
+
+### Services (`ServicesSection.tsx`, `ParticleField.tsx`, `particle-shapes.ts`, `.svc-*` CSS), rebuilt 2026-10-09
+- Client request: particles with the physics of a "cursor-driven particle typography" component but airier, and the cards as a 3D circle mixing three references (a 3D cylinder carousel, a Swiper coverflow, a "works wheel" ring that opens into a drum). Built with GSAP + CSS 3D; no new packages.
+- **Pinned card orbit (all widths, motion allowed):** one scroll value `u`. 0 = the six cards small in a closed ring (works-wheel opening); the first scroll unit opens the ring into a tilted orbit; every unit after brings the next card to the front. The orbit is a circle tipped 16° and rolled 15° (`TILT_X`, `ROLL_Z`), so the next card waits low on the right and the last leaves high on the left; the front card is flat and full colour, neighbours turn 62% of the orbit angle (coverflow) and dim, cards beyond about 1.2 steps fade out. Constants at the top of `makeOrbitDriver` in `ServicesSection.tsx`. Scroll per unit: 0.7 of the viewport height (0.5 on phones); snaps to whole units. Cards are absolutely centred in the rail with `perspective` on `.svc-track`; desktop card width `min(60%, 500px)`, phones `min(78vw, 420px)`. The ring sizes itself to the stage height on phones.
+- **Index:** the progress line under the stage is split into six segments, each a button (name shows on hover/focus) that scrolls the pin to that card.
+- **Particles (`ParticleField.tsx`):** now simulated on the CPU (6,500 desktop / 5,000 tablet / 3,400 phone), drawn with three.js points. Each particle is a spring to its home on the current shape plus a slow current; the cursor scatters them with momentum (radius 120px) and they spring back. 16% are "loose": held very softly, they wander off the shape, which gives the airy look. The entrance condenses the first shape out of a wide cloud. Each service shows its symbol with a word under it in smaller particles (`sampleWord` in `particle-shapes.ts`): CODE, DESIGN, MOTION, WEBGL, SPEED, MOBILE (`word` on each service). Word particles are held tighter so the letters stay readable. The morph still follows the scroll card by card.
+- Reduced motion: unchanged swipe carousel; particles sit still on their shape.
+- Checked in headless Chrome at 1440×900, 1280×720 and 390×844 (ring, opening, orbit steps; no overflow); typecheck clean. The airiness and cursor scatter need a look on a real screen (headless runs WebGL at ~30fps).
 
 ### Tech Stack (`TechStackSection.tsx`, `tech-stack-icons.ts`)
 - Recreates the "Footballs in Motion / Attractor" reference in three.js with custom physics: attractor inside a solid glass bubble that trails the cursor, friction and spin, fixed 120Hz step, loop sleeps at rest or off-screen.
@@ -157,11 +179,10 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - No per-frame layout reads; loops sleep when idle; `AnimationGovernor` pauses off-screen CSS animations; the liquid reveal's idle sleep is counted in frames so it can't freeze half-open at low frame rates.
 
 ### Why I build (`WhyIBuildSection.tsx`)
-- Added 2026-09-30 in place of the `/story` page, to make the emotional connection on the home page. The client wants it professional, modern and not cringy.
+- Added 2026-09-30 in place of the `/story` page, to make the emotional connection on the home page. Since 2026-10-09 it sits after Work, right before the testimonials. The client wants it professional, modern and not cringy.
 - Eyebrow 道 (michi, "the way", as a `JpTerm`) · "The honest version"; title "Why I build".
 - Statement: "I learn by building. Every project this year taught me something the last one couldn't, and each one made me care more about the people on the other side of the screen." Each word goes from faint (0.16) to full as it scrolls through (GSAP scrub).
-- The year, 2026, told through the six projects. Their dates match `project-details.ts`:
-  - Jan: Facebook Clone
+- The year, 2026, told through five of the projects. Their dates match `project-details.ts`:
   - Feb: Interactive CV
   - Feb – Mar: MAB Portfolio
   - Apr – May: HRA Studio
@@ -169,8 +190,8 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
   - Jun – Aug: this site
   - Now: "Your project", in mint, with `ButtonWithIcon` "Start your project" (goes to `/contact`).
 - Each beat has a date, a length, a title, one or two lines and a link to its project (link style, page transition).
-- A line down the beats fills as the reader scrolls. The dots fill as the line reaches them. On desktop a sticky column shows the current month turning over like a counter (JAN … NOW), with "01 / 07" and a note, "Six builds in eight months, each one a little harder than the last." The line, the dots and the counter all follow one ScrollTrigger range, and beat offsets are measured on refresh only.
-- Closes with "What you can count on", three promises: Straight answers · Progress you can see · Work that lasts.
+- A line down the beats fills as the reader scrolls. The dots fill as the line reaches them. On desktop a sticky column shows the current month turning over like a counter (JAN … NOW), with "01 / 07" and a note, "Five builds in seven months, each one a little harder than the last." The line, the dots and the counter all follow one ScrollTrigger range, and beat offsets are measured on refresh only.
+- The "What you can count on" promises (Straight answers · Progress you can see · Work that lasts) were removed on 2026-10-09 (client request); the section now ends on "Your project".
 - Reduced motion: no scrub or entrance, everything visible.
 - **Copy is a draft written from the project data.** The client should check that the lines and promises are true to them.
 
@@ -252,7 +273,7 @@ The page is only `ProjectsWorld`: the dive, then an endless carousel. The client
 - `src/data/projects.ts` → `caseStudy`: **DUMMY** case study for every project (client, brief, what was built, three outcome figures, two close-ups cut from the cover by `position` + `zoom`). Required by the type, so a new project needs one.
 - `src/data/project-details.ts`: **DUMMY** long-read data for every project (headline figures, Lighthouse scores, problem + drop-off funnel, challenge + difficulty + constraints, process phases with weeks and hours, before/after table, monthly trend, client review).
 - CSS: `.ptx*` and `.pd-*` in `globals.css`, just before the footer styles; the case study's pieces are `.cs-*` ("Case study pieces", after the `.pw-*` block).
-- **Dummy data rules (client, 2026-09-30):** no "too perfect" figures (no rows of 100 Lighthouse scores, no flat 3× or 60fps, no −100% change pills); keep numbers uneven and believable. Every project was built between Jan and Aug 2026, spread by complexity: Facebook Clone Jan (4 wks, 81 h), Interactive CV Feb (3 wks, 66 h), MAB Portfolio Feb – Mar (5 wks, 133 h), HRA Studio Apr – May (7 wks, 170 h), Ard Al Khair May – Aug (12 wks, 352 h), Story Portfolio Jun – Aug on evenings and weekends (12 wks, 301 h). All `year` fields are 2026. Projects launched in August show weekly trend charts (every other week labelled, empty strings between), so no chart runs into months that have not happened.
+- **Dummy data rules (client, 2026-09-30):** no "too perfect" figures (no rows of 100 Lighthouse scores, no flat 3× or 60fps, no −100% change pills); keep numbers uneven and believable. Every project was built between Feb and Aug 2026, spread by complexity: Interactive CV Feb (3 wks, 66 h), MAB Portfolio Feb – Mar (5 wks, 133 h), HRA Studio Apr – May (7 wks, 170 h), Ard Al Khair May – Aug (12 wks, 352 h), Story Portfolio Jun – Aug on evenings and weekends (12 wks, 301 h). All `year` fields are 2026. Projects launched in August show weekly trend charts (every other week labelled, empty strings between), so no chart runs into months that have not happened.
 
 ### The zoom (from the reference video "image-to-background-zoom")
 - Opened from: home Work cards, the four front cards (or their captions) of the `/projects` carousel, and the scroll-to-next panel after every project page's footer.
@@ -321,9 +342,12 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 1. **Contact page:** send one real test brief through the form to confirm it reaches the inbox; confirm the budget ranges, reply time and FAQ answers in `src/data/contact.ts`; then commit and push.
 2. **Meanings for Japanese terms site-wide** (client request, 2026-09-30): proposed and waiting for the client's go-ahead. Use `JpTerm` for small kanji and anime words (写輪眼, 上忍, 位 任 気, 忍, Jōnin, S-rank, Chakra, Shinobi) and a permanent caption for big decorative kanji (龍 on About), as on the contact page.
 3. **Projects page content:** swap the dummy project details, case studies (`caseStudy` in `src/data/projects.ts`) and project-page data (`src/data/project-details.ts`) for real ones when the client sends them.
-4. **Verify the latest hero entrance tweak:** record the entrance on desktop and phone; confirm the stat dividers fade in with their numbers. Test in a production build (`npm run build && npm start`); in dev, hydration delays the start by about 3–4s.
+4. **Check the new hero (2026-10-09) on a real phone and desktop:** the entrance, the reel's motion behind the portrait, the badge rotation and hover, the proof pill, and the scroll-away. Confirm the bottom-right note with the client. Check the /projects 3D carousel with 6 projects (30 cards), including one full wrap.
 5. **Check the 2026-10-09 speed pass on a real phone:** the hero portrait entrance (now a slide/scale settle, no fade), the Services pin on phones, the deferred sections waking as you scroll (nothing should pop or jump), the footer curtain, and the `/projects` card images (headless could not draw them). Mobile Lighthouse is about 45–55 (the simulated slow phone; runs vary). Options measured on 2026-10-09: removing the loading screen gives about +6; the rest is Next.js/React and the hero entrance.
 6. Keep committing and pushing after each batch of client-approved changes.
+7. **Check the Services rebuild on a real screen (2026-10-09):** particle drift and cursor scatter, the ring opening, the orbit steps and the snap, on desktop and a phone.
+8. **Check "Stand out from the noise" and the hero 3D orbit on a real screen (2026-10-10):** the sideways slide over About (About must hold still), the tile flip, scrolling back up through it, and the orbit's motion; confirm the pain copy with the client.
+9. **Check the new persuasion flow on a real screen (2026-10-10):** the hero sliding away into "Stand out" (the hero must hold still while it slides), the standout window, the logo flying into the navbar, scrolling back up through it, and the Outcomes section; confirm all new copy with the client.
 
 ---
 
@@ -370,7 +394,19 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 
 Newest first. One line per change: date, what changed, files touched.
 
+### 2026-10-10
+- Home reordered into a persuasion flow and "Stand out" reworked (client request): Hero → Stand out from the noise → Outcomes (new) → Services → Tech Stack → Work → Process → About → Why I build → Testimonials → Footer. "Stand out" now slides out of the hero (its layers drift sideways at different speeds; the hero's vertical parallax removed), shows one colourful "Your Brand" tile among the grey templates, lifts it into a full browser window credited "Designed & built by Ahmad Barkat · code.by.ahmad.dev@gmail.com" with the A mark drawing itself, then "That one? I built it." with the call to action, and flies the A into the navbar logo. New `OutcomesSection.tsx` (Found, Fast, Chosen). Files: `NoiseSection.tsx`, `OutcomesSection.tsx`, `LandoAboutHero.tsx`, `src/app/home/page.tsx`, `.ns-*`/`.oc-*` CSS. Checked at 1440×900, 768×1024, 390×844, 360×640; typecheck clean.
+- Services: tilted orbit cards were cut off flat where they rose above (or dipped below) the card column. The column (`.svc-rail`, pinned modes) now reaches 14vh above and below the row (6svh on phones) with a negative margin and matching padding, and lets clicks through that band. Checked at 1440×900 (three orbit steps) and 390×844.
+- Hero reel reshaped into the U from the client's reference (raised left, dip behind the figure, higher right; cards lean, turn and tilt along it), replacing the 3D ring. Smooth scroll checked: Lenis already runs on every page (`LenisProvider` in the root layout, driven by GSAP's ticker and feeding ScrollTrigger); GSAP ScrollSmoother not added, as two smoothers would fight. File: `project-arc.tsx`. Checked at 1920×1080, 1440×900, 1280×720, 1024×768, 768×1024, 390×844; typecheck clean.
+- New section "Stand out from the noise" after About (client request): About pins and drifts left while a wall of look-alike grey website tiles slides in sideways over it; the pain lines make every tile identical, then the centre tile flips into Ahmad's logo and lifts out while the crowd dims; closing line "Built for your business, not from a template." Files: `NoiseSection.tsx` (new), `src/app/home/page.tsx`, `.ns-*` CSS. Checked at 1440×900 and 390×844; typecheck clean.
+- Hero reel rebuilt as a 3D orbit round the portrait (client reference): perspective, per-card turn and lean, near side faded, still clear of the AHMAD wordmark. File: `project-arc.tsx` (rAF-driven, CSS offset-path removed), `.pa-card` CSS. Checked at 1920×1080, 1440×900, 1024×768, 390×844.
+
 ### 2026-10-09
+- 'Why I build': removed the "What you can count on" block (three promises) at the client's request, with its `.wb-promise*` CSS and entrance tween. The section now ends on "Your project" and flows into the testimonials. Typecheck clean; checked at 1440×900.
+- Services rebuilt (client request): the six cards now open from a small ring into a tilted 3D orbit that turns one card per scroll step (mix of a cylinder carousel, coverflow and a "works wheel"), with a six-segment index on the progress line; the particle field is now a CPU spring simulation (cursor scatter with momentum, slow current, 16% loose particles for an airy drift) and forms each service's symbol plus a word (CODE, DESIGN, MOTION, WEBGL, SPEED, MOBILE). Files: `ServicesSection.tsx`, `ParticleField.tsx`, `particle-shapes.ts` (`sampleWord`), `.svc-*` CSS. Checked at 1440×900, 1280×720, 390×844; typecheck clean.
+- Home: 'Why I build' moved from after About to after Work, right before the testimonials (client request). File: `src/app/home/page.tsx`. Checked the joins with Work and the testimonials at 1440×900 (same navy, no seam).
+- Hero follow-up (client request): AHMAD wordmark restored behind the portrait, placed just under the headline (shared CSS variables on `.hero-stage`), and the project reel now steers clear of it (`ProjectArc avoid`, card-by-card overlap check: beneath the wordmark on desktop, above it beside the face on phones). Headline changed to "Websites that turn visitors into clients." Reel cards slightly smaller (12.5% of width). Facebook Clone removed from the site: `projects.ts`, `project-details.ts`, the 'Why I build' timeline (now Feb – Aug, "Five builds in seven months"), "six projects" in `AboutMeSection.tsx` and `profile.ts`, `/projects` helix `CARD_COUNT` 35 → 30, and its cover and thumbnail deleted. Verified in headless Chrome at 1920×1080, 1440×900, 1280×720, 1024×768, 768×1024, 390×844 and 360×640: no overflow, the wordmark never meets the headline or the cards; typecheck clean. The /projects 3D carousel with 6 projects is not seen rendered yet.
+- Home hero redesigned after a client reference (client request): one headline "Turn ideas into websites that sell." (h1; "sell." in Instrument Serif italic, mint), a curved endless reel of the 7 project screenshots circling behind the portrait (`project-arc.tsx`, CSS offset-path, thumbnails in `public/projects/thumbs/`), a rotating "Open to work" badge linking to /contact (React Bits `TextLoop`, `text-loop.tsx`), a proof pill bottom left (reviews; shows "7 projects shipped" while no reviews are published) and a note bottom right. Navbar unchanged. Removed: AHMAD wordmark, `HeroAside.tsx` (stats, rotating quote, genjutsu faces) with its `.hs-*` and hero-only `.gj-*` CSS, `ReadingText`/`readSeconds` from `review-bits.tsx`. Portrait stands lower on phones and portrait tablets. New: `HeroFront.tsx`, `.hx-*`/`.pa-*`/`.text-loop*` CSS, `--font-serif` in `layout.tsx`, `.claude/launch.json` (dev server). Verified in headless Chrome at 7 sizes (no overflow, no console errors, reel and badge move, fallback pill renders); typecheck clean.
 - Cleanup (client-approved): deleted `project images/` (5 original PNG screenshots, 4.5 MB; the site uses the WebP copies in `public/projects/`), `references/dragon-original/` (the uncompressed dragon originals), `plan.md` (merged into this file long ago) and the dev-only recording page `src/app/dev/world-loop/` (it can be restored from git to re-record the `/projects` opening video). Comment in `projects-helix.ts` updated. Kept: the sample reviews and their photos. Verified: build and typecheck clean, every page 200, `/dev/world-loop` 404.
 - Lighter first download (client chose option B): three.js now loads only when a 3D scene wakes (`src/components/ui/load-three.ts`, shared by `liquid-mask-reveal.tsx`, `ParticleField.tsx`, `TechStackSection.tsx`; the scene setup runs inside the loader's callback), and the testimonials reel with the `motion` library is split into `TestimonialsReel.tsx`, loaded by `TestimonialsSection.tsx` only when there are published reviews (none yet, so it costs nothing). Initial JS on `/home`: about 450 KB → 282 KB. Verified: every WebGL scene comes up on scroll at 1440×900 and 390×844 with no console errors; typecheck and build clean. Lighthouse (local production): desktop 93–96, a11y/bp/SEO 100; mobile still 45–55 (runs vary a lot). Measured and not done: removing the loading screen (+6 mobile). The remaining mobile cost is Next.js/React work and the hero entrance on the simulated slow phone; the client chose not to change the design for it. Cleanup audit: no unused code files, CSS classes, packages or public images; removal candidates listed to the client for approval.
 - Speed, accessibility and responsive pass (client request, every item approved). Lighthouse on a local production build: desktop perf 57 → 90–94, mobile 37 → about 51; a11y 96 → 100 on mobile (desktop's last flag, the 'Why I build' year label, fixed after the run), best practices and SEO 100. Changes: new `src/components/ui/use-activate.ts` (`useActivate`: true once an element is near the viewport and the page has settled after the first input or ~6s idle; `queueScrollRefresh`: one debounced `ScrollTrigger.refresh()`). WebGL scenes (`liquid-mask-reveal.tsx`, `ParticleField.tsx`, `TechStackSection.tsx`) and the scroll animations of `WhyIBuildSection`, `ServicesSection`, `ProcessSection`, `WorkSection`, `motion-footer.tsx`, `next-page.tsx` now set up only when near. Tech Stack on phones: no antialias, lighter spheres, pixel ratio ≤ 1.5. Hero LCP: the portrait is no longer hidden at load (slides/scales into place instead of fading), `fetchPriority="high"`, and the page fade starts at opacity 0.01 so Chrome counts it. Images recompressed: `dragon-filled.webp`, `dragon-skitched.webp` (1100×836), `hero-base-cutout.webp` (cache-busted `?v=3`/`?v=4`). Navbar: GSAP defaults set once at module load (same ease and duration, now consistent everywhere), empty-target tweens guarded (fixes the "[object NodeList] not found" warning), duplicate `aria-label` removed. Contrast: Work counter, 'Why I build' statement (starts at 0.4, min 24px) and year label. Work tab `aria-label` replaced with sr-only text. **Services is now scroll-pinned on phones too** (cards slide with scroll, shorter pin: 0.6 of desktop distance); the swipe carousel is only kept for reduced motion. Checked: every page (`/`, `/home`, `/projects`, two project pages, `/contact`, `/hire`, `/privacy`, `/terms`, 404) at 360, 390, 768, 1024, 1440, 1920 has no horizontal overflow and no console errors; Services pin screenshotted at 390×844 and 360×740; the 5-row menu fits 360×640; `/projects` steps and snaps on touch scroll. Files: above plus `globals.css`, `AboutMeSection.tsx`, `LandoAboutHero.tsx`, `WillemLoader.tsx`, `Navbar.tsx`.

@@ -157,6 +157,52 @@ export function sampleShape(draw: ShapeDrawer, count: number, size = SAMPLE_SIZE
 }
 
 /**
+ * Rasterises a word once and returns `count` points on its letters as xyz
+ * triplets, x in [-1, 1] across the word's width and y scaled by the same
+ * factor (so a word is about a fifth as tall as it is wide), y up.
+ */
+export function sampleWord(word: string, count: number, fontFamily: string): Float32Array {
+  const w = 768;
+  const h = 192;
+  const canvas = document.createElement("canvas");
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  const out = new Float32Array(count * 3);
+  if (!ctx) return out;
+
+  ctx.fillStyle = "#fff";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+  // Tracked out, like the site's mono labels, so the letters stay legible as dots
+  ctx.font = `800 ${h * 0.62}px ${fontFamily}`;
+  if ("letterSpacing" in ctx) (ctx as CanvasRenderingContext2D & { letterSpacing: string }).letterSpacing = `${h * 0.08}px`;
+  const fit = Math.min(1, (w * 0.96) / Math.max(1, ctx.measureText(word).width));
+  ctx.setTransform(fit, 0, 0, fit, (w / 2) * (1 - fit), (h / 2) * (1 - fit));
+  ctx.fillText(word, w / 2, h / 2);
+
+  const { data } = ctx.getImageData(0, 0, w, h);
+  const hits: number[] = [];
+  for (let i = 3; i < data.length; i += 4) if (data[i] > 128) hits.push((i - 3) / 4);
+  if (!hits.length) return out;
+  for (let i = hits.length - 1; i > 0; i--) {
+    const j = (Math.random() * (i + 1)) | 0;
+    [hits[i], hits[j]] = [hits[j], hits[i]];
+  }
+
+  const unit = 2 / w;
+  for (let i = 0; i < count; i++) {
+    const p = hits[i % hits.length];
+    const x = p % w;
+    const y = (p / w) | 0;
+    out[i * 3] = (x - w / 2) * unit + (Math.random() - 0.5) * unit;
+    out[i * 3 + 1] = -(y - h / 2) * unit + (Math.random() - 0.5) * unit;
+    out[i * 3 + 2] = 0;
+  }
+  return out;
+}
+
+/**
  * Paints a symbol's outline into a canvas, sized to the box the particle field
  * would fill. Used as the fallback when WebGL is unavailable.
  */

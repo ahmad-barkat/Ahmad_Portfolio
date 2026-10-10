@@ -7,6 +7,7 @@ import { useGSAP } from "@gsap/react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import { ParticleField, FIELD_FIT } from "@/components/ui/ParticleField";
 import { useActivate, queueScrollRefresh } from "@/components/ui/use-activate";
+import { useLenis } from "@/components/ui/LenisProvider";
 import {
   drawBolt,
   drawCode,
@@ -30,6 +31,8 @@ interface Service {
   points: string[];
   /** Name of the symbol the particle field forms for this service. */
   form: string;
+  /** The word the particles spell under the symbol. */
+  word: string;
   accent: string;
   shape: ShapeDrawer;
 }
@@ -42,6 +45,7 @@ const SERVICES: Service[] = [
     body: "Production web apps from database to pixel — typed end to end, fast by default, and architected to hold up well past launch day.",
     points: ["Next.js & React", "APIs & databases", "Auth & payments", "Headless CMS"],
     form: "Code",
+    word: "CODE",
     accent: "#3BA7F2",
     shape: drawCode,
   },
@@ -52,6 +56,7 @@ const SERVICES: Service[] = [
     body: "Interfaces with a point of view. From wireframes to a living design system, shaped around how people actually move through a product.",
     points: ["Wireframes & prototypes", "Design systems", "Accessibility (WCAG)", "Figma to code"],
     form: "Nib",
+    word: "DESIGN",
     accent: "#7FE7D6",
     shape: drawNib,
   },
@@ -62,6 +67,7 @@ const SERVICES: Service[] = [
     body: "Motion that explains instead of decorates — scroll-driven stories, page transitions and micro-interactions tuned to hold 60–120 FPS.",
     points: ["ScrollTrigger stories", "Page transitions", "Micro-interactions", "SVG & Lottie"],
     form: "Curve",
+    word: "MOTION",
     accent: "#5FC7E4",
     shape: drawCurve,
   },
@@ -72,6 +78,7 @@ const SERVICES: Service[] = [
     body: "Real-time 3D in the browser without melting the laptop: interactive scenes, product viewers and custom shaders that load fast and stay smooth.",
     points: ["Three.js scenes", "Custom GLSL shaders", "3D product viewers", "Asset optimisation"],
     form: "Cube",
+    word: "WEBGL",
     accent: "#3BA7F2",
     shape: drawCube,
   },
@@ -82,6 +89,7 @@ const SERVICES: Service[] = [
     body: "Speed is a feature. Audits and fixes that move Lighthouse and Core Web Vitals into the green — and the monitoring that keeps them there.",
     points: ["Core Web Vitals", "Technical SEO", "Bundle & image budgets", "Performance monitoring"],
     form: "Bolt",
+    word: "SPEED",
     accent: "#7FE7D6",
     shape: drawBolt,
   },
@@ -92,13 +100,15 @@ const SERVICES: Service[] = [
     body: "One product, every screen. Responsive builds and installable PWAs that feel native on a phone and generous on a 4K display.",
     points: ["Responsive layouts", "Progressive Web Apps", "Touch & gesture UX", "Cross-device QA"],
     form: "Device",
+    word: "MOBILE",
     accent: "#A5EEE2",
     shape: drawPhone,
   },
 ];
 
-// Module-level so ParticleField sees one stable array and never rebuilds.
+// Module-level so ParticleField sees stable arrays and never rebuilds.
 const SHAPES = SERVICES.map((s) => s.shape);
+const WORDS = SERVICES.map((s) => s.word);
 
 // Kept in step with the matching media queries in globals.css (.svc-*).
 // Every screen size scrolls through the cards; only reduced motion gets the
@@ -163,6 +173,94 @@ function makeFocusDriver(
   };
 }
 
+/* ── The orbit ────────────────────────────────────────────────────────────────
+   Pinned mode turns the cards on a tilted orbit, a mix of three ideas: a ring
+   that blows open into a wheel (the opening), a cylinder that spins sideways,
+   and a coverflow's flat front card with its neighbours turned away.
+
+   One number drives it all: `u`, in scroll units. 0 is the closed ring, small
+   cards set round a circle; 1 is the orbit with the first card at the front;
+   every whole number after that turns one more card past. On the orbit each
+   card sits on a circle seen slightly from above and rolled, so the next card
+   waits low on the right, deeper in, and the last one leaves high on the
+   left: scrolling down carries the cards up and across. */
+const STEP = 40; // degrees between cards on the orbit
+const ORBIT_R = 1.3; // orbit radius, in card widths
+const TILT_X = 16; // degrees the orbit is tipped towards the viewer
+const ROLL_Z = 15; // degrees the orbit is rolled, so it runs low right to high left
+const FACE = 0.62; // share of the orbit angle a card turns (coverflow, not edge-on)
+const RING_SCALE = 0.3; // card size in the closed ring
+const RING_R = 0.44; // ring radius, in card widths
+
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const rad = (d: number) => (d * Math.PI) / 180;
+
+function makeOrbitDriver(
+  cards: HTMLElement[],
+  onIndex: (i: number) => void,
+  progressEl: HTMLElement | null,
+  morph: React.MutableRefObject<number>
+) {
+  const n = cards.length;
+  const glow = cards.map((c) => c.querySelector<HTMLElement>(".svc-card__glow"));
+  const bar = progressEl ? gsap.quickSetter(progressEl, "scaleX") : null;
+  const sx = Math.sin(rad(TILT_X));
+  const cx = Math.cos(rad(TILT_X));
+  const sz = Math.sin(rad(ROLL_Z));
+  const cz = Math.cos(rad(ROLL_Z));
+  let last = -1;
+
+  return (u: number) => {
+    const w = cards[0].offsetWidth;
+    const R = w * ORBIT_R;
+    // The ring fits the stage's height too (phones give it a short one)
+    const stageH = cards[0].parentElement?.clientHeight || w;
+    const ringR = Math.min(w * RING_R, stageH * 0.3);
+    const ringScale = Math.min(RING_SCALE, (stageH * 0.26) / (cards[0].offsetHeight || 1));
+    const m = Math.min(1, Math.max(0, u)); // ring (0) to orbit (1)
+    const e = m * m * (3 - 2 * m);
+    const pos = Math.max(0, Math.min(n - 1, u - 1)); // which card is at the front
+    morph.current = pos;
+
+    for (let i = 0; i < n; i++) {
+      const d = i - pos;
+      const th = rad(d * STEP);
+      // On the orbit's circle, front at z = 0, then tipped and rolled
+      const X = R * Math.sin(th);
+      const Z = R * (Math.cos(th) - 1);
+      const Y1 = Z * sx; // further back sits higher
+      const Z1 = Z * cx;
+      const X2 = X * cz - Y1 * sz;
+      const Y2 = X * sz + Y1 * cz;
+
+      const ringDeg = i * (360 / n);
+      const ad = Math.abs(d);
+      cards[i].style.transform =
+        `translate(-50%, -50%) translate3d(${(e * X2).toFixed(1)}px, ${(e * Y2).toFixed(1)}px, ${(e * Z1).toFixed(1)}px)` +
+        ` rotateZ(${((1 - e) * ringDeg).toFixed(2)}deg) translateY(${(-(1 - e) * ringR).toFixed(1)}px)` +
+        ` rotateZ(${(e * ROLL_Z * 0.5 * Math.max(-1.5, Math.min(1.5, d))).toFixed(2)}deg)` +
+        ` rotateY(${(e * d * STEP * FACE).toFixed(2)}deg)` +
+        ` scale(${lerp(ringScale, 1, e).toFixed(3)})`;
+
+      // Neighbours dim; the far ones fade out before they could turn edge-on
+      let o = 1 - 0.42 * Math.min(ad, 1);
+      if (ad > 1.15) o *= Math.max(0, (1.85 - ad) / 0.7);
+      cards[i].style.opacity = lerp(1, o, e).toFixed(3);
+      cards[i].style.zIndex = String(Math.round(200 + e * Z1 - (1 - e) * i));
+      cards[i].style.pointerEvents = e > 0.9 && ad < 0.5 ? "auto" : "none";
+      const g = glow[i];
+      if (g) g.style.opacity = String(e * Math.max(0, 1 - ad * 1.8));
+    }
+    bar?.(n > 1 ? pos / (n - 1) : 1);
+
+    const idx = Math.round(pos);
+    if (idx !== last) {
+      last = idx;
+      onIndex(idx);
+    }
+  };
+}
+
 export function ServicesSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -175,6 +273,10 @@ export function ServicesSection() {
 
   const [active, setActive] = useState(0);
   const [fieldFailed, setFieldFailed] = useState(false);
+  const lenis = useLenis();
+  // The pin, while the orbit is live: the index jumps through it
+  const pinRef = useRef<ScrollTrigger | null>(null);
+  const UNITS = SERVICES.length; // one to open the ring, then one per card after the first
 
   // ── WebGL fallback: the active symbol as a plain outline ─────────────────
   useEffect(() => {
@@ -230,47 +332,47 @@ export function ServicesSection() {
         });
       });
 
-      // Pin the section and scrub the track sideways. On desktop one vertical
-      // pixel moves the track 1/0.9 px; phones move faster (1/0.6 px), so the
-      // pin never outstays its welcome on a small screen. Snap settles on
-      // whole cards.
+      // Pin the section and turn the orbit with the scroll: one unit opens the
+      // ring, then each unit brings the next card to the front. Phones spend
+      // less scroll per unit, so the pin never outstays its welcome. Snap
+      // settles on whole units, so a card is always square to the reader.
       mm.add(PINNED, () => {
-        const pace = window.matchMedia(PHONE).matches ? 0.6 : 0.9;
-        const update = makeFocusDriver(cards, handleIndex, progressRef.current, morphRef);
-        // offsetLeft ignores transforms, so the card scale never skews the step.
-        const step = () => cards[1].offsetLeft - cards[0].offsetLeft;
-        const distance = () => step() * (n - 1);
+        const unit = () => window.innerHeight * (window.matchMedia(PHONE).matches ? 0.5 : 0.7);
+        const update = makeOrbitDriver(cards, handleIndex, progressRef.current, morphRef);
+        const proxy = { u: 0 };
 
-        gsap.to(track, {
-          x: () => -distance(),
+        const tween = gsap.to(proxy, {
+          u: UNITS,
           ease: "none",
-          // Reads the track where the scrub smoothing actually has it, not the raw
-          // scroll progress, so focus follows what is on screen.
-          onUpdate() {
-            update(-(gsap.getProperty(track, "x") as number) / step());
-          },
+          onUpdate: () => update(proxy.u),
           scrollTrigger: {
             trigger: section,
             start: "top top",
-            end: () => `+=${distance() * pace}`,
+            end: () => `+=${unit() * UNITS}`,
             pin: true,
             scrub: 0.9,
             anticipatePin: 1,
             invalidateOnRefresh: true,
+            onRefresh: () => update(proxy.u),
             snap: {
-              snapTo: 1 / (n - 1),
-              // Settle on the card nearest to where scrolling stopped. The default
-              // inertia projects the stop point from velocity, so a hard trackpad
-              // flick would fly past several cards instead of landing on the next.
+              snapTo: 1 / UNITS,
+              // Settle on the unit nearest to where scrolling stopped. The
+              // default inertia projects the stop from velocity, so a hard
+              // trackpad flick would fly past several cards.
               inertia: false,
-              duration: { min: 0.25, max: 0.65 },
+              duration: { min: 0.25, max: 0.7 },
               delay: 0.06,
               ease: "power2.inOut",
             },
           },
         });
+        pinRef.current = tween.scrollTrigger ?? null;
         update(0);
-        return clear;
+        return () => {
+          pinRef.current = null;
+          gsap.set(cards, { clearProps: "transform,opacity,zIndex,pointerEvents" });
+          clear();
+        };
       });
 
       // Reduced motion: a native swipe carousel. Nothing hijacks vertical
@@ -318,6 +420,13 @@ export function ServicesSection() {
   );
 
   const goTo = (i: number) => {
+    const pin = pinRef.current;
+    if (pin) {
+      const y = pin.start + ((pin.end - pin.start) * (i + 1)) / UNITS;
+      if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+      else window.scrollTo({ top: y, behavior: "smooth" });
+      return;
+    }
     const track = trackRef.current;
     const card = cardRefs.current[i];
     if (!track || !card) return;
@@ -380,6 +489,7 @@ export function ServicesSection() {
             <ParticleField
               className="svc-particles"
               shapes={SHAPES}
+              words={WORDS}
               position={morphRef}
               onReady={handleFieldReady}
             />
@@ -456,6 +566,21 @@ export function ServicesSection() {
           </span>
           <div className="svc-progress">
             <div ref={progressRef} className="svc-progress__fill" />
+            <ol className="svc-index" aria-label="Services">
+              {SERVICES.map((svc, i) => (
+                <li key={svc.index}>
+                  <button
+                    type="button"
+                    className="svc-index__btn"
+                    aria-label={`${svc.index}: ${svc.title}`}
+                    aria-current={i === active}
+                    onClick={() => goTo(i)}
+                  >
+                    <span className="svc-index__tip">{svc.title}</span>
+                  </button>
+                </li>
+              ))}
+            </ol>
           </div>
           <span className="svc-foot__title">{current.title}</span>
         </div>

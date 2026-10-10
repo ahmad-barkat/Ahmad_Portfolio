@@ -3,7 +3,7 @@
  *
  * DUMMY: every number, quote and story here is a placeholder written to show
  * the layout. Figures are kept deliberately uneven (no row of 100s), and the
- * projects are spread over Jan – Aug 2026 by how big each one is. Replace each project's entry with the real figures (and a real
+ * projects are spread over Feb – Aug 2026 by how big each one is. Replace each project's entry with the real figures (and a real
  * client review, with permission) before launch.
  */
 
@@ -526,81 +526,6 @@ export const PROJECT_DETAILS: Record<string, ProjectDetail> = {
       name: "Recruiter",
       role: "Tech recruitment firm",
       initials: "RC",
-      rating: 5,
-    },
-  },
-
-  "facebook-clone": {
-    client: "Personal project",
-    timeline: "Jan 2026",
-    team: "Solo: front-end",
-    services: ["Front-end", "Layout", "Responsive UI"],
-    headline: [
-      { value: 4, suffix: " wks", label: "Start to finish" },
-      { value: 24, label: "Components" },
-      { value: 3, label: "Breakpoints" },
-      { value: 91, label: "Lighthouse performance" },
-    ],
-    scores: [
-      { label: "Performance", value: 91 },
-      { label: "Accessibility", value: 89 },
-      { label: "Best practices", value: 93 },
-      { label: "SEO", value: 87 },
-    ],
-    problem: {
-      statement: "Tutorials teach one component at a time. I wanted to know how a very large product holds together, pixel by pixel, across screens.",
-      pains: [
-        { value: 1, label: "page layouts built", text: "Small exercises, never a full product screen." },
-        { value: 0, label: "design systems used", text: "No habit of reusable, consistent pieces." },
-        { value: 2, label: "breakpoints handled", text: "Layouts that broke between phone and desktop." },
-      ],
-      funnel: [
-        { label: "Started", value: 100 },
-        { label: "Feed", value: 70 },
-        { label: "Stories and composer", value: 45 },
-        { label: "Contacts and chat", value: 25 },
-      ],
-    },
-    challenge: {
-      statement: "Rebuild the feed faithfully in plain HTML, CSS and JavaScript, with no framework to lean on.",
-      items: [
-        { title: "Pixel accuracy", text: "Spacing, type and icons matched to the real product.", level: 4 },
-        { title: "Three columns", text: "A layout that collapses cleanly from desktop to phone.", level: 4 },
-        { title: "Reusable parts", text: "A small component system in plain CSS.", level: 3 },
-      ],
-      constraints: [
-        { label: "Stack", value: "HTML, CSS, JavaScript only" },
-        { label: "Reference", value: "The live product" },
-        { label: "Screens", value: "Phone, tablet, desktop" },
-        { label: "Time", value: "Four weeks, part-time" },
-      ],
-    },
-    process: [
-      { name: "Discover", start: 0, weeks: 1, hours: 7, summary: "Took the real feed apart into parts and spacing rules.", deliverables: ["Component list"] },
-      { name: "Design", start: 0, weeks: 1, hours: 5, summary: "Tokens for colour, type and spacing.", deliverables: ["Tokens"] },
-      { name: "Build", start: 1, weeks: 3, hours: 58, summary: "Feed, stories, composer, contacts and chat.", deliverables: ["Feed", "Stories", "Chat"] },
-      { name: "Test", start: 3, weeks: 1, hours: 9, summary: "Side-by-side checks at every breakpoint.", deliverables: ["Fixes"] },
-      { name: "Launch", start: 3, weeks: 1, hours: 2, summary: "Published as a study.", deliverables: ["Go-live"] },
-    ],
-    results: {
-      statement: "A faithful rebuild, and a lasting habit: think in components, tokens and breakpoints before writing a line of CSS.",
-      kpis: [
-        { value: 24, label: "reusable components" },
-        { value: 3, label: "breakpoints" },
-        { value: 91, label: "Lighthouse performance" },
-      ],
-      table: [
-        { metric: "Components", before: 0, after: 24 },
-        { metric: "Breakpoints handled", before: 2, after: 3 },
-        { metric: "CSS size", before: 180, after: 61, unit: "KB", lowerIsBetter: true },
-      ],
-      trend: { label: "Components built per week", months: ["W1", "W2", "W3", "W4"], values: [4, 11, 19, 24], launch: 3 },
-    },
-    review: {
-      quote: "Hard to tell apart from the real thing at a glance. The structure underneath was even more impressive than the look.",
-      name: "Mentor",
-      role: "Senior front-end engineer",
-      initials: "MT",
       rating: 5,
     },
   },
