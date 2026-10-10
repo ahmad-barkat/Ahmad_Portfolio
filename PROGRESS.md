@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Pushed to origin/master up to fc39495 (2026-10-09). The 2026-10-09 hero redesign is not committed yet. |
+| Git | Everything committed and pushed to `origin/master` (latest: `5b8f874`, 2026-10-10: home redesign, persuasion flow, Stand out and Outcomes). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -395,6 +395,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-10
+- Committed and pushed everything to `origin/master` (`5b8f874`). Vercel deploys from it.
 - Home reordered into a persuasion flow and "Stand out" reworked (client request): Hero → Stand out from the noise → Outcomes (new) → Services → Tech Stack → Work → Process → About → Why I build → Testimonials → Footer. "Stand out" now slides out of the hero (its layers drift sideways at different speeds; the hero's vertical parallax removed), shows one colourful "Your Brand" tile among the grey templates, lifts it into a full browser window credited "Designed & built by Ahmad Barkat · code.by.ahmad.dev@gmail.com" with the A mark drawing itself, then "That one? I built it." with the call to action, and flies the A into the navbar logo. New `OutcomesSection.tsx` (Found, Fast, Chosen). Files: `NoiseSection.tsx`, `OutcomesSection.tsx`, `LandoAboutHero.tsx`, `src/app/home/page.tsx`, `.ns-*`/`.oc-*` CSS. Checked at 1440×900, 768×1024, 390×844, 360×640; typecheck clean.
 - Services: tilted orbit cards were cut off flat where they rose above (or dipped below) the card column. The column (`.svc-rail`, pinned modes) now reaches 14vh above and below the row (6svh on phones) with a negative margin and matching padding, and lets clicks through that band. Checked at 1440×900 (three orbit steps) and 390×844.
 - Hero reel reshaped into the U from the client's reference (raised left, dip behind the figure, higher right; cards lean, turn and tilt along it), replacing the 3D ring. Smooth scroll checked: Lenis already runs on every page (`LenisProvider` in the root layout, driven by GSAP's ticker and feeding ScrollTrigger); GSAP ScrollSmoother not added, as two smoothers would fight. File: `project-arc.tsx`. Checked at 1920×1080, 1440×900, 1280×720, 1024×768, 768×1024, 390×844; typecheck clean.
