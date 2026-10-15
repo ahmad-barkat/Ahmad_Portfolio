@@ -84,11 +84,12 @@ export const LandoAboutHero: React.FC = () => {
         );
 
         // The portrait settles into place. It is never hidden: as the largest
-        // image it has to paint before any script runs
+        // image it has to paint before any script runs. It only rises: a
+        // scale here would read as the photo stretching
         tl.fromTo(
           q(".hero-portrait-enter"),
-          { y: 40, scale: 1.04 },
-          { y: 0, scale: 1, duration: 1.6, clearProps: "transform" },
+          { y: 32 },
+          { y: 0, duration: 1.6, clearProps: "transform" },
           0.1,
         );
 

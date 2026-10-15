@@ -254,8 +254,9 @@ export function TechStackSection() {
   const stageRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRef = useRef<HTMLDivElement>(null);
-  // The scene (and its environment map) builds only once the visitor nears it
-  const active = useActivate(stageRef);
+  // The scene (and its environment map) builds in a quiet moment near the
+  // top, or as the visitor nears it, so reaching the section never stalls
+  const active = useActivate(stageRef, "100% 0px", true);
 
   // Copy entrance
   useGSAP(

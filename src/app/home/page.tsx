@@ -1,17 +1,23 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { LandoAboutHero } from "@/components/sections/LandoAboutHero";
 import { NoiseSection } from "@/components/sections/NoiseSection";
-import { OutcomesSection } from "@/components/sections/OutcomesSection";
-import { ServicesSection } from "@/components/sections/ServicesSection";
-import { TechStackSection } from "@/components/sections/TechStackSection";
-import { WorkSection } from "@/components/sections/WorkSection";
-import { ProcessSection } from "@/components/sections/ProcessSection";
-import { AboutMeSection } from "@/components/sections/AboutMeSection";
-import { WhyIBuildSection } from "@/components/sections/WhyIBuildSection";
-import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
-import { CinematicFooter } from "@/components/ui/motion-footer";
-import { NextPage } from "@/components/ui/next-page";
+
+/* Below the first screen, each section is its own chunk. They are still
+   rendered on the server (the page arrives whole), but the browser downloads
+   and wakes them one at a time instead of in one long task, so a phone stays
+   responsive while the hero plays. */
+const OutcomesSection = dynamic(() => import("@/components/sections/OutcomesSection").then((m) => m.OutcomesSection));
+const ServicesSection = dynamic(() => import("@/components/sections/ServicesSection").then((m) => m.ServicesSection));
+const TechStackSection = dynamic(() => import("@/components/sections/TechStackSection").then((m) => m.TechStackSection));
+const WorkSection = dynamic(() => import("@/components/sections/WorkSection").then((m) => m.WorkSection));
+const ProcessSection = dynamic(() => import("@/components/sections/ProcessSection").then((m) => m.ProcessSection));
+const AboutMeSection = dynamic(() => import("@/components/sections/AboutMeSection").then((m) => m.AboutMeSection));
+const WhyIBuildSection = dynamic(() => import("@/components/sections/WhyIBuildSection").then((m) => m.WhyIBuildSection));
+const TestimonialsSection = dynamic(() => import("@/components/sections/TestimonialsSection").then((m) => m.TestimonialsSection));
+const CinematicFooter = dynamic(() => import("@/components/ui/motion-footer").then((m) => m.CinematicFooter));
+const NextPage = dynamic(() => import("@/components/ui/next-page").then((m) => m.NextPage));
 
 /* The page is an argument, in this order (client-approved, 2026-10-10):
    the promise, the problem, the proof and who made it, the call to action,

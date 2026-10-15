@@ -106,21 +106,62 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
   const wrapRef = useRef<HTMLDivElement>(null);
   const onReadyRef = useRef(onReady);
   onReadyRef.current = onReady;
-  const active = useActivate(wrapRef);
+  // Built in a quiet moment near the top, so reaching the section never stalls
+  const active = useActivate(wrapRef, "100% 0px", true);
 
   useEffect(() => {
     const wrap = wrapRef.current;
     if (!active || !wrap || !shapes.length) return;
     let gone = false;
     let teardown: void | (() => void);
-    Promise.all([loadThree(), document.fonts?.ready]).then(([THREE]) => {
+    Promise.all([loadThree(), document.fonts?.ready]).then(async ([THREE]) => {
       if (gone) return;
-      teardown = ((): void | (() => void) => {
-        const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-        const vw = window.innerWidth;
-        // Sized to the field and to the CPU: every particle is simulated in JS
-        const COUNT = vw >= 1024 ? 6500 : vw >= 768 ? 5000 : 3400;
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const vw = window.innerWidth;
+      // Sized to the field and to the CPU: every particle is simulated in JS
+      const COUNT = vw >= 1024 ? 6500 : vw >= 768 ? 5000 : 2400;
 
+      // ── Homes on every shape, in symbol radii ────────────────────────────────
+      // The first particles always form the symbol and the rest the word, so a
+      // morph carries symbol into symbol and word into word.
+      const n = shapes.length;
+      const hasWords = !!words && words.length >= n;
+      const wordCount = hasWords ? Math.round(COUNT * WORD_SHARE) : 0;
+      const symbolCount = COUNT - wordCount;
+      const fontFamily =
+        getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim() || "system-ui, sans-serif";
+
+      const homes = (k: number) => {
+        const draw = shapes[k];
+        const out = new Float32Array(COUNT * 2);
+        const sym = sampleShape(draw, symbolCount, 384);
+        const sScale = hasWords ? SYMBOL_SCALE : 1;
+        const sLift = hasWords ? SYMBOL_LIFT : 0;
+        for (let i = 0; i < symbolCount; i++) {
+          out[i * 2] = sym[i * 3] * sScale;
+          out[i * 2 + 1] = sym[i * 3 + 1] * sScale + sLift;
+        }
+        if (hasWords) {
+          const word = sampleWord(words![k], wordCount, fontFamily);
+          for (let i = 0; i < wordCount; i++) {
+            const j = symbolCount + i;
+            out[j * 2] = word[i * 3] * WORD_SCALE;
+            out[j * 2 + 1] = word[i * 3 + 1] * WORD_SCALE + WORD_DROP;
+          }
+        }
+        return out;
+      };
+
+      // One shape at a time, letting the browser breathe in between, so the
+      // set-up never freezes the scroll on the way to the section
+      const targets: Float32Array[] = [];
+      for (let k = 0; k < n; k++) {
+        targets.push(homes(k));
+        await new Promise<void>((r) => setTimeout(r, 0));
+        if (gone) return;
+      }
+
+      teardown = ((): void | (() => void) => {
         let renderer: THREE.WebGLRenderer;
         try {
           renderer = new THREE.WebGLRenderer({
@@ -133,7 +174,8 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
           return;
         }
 
-        const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+        // Phones draw at 1.5x at most: on their dense screens it looks the same
+        const pixelRatio = Math.min(window.devicePixelRatio || 1, vw < 768 ? 1.5 : 2);
         renderer.setPixelRatio(pixelRatio);
         renderer.setClearColor(0x000000, 0);
         const canvas = renderer.domElement;
@@ -148,36 +190,6 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
         const camera = new THREE.OrthographicCamera(-width / 2, width / 2, height / 2, -height / 2, -1000, 1000);
         camera.position.z = 10;
         const scene = new THREE.Scene();
-
-        // ── Homes on every shape, in symbol radii ────────────────────────────────
-        // The first particles always form the symbol and the rest the word, so a
-        // morph carries symbol into symbol and word into word.
-        const n = shapes.length;
-        const hasWords = !!words && words.length >= n;
-        const wordCount = hasWords ? Math.round(COUNT * WORD_SHARE) : 0;
-        const symbolCount = COUNT - wordCount;
-        const fontFamily =
-          getComputedStyle(document.documentElement).getPropertyValue("--font-sans").trim() || "system-ui, sans-serif";
-
-        const targets = shapes.map((draw, k) => {
-          const out = new Float32Array(COUNT * 2);
-          const sym = sampleShape(draw, symbolCount, 384);
-          const sScale = hasWords ? SYMBOL_SCALE : 1;
-          const sLift = hasWords ? SYMBOL_LIFT : 0;
-          for (let i = 0; i < symbolCount; i++) {
-            out[i * 2] = sym[i * 3] * sScale;
-            out[i * 2 + 1] = sym[i * 3 + 1] * sScale + sLift;
-          }
-          if (hasWords) {
-            const word = sampleWord(words![k], wordCount, fontFamily);
-            for (let i = 0; i < wordCount; i++) {
-              const j = symbolCount + i;
-              out[j * 2] = word[i * 3] * WORD_SCALE;
-              out[j * 2 + 1] = word[i * 3 + 1] * WORD_SCALE + WORD_DROP;
-            }
-          }
-          return out;
-        });
 
         // ── Per-particle constants and state ─────────────────────────────────────
         const pos = new Float32Array(COUNT * 3); // drawn positions, px
@@ -254,10 +266,11 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
         scene.add(points);
 
         // ── Cursor, in field px (y up) ───────────────────────────────────────────
-        const mouse = { x: -9999, y: -9999 };
+        const mouse = { x: -9999, y: -9999, at: -1e9 };
         const onMove = (e: PointerEvent) => {
           mouse.x = e.clientX;
           mouse.y = e.clientY;
+          mouse.at = performance.now();
         };
         if (!reduce) window.addEventListener("pointermove", onMove, { passive: true });
 
@@ -277,10 +290,17 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
           const B = targets[Math.min(seg + 1, n - 1)];
           const bow = Math.sin(Math.PI * mix);
 
-          const r = wrap.getBoundingClientRect();
-          const mx = mouse.x - r.left - width / 2;
-          const my = height / 2 - (mouse.y - r.top);
-          const near = !reduce && Math.abs(mx) < width / 2 + REPEL_RADIUS && Math.abs(my) < height / 2 + REPEL_RADIUS;
+          // The cursor only scatters while it moves: measuring the field every
+          // frame would force a layout mid-scroll for a cursor that is still
+          let mx = 0;
+          let my = 0;
+          let near = false;
+          if (!reduce && performance.now() - mouse.at < 1500) {
+            const r = wrap.getBoundingClientRect();
+            mx = mouse.x - r.left - width / 2;
+            my = height / 2 - (mouse.y - r.top);
+            near = Math.abs(mx) < width / 2 + REPEL_RADIUS && Math.abs(my) < height / 2 + REPEL_RADIUS;
+          }
           const R2 = REPEL_RADIUS * REPEL_RADIUS;
           const t = time;
           const damp = Math.pow(DAMPING, dt);
@@ -384,6 +404,8 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
         });
         ro.observe(wrap);
 
+        // Shaders compiled now, not on the first frame the visitor sees
+        renderer.compile(scene, camera);
         onReadyRef.current?.(true);
 
         return () => {

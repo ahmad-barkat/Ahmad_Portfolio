@@ -9,6 +9,7 @@ import { useNavHistory } from "@/hooks/useNavHistory";
 import { TextRoll } from "@/components/ui/TextRoll";
 import WillemLoader from "@/components/ui/WillemLoader";
 import { NextPage } from "@/components/ui/next-page";
+import { PageMark } from "@/components/ui/page-mark";
 
 gsap.registerPlugin(useGSAP, ScrollTrigger);
 
@@ -88,6 +89,7 @@ function NavBackdrop({
         background: "#0B3D91",
         overflow: "hidden",
         pointerEvents: "none",
+        isolation: "isolate",
       }}
     >
       {/* Radial glow */}
@@ -99,31 +101,13 @@ function NavBackdrop({
         }}
       />
 
-      {/* Giant background page heading */}
-      <h1
+      {/* Ahmad's mark and the page's name, the page's heading */}
+      <PageMark
+        name="Nav"
+        as="h1"
         className={watermarkClassName}
-        style={{
-          position: "absolute",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          fontSize: "clamp(6rem, 26vw, 22rem)",
-          fontWeight: 900,
-          fontFamily: "'Arial Black', sans-serif",
-          WebkitTextStroke: "1.5px rgba(59, 167, 242, 0.07)",
-          color: "transparent",
-          userSelect: "none",
-          letterSpacing: "0.06em",
-          whiteSpace: "nowrap",
-          // Pinned, not inherited: the loader renders this inside its wordmark, which
-          // sets line-height .85, and a different box height would shift the glyphs.
-          lineHeight: 1,
-          margin: 0,
-          ...(watermarkHidden ? { opacity: 0, visibility: "hidden" as const } : null),
-        }}
-      >
-        NAV
-      </h1>
+        style={watermarkHidden ? { opacity: 0, visibility: "hidden" } : undefined}
+      />
     </div>
   );
 }

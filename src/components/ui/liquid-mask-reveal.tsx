@@ -133,10 +133,15 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         const renderer = new THREE.WebGLRenderer({
           canvas,
           alpha: true,
-          antialias: true,
+          // One full-screen quad: there are no edges to smooth
+          antialias: false,
           powerPreference: "high-performance",
         });
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        // No sharper than the photos themselves (about 1,500px wide): beyond
+        // that the extra pixels add cost, not detail. Phones: 1.5x at most
+        const pixelRatio = () =>
+          Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : Math.max(1, 2048 / Math.max(1, container.clientWidth)));
+        renderer.setPixelRatio(pixelRatio());
         renderer.setClearColor(0, 0);
 
         const initialWidth = Math.max(container.clientWidth, 200);
@@ -175,7 +180,11 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         let baseTexture: THREE.Texture | null = null;
         let hideBaseImg = false;
         if (knockout) {
-          baseTexture = loader.load(imageBase, () => {
+          baseTexture = loader.load(imageBase, (tex) => {
+            // Both plates share one aspect. The base often arrives first (the
+            // <img> already has it): without its aspect the shader would draw
+            // it square, stretched, until the hover plate came in
+            if (tex.image) uniforms.u_frontImageAspect.value = tex.image.width / tex.image.height;
             uniforms.u_baseReady.value = 1;
             hideBaseImg = true;
           });
@@ -186,9 +195,11 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         const textureParams = mapTexture(texture);
 
         // Fluid simulation setup
-        const simScale = 0.5;
-        let simWidth = Math.max(1, Math.floor(initialWidth * simScale));
-        let simHeight = Math.max(1, Math.floor(initialHeight * simScale));
+        // Half the container's size, but never wider than 720px: the ink is
+        // soft and filtered, so a finer grid on big screens only costs frames
+        const simScale = (w: number) => Math.min(0.5, 720 / w);
+        let simWidth = Math.max(1, Math.floor(initialWidth * simScale(initialWidth)));
+        let simHeight = Math.max(1, Math.floor(initialHeight * simScale(initialWidth)));
 
         const fboOptions: THREE.RenderTargetOptions = {
           type: THREE.HalfFloatType,
@@ -222,8 +233,8 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         };
 
         const resizeFluidFBOs = (w: number, h: number) => {
-          const newSimWidth = Math.max(1, Math.floor(w * simScale));
-          const newSimHeight = Math.max(1, Math.floor(h * simScale));
+          const newSimWidth = Math.max(1, Math.floor(w * simScale(w)));
+          const newSimHeight = Math.max(1, Math.floor(h * simScale(w)));
           if (newSimWidth === simWidth && newSimHeight === simHeight) return;
           simWidth = newSimWidth;
           simHeight = newSimHeight;
@@ -691,6 +702,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
           mesh.position.set(0, 0, 0);
           mesh.scale.set(actualWidth, actualHeight, 1);
 
+          renderer.setPixelRatio(pixelRatio());
           renderer.setSize(actualWidth, actualHeight, false);
           // The fov is derived from the container's height, so it has to be recomputed here
           // and not just at init: on the first run the container is often not laid out yet,
@@ -1039,7 +1051,10 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         alt={altBase}
         draggable={false}
         decoding="async"
-        fetchPriority={priority ? "high" : "auto"}
+        // Only the hero's portrait is urgent; anything else waits its turn, so
+        // it never shares a phone's bandwidth with the first screen
+        loading={priority ? "eager" : "lazy"}
+        fetchPriority={priority ? "high" : "low"}
         className={`absolute inset-0 w-full h-full ${fitClass} ${imageClassName} pointer-events-none select-none`}
       />
 

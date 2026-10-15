@@ -56,52 +56,13 @@ const LEGAL: FooterLinkItem[] = [
 ];
 
 // -------------------------------------------------------------------------
-// Magnetic: pulls its child towards the cursor, springs back on leave.
-// Mouse only, and off with reduced motion.
+// Magnetic: leans its child towards the cursor and springs back on leave.
+// The site cursor (ui/LiquidCursor.tsx) does the pulling for every
+// [data-magnetic] element, so the footer's icons move like every button.
 // -------------------------------------------------------------------------
-function Magnetic({ children, strength = 0.28 }: { children: React.ReactNode; strength?: number }) {
-  const ref = useRef<HTMLSpanElement>(null);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    // Measured without the pull, so the offset doesn't feed back on itself
-    let cx = 0;
-    let cy = 0;
-    const enter = () => {
-      const r = el.getBoundingClientRect();
-      cx = r.left + r.width / 2 - Number(gsap.getProperty(el, "x"));
-      cy = r.top + r.height / 2 - Number(gsap.getProperty(el, "y"));
-    };
-    const move = (e: PointerEvent) => {
-      gsap.to(el, {
-        x: (e.clientX - cx) * strength,
-        y: (e.clientY - cy) * strength,
-        duration: 0.45,
-        ease: "power3.out",
-        overwrite: "auto",
-      });
-    };
-    const leave = () => {
-      gsap.to(el, { x: 0, y: 0, duration: 1.1, ease: "elastic.out(1, 0.35)", overwrite: "auto" });
-    };
-
-    el.addEventListener("pointerenter", enter);
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerleave", leave);
-    return () => {
-      el.removeEventListener("pointerenter", enter);
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerleave", leave);
-      gsap.killTweensOf(el);
-    };
-  }, [strength]);
-
+function Magnetic({ children }: { children: React.ReactNode }) {
   return (
-    <span ref={ref} className="ftr-magnetic">
+    <span className="ftr-magnetic" data-magnetic="">
       {children}
     </span>
   );
@@ -177,7 +138,7 @@ export function CinematicFooter() {
     return () => io.disconnect();
   }, []);
 
-  const sceneOn = useActivate(wrapRef, "200% 0px");
+  const sceneOn = useActivate(wrapRef, "200% 0px", true);
   useGSAP(
     () => {
       // Set up only once the visitor nears the section (see use-activate.ts)

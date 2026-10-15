@@ -29,15 +29,13 @@ const SINK = 0.035;
 export function WorkSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const deckRef = useRef<HTMLOListElement>(null);
-  const pillRef = useRef<HTMLDivElement>(null);
-  const pillLabelRef = useRef<HTMLSpanElement>(null);
   // Scroll position at which each sheet settles, refreshed with ScrollTrigger
   const settleRef = useRef<number[]>([]);
   const lenis = useLenis();
   const { transitionTo } = usePageTransition();
   const zoomInto = useOpenProject();
 
-  const sceneOn = useActivate(sectionRef, "200% 0px");
+  const sceneOn = useActivate(sectionRef, "200% 0px", true);
   useGSAP(
     () => {
       // Set up only once the visitor nears the section (see use-activate.ts)
@@ -160,56 +158,6 @@ export function WorkSection() {
           };
         }
       );
-
-      // Cursor pill over the previews; mouse and trackpad only
-      mm.add("(hover: hover) and (pointer: fine)", () => {
-        const pill = pillRef.current;
-        const label = pillLabelRef.current;
-        if (!pill || !label) return;
-
-        gsap.set(pill, { xPercent: -50, yPercent: -50 });
-        const xTo = gsap.quickTo(pill, "x", { duration: 0.5, ease: "power3" });
-        const yTo = gsap.quickTo(pill, "y", { duration: 0.5, ease: "power3" });
-        let on = false;
-
-        const move = (e: PointerEvent) => {
-          if (!on) return;
-          xTo(e.clientX);
-          yTo(e.clientY);
-        };
-        const enter = (e: PointerEvent) => {
-          const media = e.currentTarget as HTMLElement;
-          pill.style.setProperty("--wrk-pill", media.dataset.accent ?? "#3BA7F2");
-          label.textContent = media.dataset.label ?? "View";
-          // Appear under the pointer rather than sweeping in from the last spot
-          if (!on) {
-            xTo(e.clientX, e.clientX);
-            yTo(e.clientY, e.clientY);
-          }
-          on = true;
-          pill.dataset.on = "true";
-        };
-        const leave = () => {
-          on = false;
-          delete pill.dataset.on;
-        };
-
-        const medias = gsap.utils.toArray<HTMLElement>(".wrk-media", section);
-        medias.forEach((m) => {
-          m.addEventListener("pointerenter", enter);
-          m.addEventListener("pointerleave", leave);
-        });
-        window.addEventListener("pointermove", move, { passive: true });
-
-        return () => {
-          medias.forEach((m) => {
-            m.removeEventListener("pointerenter", enter);
-            m.removeEventListener("pointerleave", leave);
-          });
-          window.removeEventListener("pointermove", move);
-          leave();
-        };
-      });
 
       return () => mm.revert();
     },
@@ -354,7 +302,9 @@ export function WorkSection() {
                     className="wrk-media"
                     aria-label={`Open ${project.title}`}
                     data-accent={project.accent}
-                    data-label="View"
+                    data-cursor="view"
+                    data-cursor-label="View"
+                    data-cursor-color={project.accent}
                     tabIndex={-1}
                     {...linkProps}
                   >
@@ -392,13 +342,6 @@ export function WorkSection() {
         <ButtonWithIcon onClick={handleAll}>All projects</ButtonWithIcon>
       </div>
 
-      {/* Follows the pointer over the previews */}
-      <div ref={pillRef} className="wrk-pill" aria-hidden="true">
-        <span className="wrk-pill__inner">
-          <span ref={pillLabelRef}>View</span>
-          <ArrowUpRight strokeWidth={2.25} />
-        </span>
-      </div>
     </section>
   );
 }

@@ -26,12 +26,13 @@ const ButtonWithIcon = React.forwardRef<HTMLButtonElement, ButtonWithIconProps>(
     return (
       <Button
         ref={ref}
+        data-magnetic=""
         className={cn(
           "group relative h-8 w-fit cursor-pointer overflow-hidden rounded-full p-1 ps-3.5 pe-9",
           "sm:h-10 sm:ps-5 sm:pe-12",
           "font-sans text-[10px] font-semibold uppercase tracking-[0.08em] sm:text-[11.5px] sm:tracking-[0.1em]",
           "shadow-[0_5px_18px_rgba(11,61,145,0.38)]",
-          "transition-all duration-500 hover:ps-9 hover:pe-3.5 sm:hover:ps-12 sm:hover:pe-5",
+          "transition-[padding,background-color,color,box-shadow] duration-500 hover:ps-9 hover:pe-3.5 sm:hover:ps-12 sm:hover:pe-5",
           className,
         )}
         {...props}

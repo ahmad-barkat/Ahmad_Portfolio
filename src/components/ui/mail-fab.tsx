@@ -16,6 +16,7 @@ export default function MailFab() {
     <a
       href={QUICK_EMAIL_HREF}
       className="mail-fab"
+      data-magnetic=""
       data-ready={ready ? "true" : "false"}
       aria-label="Send me an email"
     >

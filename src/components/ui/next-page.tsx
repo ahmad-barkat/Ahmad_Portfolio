@@ -132,7 +132,7 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
   const goRef = useRef(go);
   goRef.current = go;
 
-  const sceneOn = useActivate(rootRef, "200% 0px");
+  const sceneOn = useActivate(rootRef, "200% 0px", true);
   useGSAP(
     () => {
       // Set up only once the visitor nears the section (see use-activate.ts)
@@ -196,7 +196,7 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
                 // eslint-disable-next-line @next/next/no-img-element
                 // Eager: a fast scroll to the end must find it loaded (and it is
                 // the next page's hero, so the hand-off finds it cached)
-                <img className={project ? "pd-bg__img" : "np-img"} src={image} alt="" loading="eager" decoding="async" />
+                <img className={project ? "pd-bg__img" : "np-img"} src={image} alt="" loading="eager" decoding="async" fetchPriority="low" />
               )}
             </div>
             {project && <div className="pd-shade" />}

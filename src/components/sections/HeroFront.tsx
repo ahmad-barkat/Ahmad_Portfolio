@@ -76,6 +76,7 @@ export function HeroFront() {
       <a
         href="/contact"
         className="hx-badge hx-in"
+        data-magnetic=""
         aria-label="Open to work: get in touch"
         onClick={go("/contact", "#3BA7F2", "CONTACT")}
       >
@@ -130,7 +131,7 @@ export function HeroFront() {
             {PROJECTS.slice(0, 3).map((p) => (
               <span key={p.slug}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={p.cover.replace("/projects/", "/projects/thumbs/")} alt="" decoding="async" />
+                <img src={p.cover.replace("/projects/", "/projects/thumbs/")} alt="" decoding="async" fetchPriority="low" />
               </span>
             ))}
           </span>

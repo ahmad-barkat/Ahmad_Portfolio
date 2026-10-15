@@ -6,6 +6,7 @@ import { useGSAP } from "@gsap/react";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import { PageMark } from "@/components/ui/page-mark";
 
 gsap.registerPlugin(useGSAP);
 
@@ -61,27 +62,8 @@ export default function PrivacyPage() {
         }}
       />
 
-      {/* Watermark */}
-      <h1
-        className="privacy-watermark"
-        style={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
-          fontSize: "clamp(6rem, 24vw, 20rem)",
-          fontWeight: 900,
-          fontFamily: "'Arial Black', sans-serif",
-          WebkitTextStroke: "1.5px rgba(59, 167, 242, 0.07)",
-          color: "transparent",
-          pointerEvents: "none",
-          userSelect: "none",
-          margin: 0,
-          zIndex: 0,
-        }}
-      >
-        PRIVACY
-      </h1>
+      {/* Ahmad's mark and the page's name, in the background */}
+      <PageMark name="Privacy" as="h1" fixed className="privacy-watermark" style={{ zIndex: 0 }} />
 
       {/* Top Bar */}
       <div

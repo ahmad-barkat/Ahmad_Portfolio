@@ -190,19 +190,36 @@ export default function TextLoop({
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReduced || speed <= 0) return undefined;
 
+    // A circle: sliding the text round it is the same as turning the whole
+    // badge, which the compositor does for free. Other shapes slide the text
+    // along the path (the browser lays the text out again on every frame).
+    const svg = root.querySelector("svg");
+    const spin =
+      shape === "circle" && !path && svg
+        ? svg.animate([{ rotate: "0deg" }, { rotate: direction === "reverse" ? "-360deg" : "360deg" }], {
+            duration: (length / speed) * 1000,
+            iterations: Infinity,
+          })
+        : null;
     const state = { offset: 0 };
-    const tween = gsap.to(state, {
-      offset: direction === "reverse" ? -length : length,
-      duration: length / speed,
-      ease: "none",
-      repeat: -1,
-      onUpdate: () => apply(state.offset),
-    });
+    const tween = spin
+      ? null
+      : gsap.to(state, {
+          offset: direction === "reverse" ? -length : length,
+          duration: length / speed,
+          ease: "none",
+          repeat: -1,
+          onUpdate: () => apply(state.offset),
+        });
 
     // Paused while hovered (optional) or off screen
     let hovered = false;
     let visible = true;
-    const sync = () => (hovered || !visible ? tween.pause() : tween.resume());
+    const sync = () => {
+      const still = hovered || !visible;
+      if (spin) void (still ? spin.pause() : spin.play());
+      else void (still ? tween?.pause() : tween?.resume());
+    };
     const pause = () => ((hovered = true), sync());
     const resume = () => ((hovered = false), sync());
     const io = new IntersectionObserver(([e]) => ((visible = e.isIntersecting), sync()));
@@ -214,14 +231,15 @@ export default function TextLoop({
     }
 
     return () => {
-      tween.kill();
+      spin?.cancel();
+      tween?.kill();
       io.disconnect();
       if (pauseOnHover) {
         root.removeEventListener("pointerenter", pause);
         root.removeEventListener("pointerleave", resume);
       }
     };
-  }, [metrics, speed, direction, pauseOnHover]);
+  }, [metrics, speed, direction, pauseOnHover, shape, path]);
 
   const loopText = unit.repeat(metrics.reps);
   const fitLength = metrics.length || undefined;

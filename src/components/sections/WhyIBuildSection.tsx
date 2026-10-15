@@ -79,7 +79,7 @@ export function WhyIBuildSection() {
   const [active, setActive] = useState(0);
   const { transitionTo } = usePageTransition();
 
-  const sceneOn = useActivate(root, "200% 0px");
+  const sceneOn = useActivate(root, "200% 0px", true);
   useGSAP(
     () => {
       // Set up only once the visitor nears the section (see use-activate.ts)

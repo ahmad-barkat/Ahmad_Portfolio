@@ -95,15 +95,6 @@
   position: relative;
 }
 
-.willem__letter-white {
-  display: block;
-  position: relative;
-}
-
-.willem__letter-white.is--space {
-  margin-left: .25em;
-}
-
 .willem-loader__box {
   flex-flow: column;
   justify-content: center;
@@ -143,12 +134,6 @@
   min-width: 1em;
   height: 100%;
   position: absolute;
-}
-
-/* The base still is frame 1 of the baked laptop sequence, so it takes the same hue
-   shift as the canvas — otherwise the hand-off jumps from green to blue. */
-.willem__cover-image--laptop {
-  filter: hue-rotate(var(--laptop-hue-shift));
 }
 
 .willem__cover-image {
@@ -194,91 +179,4 @@
   width: 100vw;
   height: 100dvh;
   will-change: transform;
-}
-
-.willem-header__content {
-  flex-flow: column;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  min-height: 100dvh;
-  padding: 3em;
-  display: flex;
-  position: relative;
-  z-index: 20;
-  pointer-events: none;
-}
-
-.willem-header__top {
-  width: 100%;
-  position: relative;
-}
-
-.willem-header__bottom {
-  justify-content: flex-start;
-  align-items: flex-end;
-  width: 100%;
-  display: flex;
-  position: relative;
-  overflow: hidden;
-}
-
-.willen-nav {
-  display: flex;
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-}
-
-.willem-nav__start {
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 50%;
-  display: flex;
-}
-
-.willem-nav__end {
-  justify-content: space-between;
-  align-items: flex-start;
-  width: 50%;
-  display: flex;
-}
-
-.willem-nav__cta {
-  display: flex;
-}
-
-.willem-nav__links {
-  grid-column-gap: .5em;
-  grid-row-gap: .5em;
-  display: flex;
-}
-
-.willem-nav__link {
-  color: inherit;
-  font-size: 1.3125em;
-  line-height: 1.3;
-  text-decoration: none;
-  position: relative;
-}
-
-@media screen and (max-width: 991px) {
-  .willem-nav__links {
-    grid-column-gap: 0em;
-    grid-row-gap: 0em;
-    flex-flow: column;
-  }
-}
-
-@media screen and (max-width: 767px) {
-  .willem-nav__start {
-    width: 65%;
-  }
-
-  .willem-nav__end {
-    grid-column-gap: 1.5em;
-    grid-row-gap: 1.5em;
-    flex-flow: column;
-    width: 45%;
-  }
 }

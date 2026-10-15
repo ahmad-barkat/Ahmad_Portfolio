@@ -28,18 +28,11 @@ import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment
  * exactly that loop, and `syncLoop` sets the scene to
  * the video's current time, so the hand-off from video to live 3D is exact.
  */
-export interface HelixState {
-  dolly: number;
-  spin: number;
-  cards: number;
-  offset: number;
-}
-
-/** Length of the idle loop, and so of the opening video */
-export const LOOP_SECONDS = 10;
-
-/** `offset` at a stop is a whole number plus this: four cards sit in front */
-export const REST_PHASE = 0.5;
+// The few values the page needs before the scene loads live in a module of
+// their own, so importing them does not pull three.js into the page's bundle
+import { LOOP_SECONDS, REST_PHASE, type HelixState } from "./projects-helix-shared";
+export { LOOP_SECONDS, REST_PHASE };
+export type { HelixState };
 
 /** Height of the view at the logo's depth, in world units */
 const VIEW_H = 10;
@@ -513,7 +506,8 @@ export class ProjectHelix {
   resize(width: number, height: number, topClear = 0) {
     this.width = Math.max(1, width);
     this.height = Math.max(1, height);
-    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+    // Phones draw at 1.5x at most: on their dense screens it looks the same
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : 1.75));
     this.renderer.setSize(this.width, this.height, false);
     this.camera.aspect = this.width / this.height;
     this.camera.updateProjectionMatrix();

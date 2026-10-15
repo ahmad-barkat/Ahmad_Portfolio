@@ -10,7 +10,9 @@ import { useLenis } from "@/components/ui/LenisProvider";
 import { usePageReady } from "@/components/ui/page-ready";
 import { useOpenProject } from "@/components/ui/project-transition";
 import { PROJECTS, projectPath } from "@/data/projects";
-import { ProjectHelix, LOOP_SECONDS, REST_PHASE, type HelixState } from "./projects-helix";
+import type { ProjectHelix } from "./projects-helix";
+import { LOOP_SECONDS, REST_PHASE, type HelixState } from "./projects-helix-shared";
+import { PageMark } from "@/components/ui/page-mark";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -288,14 +290,36 @@ export function ProjectsWorld() {
   }, [lenis]);
 
   // -- The 3D world -----------------------------------------------------------
+  // three.js and the scene load as their own chunk once the first screen has
+  // painted, in the first quiet moment: nothing shows the world before the
+  // dive, and building it at once held a phone up for over a second.
   useEffect(() => {
     const stage = stageRef.current;
     const canvas = canvasRef.current;
     if (!stage || !canvas) return;
+    let gone = false;
+    let teardown: (() => void) | undefined;
+    const build = () =>
+      import("./projects-helix").then(({ ProjectHelix: Helix }) => {
+        if (!gone) teardown = setup(Helix, stage, canvas);
+      });
+    // Safari has no requestIdleCallback
+    const idle = "requestIdleCallback" in window;
+    const wait = idle ? window.requestIdleCallback(build, { timeout: 900 }) : window.setTimeout(build, 300);
+    return () => {
+      gone = true;
+      if (idle) window.cancelIdleCallback(wait);
+      else window.clearTimeout(wait);
+      teardown?.();
+    };
+    // setup reads refs only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
+  function setup(Helix: typeof ProjectHelix, stage: HTMLDivElement, canvas: HTMLCanvasElement): (() => void) | undefined {
     let helix: ProjectHelix;
     try {
-      helix = new ProjectHelix(canvas, PROJECTS.map((p) => p.cover), stateRef.current);
+      helix = new Helix(canvas, PROJECTS.map((p) => p.cover), stateRef.current);
     } catch {
       stage.dataset.fallback = "true";
       return;
@@ -424,9 +448,7 @@ export function ProjectsWorld() {
       helixRef.current = null;
       helix.dispose();
     };
-    // geometry reads refs only
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }
 
   /** The card grows from where it is to fill the screen and becomes the project page */
   const openCard = (card: number) => {
@@ -466,6 +488,7 @@ export function ProjectsWorld() {
           title="Enter My World"
           date={`Selected work · ${pad(COUNT)} projects`}
           scrollToExpand="Scroll to dive in"
+          mark={<PageMark name="Projects" />}
         >
           <p className="pw-lede">
             Every build here started as someone&rsquo;s idea.

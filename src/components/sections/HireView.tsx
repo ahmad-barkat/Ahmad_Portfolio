@@ -13,6 +13,7 @@ import { CinematicFooter } from "@/components/ui/motion-footer";
 import { PROFILE } from "@/data/profile";
 import { PROJECTS, projectPath } from "@/data/projects";
 import { CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL } from "@/data/contact";
+import { PageMark } from "@/components/ui/page-mark";
 
 const ROLE_EMAIL = `mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent("Role at your company")}`;
 
@@ -50,6 +51,7 @@ export default function HireView() {
     <>
       <main className="hm">
         <section className="hm-hero">
+          <PageMark name="Hire me" />
           <div className="ct-wrap hm-hero__inner">
             <p className="ct-eyebrow">
               Open to work · {p.location.country} · {p.location.timeZone}

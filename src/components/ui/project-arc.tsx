@@ -40,18 +40,77 @@ interface Reel {
 
 const clamp = (min: number, v: number, max: number) => Math.min(max, Math.max(min, v));
 const rad = (d: number) => (d * Math.PI) / 180;
-const SVG_NS = "http://www.w3.org/2000/svg";
 
-/** Samples a path into equal steps along its length, with the slope at each */
-function sample(d: string) {
-  const el = document.createElementNS(SVG_NS, "path");
-  el.setAttribute("d", d);
-  const length = el.getTotalLength();
+type Pt = [number, number];
+type Seg = [Pt, Pt, Pt, Pt];
+
+/** A path in the few commands the reel uses (M, L, C, S), kept as cubic
+    segments, so it can be measured with plain arithmetic. (The browser's
+    getPointAtLength took about two seconds for the reel's search.) */
+class Curve {
+  segs: Seg[] = [];
+  private at: Pt = [0, 0];
+  private ctrl: Pt | null = null;
+  M(x: number, y: number) {
+    this.at = [x, y];
+    this.ctrl = null;
+    return this;
+  }
+  L(x: number, y: number) {
+    const [ax, ay] = this.at;
+    this.segs.push([this.at, [ax + (x - ax) / 3, ay + (y - ay) / 3], [ax + ((x - ax) * 2) / 3, ay + ((y - ay) * 2) / 3], [x, y]]);
+    this.at = [x, y];
+    this.ctrl = null;
+    return this;
+  }
+  C(x1: number, y1: number, x2: number, y2: number, x: number, y: number) {
+    this.segs.push([this.at, [x1, y1], [x2, y2], [x, y]]);
+    this.at = [x, y];
+    this.ctrl = [x2, y2];
+    return this;
+  }
+  /** Its first control point mirrors the last one, as SVG's S does */
+  S(x2: number, y2: number, x: number, y: number) {
+    const [ax, ay] = this.at;
+    const c = this.ctrl ?? this.at;
+    return this.C(2 * ax - c[0], 2 * ay - c[1], x2, y2, x, y);
+  }
+}
+
+const SUB = 48; // points per segment while measuring
+
+/** Samples a curve into equal steps along its length, with the slope at each */
+function sample(curve: Curve) {
+  // A fine polyline with the running length at each point
+  const n = curve.segs.length * SUB + 1;
+  const xs = new Float64Array(n);
+  const ys = new Float64Array(n);
+  const run = new Float64Array(n);
+  let k = 0;
+  curve.segs.forEach(([p0, p1, p2, p3], si) => {
+    for (let j = si === 0 ? 0 : 1; j <= SUB; j++) {
+      const t = j / SUB;
+      const u = 1 - t;
+      const a = u * u * u;
+      const b = 3 * u * u * t;
+      const c = 3 * u * t * t;
+      const d = t * t * t;
+      xs[k] = a * p0[0] + b * p1[0] + c * p2[0] + d * p3[0];
+      ys[k] = a * p0[1] + b * p1[1] + c * p2[1] + d * p3[1];
+      run[k] = k ? run[k - 1] + Math.hypot(xs[k] - xs[k - 1], ys[k] - ys[k - 1]) : 0;
+      k++;
+    }
+  });
+  const length = run[k - 1];
   const lut = new Float32Array((LUT_STEPS + 1) * 3);
+  let j = 1;
   for (let i = 0; i <= LUT_STEPS; i++) {
-    const p = el.getPointAtLength((length * i) / LUT_STEPS);
-    lut[i * 3] = p.x;
-    lut[i * 3 + 1] = p.y;
+    const want = (length * i) / LUT_STEPS;
+    while (j < k - 1 && run[j] < want) j++;
+    const span = run[j] - run[j - 1] || 1;
+    const t = clamp(0, (want - run[j - 1]) / span, 1);
+    lut[i * 3] = xs[j - 1] + (xs[j] - xs[j - 1]) * t;
+    lut[i * 3 + 1] = ys[j - 1] + (ys[j] - ys[j - 1]) * t;
   }
   for (let i = 0; i <= LUT_STEPS; i++) {
     const a = Math.max(0, i - 1);
@@ -89,8 +148,8 @@ function hits(reel: Reel, box: Box) {
   return false;
 }
 
-function finish(w: number, card: number, d: string): Reel {
-  const { length, lut } = sample(d);
+function finish(w: number, card: number, curve: Curve): Reel {
+  const { length, lut } = sample(curve);
   let count = Math.max(PROJECTS.length, Math.floor(length / (card * 1.16)));
   // The last card meets the first at the wrap: never the same project twice
   if (count % PROJECTS.length === 1) count -= 1;
@@ -110,13 +169,11 @@ function buildReel(w: number, h: number, avoid: Box | null): Reel {
   const out = card * 0.8 + 24; // far enough off screen that the wrap is never seen
   const x0 = -out;
   const x1 = w + out;
-  const f = (n: number) => n.toFixed(1);
-
   if (!avoid) {
     return finish(
       w,
       card,
-      `M ${f(x0)} ${f(h * 0.48)} C ${f(w * 0.25)} ${f(h * 0.5)} ${f(w * 0.3)} ${f(h * 0.78)} ${f(w * 0.5)} ${f(h * 0.78)} S ${f(w * 0.78)} ${f(h * 0.44)} ${f(x1)} ${f(h * 0.42)}`,
+      new Curve().M(x0, h * 0.48).C(w * 0.25, h * 0.5, w * 0.3, h * 0.78, w * 0.5, h * 0.78).S(w * 0.78, h * 0.44, x1, h * 0.42),
     );
   }
 
@@ -131,11 +188,7 @@ function buildReel(w: number, h: number, avoid: Box | null): Reel {
       const low = B.top - CLEARANCE - ch * 0.6 - lift;
       const yL = low - ch * 1.1;
       const yR = yL - ch * 0.35;
-      reel = finish(
-        w,
-        card,
-        `M ${f(x0)} ${f(yL)} C ${f(w * 0.28)} ${f(yL)} ${f(w * 0.3)} ${f(low)} ${f(w * 0.5)} ${f(low)} S ${f(w * 0.74)} ${f(yR)} ${f(x1)} ${f(yR)}`,
-      );
+      reel = finish(w, card, new Curve().M(x0, yL).C(w * 0.28, yL, w * 0.3, low, w * 0.5, low).S(w * 0.74, yR, x1, yR));
       lift += 6;
     } while (lift < h * 0.3 && hits(reel, B));
     return reel;
@@ -158,11 +211,13 @@ function buildReel(w: number, h: number, avoid: Box | null): Reel {
     reel = finish(
       w,
       card,
-      `M ${f(x0)} ${f(yL + drop)} L ${f(Math.max(x0 + 1, sl))} ${f(yL + drop)}` +
-        ` C ${f(sl + (el - sl) * 0.6)} ${f(yL + drop)} ${f(sl + (el - sl) * 0.4)} ${f(low)} ${f(el)} ${f(low)}` +
-        ` L ${f(er)} ${f(low)}` +
-        ` C ${f(sr - (sr - er) * 0.4)} ${f(low)} ${f(sr - (sr - er) * 0.6)} ${f(yR + drop)} ${f(Math.min(x1 - 1, sr))} ${f(yR + drop)}` +
-        ` L ${f(x1)} ${f(yR + drop)}`,
+      new Curve()
+        .M(x0, yL + drop)
+        .L(Math.max(x0 + 1, sl), yL + drop)
+        .C(sl + (el - sl) * 0.6, yL + drop, sl + (el - sl) * 0.4, low, el, low)
+        .L(er, low)
+        .C(sr - (sr - er) * 0.4, low, sr - (sr - er) * 0.6, yR + drop, Math.min(x1 - 1, sr), yR + drop)
+        .L(x1, yR + drop),
     );
     if (n > 60 || !hits(reel, B)) break;
     if (pull < card * 0.6) pull += 8;

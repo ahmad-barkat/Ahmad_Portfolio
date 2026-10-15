@@ -35,6 +35,7 @@ import {
   PROJECT_TYPES,
   TIMELINES,
 } from "@/data/contact";
+import { PageMark } from "@/components/ui/page-mark";
 
 gsap.registerPlugin(useGSAP);
 
@@ -195,7 +196,7 @@ function ContactHero({ onStart, onBook }: { onStart: () => void; onBook: (e: Rea
           0.1,
         );
         tl.fromTo(q(".ct-hero__cursor"), { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "none" }, 0.55);
-        tl.fromTo(q(".ct-hero__kanji"), { opacity: 0, y: 40 }, { opacity: 1, y: 0, duration: 1.8, clearProps: "transform" }, 0.6);
+        tl.fromTo(q(".ct-hero__kanji"), { opacity: 0.01, y: 40 }, { opacity: 1, y: 0, duration: 1.8, clearProps: "transform" }, 0.6);
         tl.fromTo(q(".ct-hero__lede"), { opacity: 0, y: 24 }, { opacity: 1, y: 0, duration: 1.1, clearProps: "transform" }, 0.65);
         tl.fromTo(q(".ct-hero__actions"), { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 1.1, clearProps: "transform" }, 0.78);
         tl.fromTo(q(".ct-fact"), { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 1, stagger: 0.08, clearProps: "transform" }, 0.9);
@@ -217,6 +218,7 @@ function ContactHero({ onStart, onBook }: { onStart: () => void; onBook: (e: Rea
 
   return (
     <section ref={heroRef} className="ct-hero" data-intro-state="pending" aria-labelledby="ct-hero-title">
+      <PageMark name="Contact" />
       <noscript>
         <style>{`.ct-hero[data-intro-state] * { opacity: 1 !important; transform: none !important; }`}</style>
       </noscript>

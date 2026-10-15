@@ -51,10 +51,26 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   const overlayRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
   const isNavigating = useRef(false);
+  const stuckTimer = useRef(0);
 
   const transitionTo = (href: string, triggerElement: HTMLElement, color: string, label: string) => {
     if (isNavigating.current) return;
+
+    // A link to the page already open: the pathname would never change, so
+    // the cover would never lift. Glide to the spot on this page instead.
+    const url = new URL(href, window.location.href);
+    const strip = (p: string) => p.replace(/\/+$/, "") || "/";
+    if (url.origin === window.location.origin && strip(url.pathname) === strip(window.location.pathname)) {
+      lenis?.start();
+      const spot = url.hash ? document.querySelector<HTMLElement>(url.hash) : null;
+      if (lenis) lenis.scrollTo(spot ?? 0, { duration: 1.2 });
+      else (spot ?? document.documentElement).scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+
     isNavigating.current = true;
+    // Start fetching the page now, so it is ready when the cover is
+    router.prefetch(href);
 
     // Capture the initial dimensions and position of the clicked rectangle
     const rect = triggerElement.getBoundingClientRect();
@@ -117,10 +133,15 @@ export default function TransitionProvider({ children }: { children: ReactNode }
       transformOrigin: "left center",
     });
 
+    const href = overlayState.targetHref;
     const tl = gsap.timeline({
       onComplete: () => {
         // Trigger Next.js navigation once screen expansion finishes
-        router.push(overlayState.targetHref);
+        router.push(href);
+        // Safety net: if the page has not arrived after a while (a failed
+        // chunk, a lost connection), load it the plain way so the cover
+        // never stays on screen
+        stuckTimer.current = window.setTimeout(() => window.location.assign(href), 8000);
       },
     });
 
@@ -141,8 +162,9 @@ export default function TransitionProvider({ children }: { children: ReactNode }
       top: "50%",
       xPercent: -50,
       yPercent: -50,
-      scale: 1.35,
-      fontSize: "clamp(3.5rem, 10vw, 8rem)",
+      // Grown by font size, not scale: a scale from the left edge would
+      // push the word off centre
+      fontSize: "clamp(4.7rem, 13.5vw, 10.8rem)",
       duration: 0.8,
       ease: "power4.inOut",
     }, 0);
@@ -154,6 +176,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
       isNavigating.current = false;
+      window.clearTimeout(stuckTimer.current);
 
       if (overlayState.active && overlayRef.current && textRef.current) {
         const tl = gsap.timeline({

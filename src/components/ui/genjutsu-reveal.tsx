@@ -280,6 +280,7 @@ export function GenjutsuReveal({
   return (
     <div
       className={cn("gj", className)}
+      data-cursor="minimal"
       onPointerEnter={(e) => {
         if (e.pointerType !== "mouse") return;
         const st = s.current;
@@ -398,41 +399,6 @@ export function GenjutsuReveal({
         {alt}
       </div>
     </div>
-  );
-}
-
-/** Three tomoe around a pupil, turning slowly */
-export function Sharingan({ className, spin = true }: { className?: string; spin?: boolean }) {
-  return (
-    <svg viewBox="-12 -12 24 24" className={cn("gj-eye", className)} aria-hidden="true">
-      <circle r="11.2" fill="url(#gj-iris)" />
-      <circle r="11.2" fill="none" stroke="#12010380" strokeWidth="1.1" />
-      <circle r="6.4" fill="none" stroke="#1201038c" strokeWidth="0.55" />
-      <g className={spin ? "gj-eye__tomoe" : undefined}>
-        {[0, 120, 240].map((a) => (
-          <g key={a} transform={`rotate(${a}) translate(0 -6.4)`}>
-            <circle r="1.75" fill="#120103" />
-            <path d="M1.6 -0.7 C 1.9 -2.6 0.4 -3.9 -1.6 -4.1 C -0.4 -3.2 -0.1 -2 -0.2 -1.7 Z" fill="#120103" />
-          </g>
-        ))}
-      </g>
-      <circle r="2.5" fill="#120103" />
-    </svg>
-  );
-}
-
-/** Shared gradient for every eye on the page, rendered once */
-export function SharinganDefs() {
-  return (
-    <svg width="0" height="0" style={{ position: "absolute" }} aria-hidden="true" focusable="false">
-      <defs>
-        <radialGradient id="gj-iris" cx="0.42" cy="0.38" r="0.7">
-          <stop offset="0" stopColor="#ff4b4b" />
-          <stop offset="0.55" stopColor="#d1101f" />
-          <stop offset="1" stopColor="#6d0710" />
-        </radialGradient>
-      </defs>
-    </svg>
   );
 }
 

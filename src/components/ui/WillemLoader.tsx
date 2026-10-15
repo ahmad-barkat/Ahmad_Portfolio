@@ -64,7 +64,7 @@ interface WillemLoaderProps {
 export default function WillemLoader({
   onComplete,
   images = DEFAULT_IMAGES,
-  finalImage = "/laptop/001.png",
+  finalImage,
   finalImageClassName,
   finale,
   background,
@@ -265,7 +265,7 @@ export default function WillemLoader({
                     <div className="willem__finale">
                       <div className="willem__finale-page">{finale}</div>
                     </div>
-                  ) : (
+                  ) : finalImage ? (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
                       className={
@@ -276,7 +276,7 @@ export default function WillemLoader({
                       src={finalImage}
                       alt=""
                     />
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>

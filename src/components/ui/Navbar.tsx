@@ -289,6 +289,7 @@ export default function Navbar() {
               <button
                 onClick={handleLogoClick}
                 className="nav-logo-btn group"
+                data-magnetic=""
                 aria-label="Ahmad Barkat, home"
               >
                 <LogoLockup className="nav-logo nav-adaptive-text" />
@@ -303,6 +304,7 @@ export default function Navbar() {
                 aria-label={isMenuOpen ? "Close menu" : "Open menu"}
                 aria-expanded={isMenuOpen}
                 className="nav-item-btn nav-adaptive-bg"
+                data-magnetic=""
               >
                 {/* Hamburger bars — morphed into a cross while the menu is open */}
                 <div className="kn-btn-icon-wrap nav-adaptive-icon">

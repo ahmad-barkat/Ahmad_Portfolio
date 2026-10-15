@@ -32,3 +32,8 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Owner's personal files, kept out of the repository
+ahmad-barkat-cv-ats-friendly.md
+ahmad-barkat-cv-design.html
+ABOUT_AHMAD.md

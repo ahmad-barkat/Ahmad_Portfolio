@@ -8,6 +8,8 @@ import Analytics from "@/components/ui/Analytics";
 import GlobalPreloader from "@/components/ui/GlobalPreloader";
 import AnimationGovernor from "@/components/ui/AnimationGovernor";
 import MailFab from "@/components/ui/mail-fab";
+import LiquidCursor from "@/components/ui/LiquidCursor";
+import ChatLauncher from "@/components/chat/ChatLauncher";
 import { PROFILE, personJsonLd } from "@/data/profile";
 
 const BASE_URL = "https://ahmadbarkat.dev";
@@ -87,6 +89,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <GlobalPreloader />
             <Navbar />
             <MailFab />
+            <ChatLauncher />
+            <LiquidCursor />
             {children}
           </TransitionProvider>
         </LenisProvider>

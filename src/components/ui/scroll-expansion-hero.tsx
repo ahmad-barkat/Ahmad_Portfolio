@@ -37,6 +37,8 @@ export interface ScrollExpandMediaProps {
   textBlend?: boolean;
   /** Shown over the media once it has filled the screen */
   children?: ReactNode;
+  /** Drawn on the backdrop, so it fades with it (the page mark) */
+  mark?: ReactNode;
   className?: string;
 }
 
@@ -74,6 +76,7 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
       mediaMime = "video/mp4",
       posterSrc,
       bgImageSrc,
+      mark,
       title = "",
       date,
       scrollToExpand,
@@ -176,8 +179,9 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
         tl.fromTo(bgRef.current, { opacity: 0 }, { opacity: 1, duration: 1.4, ease: "power2.out" }, 0)
           .fromTo(
             popRef.current,
-            { autoAlpha: 0, scale: 0.82, y: 40 },
-            { autoAlpha: 1, scale: 1, y: 0, duration: 1.3 },
+            // From a trace, not from nothing (see .sx-pop in globals.css)
+            { opacity: 0.01, scale: 0.82, y: 40 },
+            { opacity: 1, scale: 1, y: 0, duration: 1.3 },
             0.1,
           )
           .to(root.querySelectorAll(".hr-reveal-char"), { yPercent: 0, duration: 1.2, stagger: 0.03 }, 0.35)
@@ -202,6 +206,7 @@ const ScrollExpandMedia = forwardRef<ScrollExpandMediaHandle, ScrollExpandMediaP
         {/* Without an image the backdrop is the site's deep gradient */}
         <div ref={bgRef} className={cn("sx-bg", bgImageSrc && "sx-bg--image")} aria-hidden="true">
           {bgImageSrc && <Image src={bgImageSrc} alt="" fill priority sizes="100vw" className="sx-bg__img" />}
+          {mark}
         </div>
 
         <div ref={popRef} className="sx-pop">
