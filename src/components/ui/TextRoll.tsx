@@ -1,7 +1,38 @@
-import React from "react";
+"use client";
+
+import React, { useSyncExternalStore } from "react";
 import { cn } from "@/lib/utils";
 
 const STAGGER = 0.035;
+
+/* The roll is a hover effect, and splitting every label into letters (twice)
+   was a fifth of the home page's elements, built and laid out on phones that
+   never hover. So the page arrives with each row as one block, which still
+   rolls as a whole, and the letters are only split once a mouse moves or the
+   keyboard is used: every roll on the page splits then, together. */
+let split = false;
+const listeners = new Set<() => void>();
+let armed = false;
+function arm() {
+  if (armed || typeof window === "undefined") return;
+  armed = true;
+  const go = () => {
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("keydown", go);
+    split = true;
+    listeners.forEach((l) => l());
+  };
+  const onMove = (e: PointerEvent) => {
+    if (e.pointerType === "mouse") go();
+  };
+  window.addEventListener("pointermove", onMove, { passive: true });
+  window.addEventListener("keydown", go, { passive: true });
+}
+const subscribe = (l: () => void) => {
+  listeners.add(l);
+  arm();
+  return () => listeners.delete(l);
+};
 
 /**
  * The letter roll: each letter slides up and out while its copy slides in
@@ -23,16 +54,21 @@ export const TextRoll: React.FC<{
   center?: boolean;
   style?: React.CSSProperties;
 }> = ({ children, className, center = false, style }) => {
+  const letters = useSyncExternalStore(subscribe, () => split, () => false);
   const chars = children.split("");
   const delay = (i: number) =>
     center ? STAGGER * Math.abs(i - (chars.length - 1) / 2) : STAGGER * i;
 
   const row = (which: "a" | "b") =>
-    chars.map((l, i) => (
-      <span key={`${which}${i}`} className="troll__ch" style={{ "--d": `${delay(i).toFixed(3)}s` } as React.CSSProperties}>
-        {l === " " ? " " : l}
-      </span>
-    ));
+    letters ? (
+      chars.map((l, i) => (
+        <span key={`${which}${i}`} className="troll__ch" style={{ "--d": `${delay(i).toFixed(3)}s` } as React.CSSProperties}>
+          {l === " " ? " " : l}
+        </span>
+      ))
+    ) : (
+      <span className="troll__ch">{children}</span>
+    );
 
   return (
     <span className={cn("troll relative block overflow-hidden", className)} style={{ lineHeight: 0.9, ...style }}>

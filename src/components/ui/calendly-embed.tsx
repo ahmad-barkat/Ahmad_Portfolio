@@ -1,51 +1,47 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { CalendarDays } from "lucide-react";
 
-const SCRIPT_SRC = "https://assets.calendly.com/assets/external/widget.js";
+import { ButtonWithIcon } from "@/components/ui/button-with-icon";
 
-declare global {
-  interface Window {
-    Calendly?: {
-      initInlineWidget(options: { url: string; parentElement: HTMLElement; resize?: boolean }): void;
-    };
+const ORIGINS = ["https://calendly.com", "https://assets.calendly.com"];
+
+/** Opens the connections to Calendly early (once), so the calendar starts
+ *  faster when it is asked for */
+let warmed = false;
+function warmCalendly() {
+  if (warmed) return;
+  warmed = true;
+  for (const href of ORIGINS) {
+    const link = document.createElement("link");
+    link.rel = "preconnect";
+    link.href = href;
+    link.crossOrigin = "";
+    document.head.appendChild(link);
   }
 }
 
-/** Calendly's script, added to the page once, the first time a calendar is near */
-let scriptPromise: Promise<void> | null = null;
-function loadCalendly(): Promise<void> {
-  if (window.Calendly?.initInlineWidget) return Promise.resolve();
-  if (!scriptPromise) {
-    scriptPromise = new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = SCRIPT_SRC;
-      s.async = true;
-      s.onload = () => resolve();
-      s.onerror = () => {
-        scriptPromise = null;
-        s.remove();
-        reject(new Error("Calendly failed to load"));
-      };
-      document.head.appendChild(s);
-    });
-  }
-  return scriptPromise;
+/** The calendar's frame address: the same query Calendly's widget script
+ *  builds, so the frame posts its height and events, without loading the script */
+function frameSrc(url: string) {
+  const u = new URL(url);
+  u.searchParams.set("embed_domain", window.location.host);
+  u.searchParams.set("embed_type", "Inline");
+  return u.toString();
 }
 
 type CalendlyEvent = "calendly.event_type_viewed" | "calendly.date_and_time_selected" | "calendly.event_scheduled";
 
 /**
- * Calendly's inline booking calendar.
+ * Calendly's inline booking calendar, loaded on request.
  *
- *   - The script and the calendar only load when the section is close to the
- *     screen, so the rest of the page is not slowed down.
- *   - The frame takes the calendar's own height (Calendly posts it on every
- *     step), so there is never a scrollbar inside it.
+ *   - Nothing from Calendly loads until the visitor presses "Show available
+ *     times", so the page never pays for it. Connections are opened early when
+ *     the section comes near and when the button is hovered or focused.
+ *   - The frame is added directly (no widget script) and takes the calendar's
+ *     own height (Calendly posts it on every step), so it never scrolls inside.
  *   - `onEvent` hears when a slot is picked and when a call is booked.
- *
- * The colours are passed in the URL; Calendly only applies them on paid plans,
- * and the frame is styled so the calendar sits well either way.
  */
 export function CalendlyEmbed({
   url,
@@ -53,6 +49,8 @@ export function CalendlyEmbed({
   className,
   onEvent,
   fallback,
+  heading = "30-minute video call",
+  note = "Free. Times show in your own time zone.",
 }: {
   url: string;
   title?: string;
@@ -60,55 +58,46 @@ export function CalendlyEmbed({
   onEvent?: (event: CalendlyEvent) => void;
   /** Shown if the calendar can't load (blocked by the browser, offline) */
   fallback?: React.ReactNode;
+  heading?: string;
+  note?: string;
 }) {
-  const hostRef = useRef<HTMLDivElement>(null);
-  const [status, setStatus] = useState<"idle" | "loading" | "ready" | "error">("idle");
+  const rootRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<HTMLIFrameElement>(null);
+  const [status, setStatus] = useState<"closed" | "loading" | "ready" | "error">("closed");
   const [height, setHeight] = useState<number | null>(null);
+  const [src, setSrc] = useState<string | null>(null);
   const onEventRef = useRef(onEvent);
   onEventRef.current = onEvent;
 
-  // Load when within a screen and a half of the viewport
+  // Open the connections when the section is within a screen
   useEffect(() => {
-    const host = hostRef.current;
-    if (!host) return;
-    let cancelled = false;
-    let fallbackTimer = 0;
+    const root = rootRef.current;
+    if (!root) return;
     const io = new IntersectionObserver(
       (entries) => {
         if (!entries.some((e) => e.isIntersecting)) return;
         io.disconnect();
-        setStatus("loading");
-        loadCalendly()
-          .then(() => {
-            if (cancelled || !window.Calendly) return;
-            host.replaceChildren();
-            window.Calendly.initInlineWidget({ url, parentElement: host });
-            const frame = host.querySelector("iframe");
-            if (!frame) return;
-            frame.title = title;
-            // Should Calendly never say it has drawn, show the frame anyway
-            frame.addEventListener("load", () => {
-              fallbackTimer = window.setTimeout(() => !cancelled && setStatus((s) => (s === "loading" ? "ready" : s)), 4000);
-            });
-          })
-          .catch(() => !cancelled && setStatus("error"));
+        warmCalendly();
       },
-      { rootMargin: "150% 0px" },
+      { rootMargin: "100% 0px" },
     );
-    io.observe(host);
-    return () => {
-      cancelled = true;
-      window.clearTimeout(fallbackTimer);
-      io.disconnect();
-      host.replaceChildren();
-    };
-  }, [url, title]);
+    io.observe(root);
+    return () => io.disconnect();
+  }, []);
+
+  // Should Calendly never say it has drawn, show the frame anyway; if the
+  // frame never loads at all, offer the link instead
+  useEffect(() => {
+    if (status !== "loading") return;
+    const t = window.setTimeout(() => setStatus((s) => (s === "loading" ? "error" : s)), 20000);
+    return () => window.clearTimeout(t);
+  }, [status]);
 
   // Messages from this calendar only: its height, and what the visitor did
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       if (!/^https:\/\/([a-z0-9-]+\.)*calendly\.com$/.test(e.origin)) return;
-      const frame = hostRef.current?.querySelector("iframe");
+      const frame = frameRef.current;
       if (!frame || e.source !== frame.contentWindow) return;
       const data = e.data as { event?: string; payload?: { height?: string } };
       if (!data?.event) return;
@@ -133,21 +122,61 @@ export function CalendlyEmbed({
     return () => window.removeEventListener("message", onMessage);
   }, []);
 
+  const open = () => {
+    warmCalendly();
+    setSrc(frameSrc(url));
+    setStatus("loading");
+    // The button goes away: keep keyboard focus here, not on the page body
+    rootRef.current?.focus({ preventScroll: true });
+  };
+
+  const onFrameLoad = () => {
+    window.setTimeout(() => setStatus((s) => (s === "loading" ? "ready" : s)), 4000);
+  };
+
   return (
     <div
+      ref={rootRef}
+      tabIndex={-1}
       className={["cal-embed", className].filter(Boolean).join(" ")}
       data-status={status}
       style={height ? ({ "--cal-h": `${height}px` } as React.CSSProperties) : undefined}
     >
-      <div ref={hostRef} className="cal-embed__host" />
-      {status !== "ready" && status !== "error" && (
-        <div className="cal-embed__loading" aria-hidden="true">
-          <span className="cal-embed__dot" />
-          <span className="cal-embed__dot" />
-          <span className="cal-embed__dot" />
+      {status === "closed" ? (
+        <div className="cal-embed__gate">
+          <span className="cal-embed__icon" aria-hidden="true">
+            <CalendarDays strokeWidth={1.5} />
+          </span>
+          <div className="cal-embed__copy">
+            <p className="cal-embed__title">{heading}</p>
+            <p className="cal-embed__note">{note}</p>
+          </div>
+          <ButtonWithIcon type="button" onClick={open} onPointerEnter={warmCalendly} onFocus={warmCalendly}>
+            Show available times
+          </ButtonWithIcon>
         </div>
+      ) : (
+        <>
+          {src && status !== "error" && (
+            <iframe
+              ref={frameRef}
+              className="cal-embed__frame"
+              src={src}
+              title={title}
+              onLoad={onFrameLoad}
+            />
+          )}
+          {status === "loading" && (
+            <div className="cal-embed__loading" role="status">
+              <span className="sr-only">Loading the calendar</span>
+              <span className="cal-embed__dot" aria-hidden="true" />
+              <span className="cal-embed__dot" aria-hidden="true" />
+              <span className="cal-embed__dot" aria-hidden="true" />
+            </div>
+          )}
+          {status === "error" && <div className="cal-embed__error">{fallback}</div>}
+        </>
       )}
-      {status === "error" && <div className="cal-embed__error">{fallback}</div>}
     </div>
   );
 }

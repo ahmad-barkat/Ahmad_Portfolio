@@ -8,34 +8,54 @@ import { PRELOADER_DONE_EVENT } from "./page-ready";
 /* Pages that run their own full-screen intro and must not get a second curtain */
 const SELF_LOADING_ROUTES = ["/"];
 
+/**
+ * The AHMAD curtain. It is part of the server's HTML, so it covers every page
+ * from the first paint until the page wakes up, as `app/loading.tsx` used to.
+ * That file was a Suspense fallback: it kept the whole page hidden in the
+ * HTML until React revealed it, so a phone could not lay out or paint
+ * anything until then. Now the page is built and painted underneath while the
+ * curtain is up, and lifting it costs nothing.
+ *
+ * On a first visit in a session it then holds for a moment and fades (pages
+ * hold their entrance until it lifts, see page-ready.ts); otherwise it goes
+ * as soon as the page wakes. `html[data-boot]` (set in layout.tsx) holds the
+ * page's own fade-in until the curtain goes.
+ */
 export default function GlobalPreloader() {
   const pathname = usePathname();
   const selfLoading = SELF_LOADING_ROUTES.includes(pathname ?? "");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    const release = () => {
+      delete document.documentElement.dataset.boot;
+    };
     if (selfLoading) {
       setLoading(false);
+      release();
       return;
     }
 
     // Only show once per session on cold-start; do not block client-side navigations
-    const hasSeen = typeof window !== "undefined" ? sessionStorage.getItem("app_loaded") : null;
+    let hasSeen: string | null = null;
+    try {
+      hasSeen = sessionStorage.getItem("app_loaded");
+      sessionStorage.setItem("app_loaded", "true");
+    } catch {}
     if (hasSeen) {
       setLoading(false);
+      release();
       return;
     }
 
-    if (typeof window !== "undefined") {
-      sessionStorage.setItem("app_loaded", "true");
-    }
     setLoading(true);
     // Pages hold their entrance until the curtain lifts (see page-ready.ts)
     document.documentElement.dataset.preloader = "on";
     let doneTimer = 0;
     const finish = () => {
       delete document.documentElement.dataset.preloader;
+      release();
       window.dispatchEvent(new Event(PRELOADER_DONE_EVENT));
     };
 
@@ -54,10 +74,11 @@ export default function GlobalPreloader() {
     };
   }, [pathname, selfLoading]);
 
-  if (!loading || selfLoading) return null;
+  if (!loading) return null;
 
   return (
     <div
+      className="boot-curtain"
       style={{
         position: "fixed",
         inset: 0,
@@ -72,6 +93,10 @@ export default function GlobalPreloader() {
       }}
       aria-hidden="true"
     >
+      {/* Without scripts nothing would lift it */}
+      <noscript>
+        <style>{`.boot-curtain { display: none !important; } html[data-boot] .page-enter { animation-play-state: running; }`}</style>
+      </noscript>
       <Loader text="AHMAD" />
     </div>
   );

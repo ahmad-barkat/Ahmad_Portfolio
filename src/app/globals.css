@@ -175,6 +175,10 @@ body {
   animation-delay: 0.05s;
 }
 
+/* Held on its first frame while the AHMAD curtain is up (GlobalPreloader.tsx
+   lifts `data-boot`), so the fade plays in front of the visitor */
+html[data-boot] .page-enter { animation-play-state: paused; }
+
 /* Lenis Smooth Scroll CSS */
 html.lenis, html.lenis body {
   height: auto;
@@ -4800,6 +4804,10 @@ html.lenis, html.lenis body {
 .cal-embed {
   --cal-h: 700px;
   position: relative;
+  outline: none;
+}
+
+.cal-embed:not([data-status="closed"]) {
   height: var(--cal-h);
   min-height: 560px;
   transition: height 0.5s cubic-bezier(0.16, 1, 0.3, 1);
@@ -4809,12 +4817,52 @@ html.lenis, html.lenis body {
   .cal-embed { --cal-h: 1040px; }
 }
 
-.cal-embed__host {
-  position: absolute;
-  inset: 0;
+/* Before the calendar is asked for: one quiet card, nothing from Calendly loaded */
+.cal-embed__gate {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem 1.5rem;
+  padding: clamp(1.25rem, 3vw, 2rem);
+  border: 1px solid rgba(232, 246, 255, 0.14);
+  border-radius: 1.25rem;
 }
 
-.cal-embed__host iframe {
+.cal-embed__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  border: 1px solid rgba(127, 231, 214, 0.45);
+  color: #7fe7d6;
+}
+
+.cal-embed__icon svg { width: 1.35rem; height: 1.35rem; }
+
+.cal-embed__copy {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.cal-embed__title {
+  margin: 0;
+  font-size: clamp(1.05rem, 1.6vw, 1.25rem);
+  font-weight: 600;
+  color: #e8f6ff;
+}
+
+.cal-embed__note {
+  margin: 0.3rem 0 0;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(232, 246, 255, 0.6);
+}
+
+.cal-embed__frame {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
@@ -4823,10 +4871,7 @@ html.lenis, html.lenis body {
   transition: opacity 0.6s ease;
 }
 
-.cal-embed[data-status="ready"] .cal-embed__host iframe { opacity: 1; }
-
-/* Calendly's own spinner needs its stylesheet; ours is below */
-.cal-embed__host .calendly-spinner { display: none; }
+.cal-embed[data-status="ready"] .cal-embed__frame { opacity: 1; }
 
 .cal-embed__loading {
   position: absolute;
@@ -4846,8 +4891,8 @@ html.lenis, html.lenis body {
   animation: cal-dot 1.2s ease-in-out infinite;
 }
 
-.cal-embed__dot:nth-child(2) { animation-delay: 0.15s; }
-.cal-embed__dot:nth-child(3) { animation-delay: 0.3s; }
+.cal-embed__dot:nth-child(3) { animation-delay: 0.15s; }
+.cal-embed__dot:nth-child(4) { animation-delay: 0.3s; }
 
 @keyframes cal-dot {
   0%, 80%, 100% { opacity: 0.25; transform: scale(0.8); }
@@ -4864,6 +4909,8 @@ html.lenis, html.lenis body {
   color: rgba(232, 246, 255, 0.72);
 }
 
+.cal-embed[data-status="error"] { height: auto; min-height: 12rem; }
+
 .cal-embed__error a {
   color: #7fe7d6;
   text-decoration: underline;
@@ -4871,8 +4918,8 @@ html.lenis, html.lenis body {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cal-embed,
-  .cal-embed__host iframe { transition: none; }
+  .cal-embed:not([data-status="closed"]),
+  .cal-embed__frame { transition: none; }
   .cal-embed__dot { animation: none; opacity: 0.6; }
 }
 
@@ -6921,7 +6968,7 @@ html.lenis, html.lenis body {
    Set off by the text itself, by a whole .ftr-link (icon included), by any
    ancestor marked [data-roll] (nav rectangles, menu rows), and by the
    contact channel cards for their main link. */
-.troll__row { display: flex; }
+.troll__row { display: flex; white-space: nowrap; }
 
 .troll__row--b {
   position: absolute;

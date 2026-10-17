@@ -72,7 +72,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`dark ${sans.variable} ${mono.variable} ${serif.variable}`}>
+    <html lang="en" data-boot="" suppressHydrationWarning className={`dark ${sans.variable} ${mono.variable} ${serif.variable}`}>
       <body
         suppressHydrationWarning
         className="font-sans"

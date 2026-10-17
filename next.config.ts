@@ -5,15 +5,16 @@ const isProd = process.env.NODE_ENV === "production";
 // Content-Security-Policy. Next.js injects inline bootstrap scripts, so
 // script-src keeps 'unsafe-inline' (a nonce would force every page dynamic).
 // Everything else is locked to this site plus the two services it uses:
-// Calendly (booking embed) and Formspree (contact form).
+// Calendly (booking embed, a plain iframe: no Calendly script or styles)
+// and Formspree (contact form).
 const csp = [
   "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"} https://assets.calendly.com`,
-  "style-src 'self' 'unsafe-inline' https://assets.calendly.com",
-  "img-src 'self' data: blob: https://*.calendly.com",
+  `script-src 'self' 'unsafe-inline'${isProd ? "" : " 'unsafe-eval'"}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data: blob:",
   "media-src 'self' blob:",
   "font-src 'self' data:",
-  "connect-src 'self' https://formspree.io https://calendly.com https://*.calendly.com" + (isProd ? "" : " ws: wss:"),
+  "connect-src 'self' https://formspree.io" + (isProd ? "" : " ws: wss:"),
   "frame-src https://calendly.com https://*.calendly.com",
   "worker-src 'self' blob:",
   "object-src 'none'",

@@ -122,12 +122,14 @@ export function HeadingReveal({
                     lineHeight: "1.1",
                   }}
                 >
+                  {/* No will-change: GSAP lifts each letter onto its own layer
+                      only while it moves, instead of every letter of every
+                      heading holding one for good (costly on phones) */}
                   <span
                     className="hr-reveal-char"
                     style={{
                       display: "inline-block",
                       position: "relative",
-                      willChange: "transform",
                     }}
                   >
                     {char}

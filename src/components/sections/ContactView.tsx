@@ -3,11 +3,11 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
-import { motion } from "motion/react";
 import { ArrowUpRight } from "lucide-react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import RevealText from "@/components/ui/RevealText";
 import { TextRoll } from "@/components/ui/TextRoll";
+import { FadeUp } from "@/components/ui/fade-up";
 import ButtonWithIcon from "@/components/ui/button-with-icon";
 import JpTerm from "@/components/ui/jp-term";
 import { SendButton, SentToast, flyPaperPlane, type SendState } from "@/components/ui/send-flight";
@@ -38,8 +38,6 @@ import {
 import { PageMark } from "@/components/ui/page-mark";
 
 gsap.registerPlugin(useGSAP);
-
-const EASE = [0.16, 1, 0.3, 1] as const;
 
 const MESSAGE_MAX = 2000;
 /** Keep the "sending" ring up at least this long, so it reads as a moment */
@@ -494,13 +492,14 @@ function BriefSection() {
             the project are needed.
           </p>
 
-          <motion.ol
+          <FadeUp
+
+            as="ol"
             className="ct-steps"
             aria-label="What happens next"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE }}
-            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            y={24}
+            duration={0.9}
+            margin="0px 0px -10% 0px"
           >
             {NEXT_STEPS.map((s, i) => (
               <li key={s.title} className="ct-step">
@@ -511,20 +510,21 @@ function BriefSection() {
                 </div>
               </li>
             ))}
-          </motion.ol>
+          </FadeUp>
         </div>
 
-        <motion.form
+        <FadeUp
+
+          as="form"
           ref={formRef}
           id="contact-form"
           className="ct-form"
           aria-label="Project brief"
           noValidate
           onSubmit={onSubmit}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          y={40}
+          duration={1}
+          margin="0px 0px -10% 0px"
         >
           <div className="ct-form__pair">
             {field("name", "01", "What should I call you?", {
@@ -639,7 +639,7 @@ function BriefSection() {
               </p>
             )}
           </div>
-        </motion.form>
+        </FadeUp>
       </div>
     </section>
   );
@@ -660,12 +660,12 @@ function CallSection() {
               Talk it through
             </HeadingReveal>
           </div>
-          <motion.div
+          <FadeUp
+            as="div"
             className="ct-call__side"
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: EASE }}
-            viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+            y={24}
+            duration={0.9}
+            margin="0px 0px -10% 0px"
           >
             <p className="ct-intro">
               Rather talk than type? Pick a free slot for a 30-minute video call about your project, and the invite
@@ -676,15 +676,16 @@ function CallSection() {
                 <li key={p}>{p}</li>
               ))}
             </ul>
-          </motion.div>
+          </FadeUp>
         </div>
 
-        <motion.div
+        <FadeUp
+
+          as="div"
           className="ct-call__frame"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE }}
-          viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+          y={40}
+          duration={1}
+          margin="0px 0px -8% 0px"
         >
           <CalendlyEmbed
             url={CALENDLY_EMBED_URL}
@@ -700,7 +701,7 @@ function CallSection() {
               </p>
             }
           />
-        </motion.div>
+        </FadeUp>
 
         <div className="ct-call__foot">
           <p>No time that suits you? Send the brief above and we&apos;ll find one.</p>
@@ -726,12 +727,12 @@ function CallSection() {
 // -------------------------------------------------------------------------
 function ChannelCard({ c, i }: { c: (typeof CHANNELS)[number]; i: number }) {
   return (
-    <motion.li
+    <FadeUp
+      as="li"
       className="ct-channel"
-      initial={{ opacity: 0, y: 32 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.9, delay: i * 0.08, ease: EASE }}
-      viewport={{ once: true, margin: "0px 0px -8% 0px" }}
+      y={32}
+      duration={0.9} delay={i * 0.08}
+      margin="0px 0px -8% 0px"
     >
       {/* The whole card opens the channel; the visible link below says so */}
       <a
@@ -764,7 +765,7 @@ function ChannelCard({ c, i }: { c: (typeof CHANNELS)[number]; i: number }) {
           </RollLink>
         )}
       </div>
-    </motion.li>
+    </FadeUp>
   );
 }
 
@@ -804,12 +805,13 @@ function FaqSection() {
           <p className="ct-intro">Anything else, just ask in your brief.</p>
         </div>
 
-        <motion.ul
+        <FadeUp
+
+          as="ul"
           className="ct-faq__list"
-          initial={{ opacity: 0, y: 32 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: EASE }}
-          viewport={{ once: true, margin: "0px 0px -10% 0px" }}
+          y={32}
+          duration={1}
+          margin="0px 0px -10% 0px"
         >
           {FAQ.map((item, i) => {
             const isOpen = open === i;
@@ -843,7 +845,7 @@ function FaqSection() {
               </li>
             );
           })}
-        </motion.ul>
+        </FadeUp>
       </div>
     </section>
   );
