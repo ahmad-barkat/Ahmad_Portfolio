@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Committed and pushed to `origin/master` up to `70b094e` (2026-10-17). The 2026-10-20 changes (draw-brush page transition, menu fix, dots → digits) are not committed yet. `ABOUT_AHMAD.md` stays out of git (personal notes). |
+| Git | Everything committed and pushed to `origin/master` (latest: `1e3eb0f`, 2026-10-20: draw-brush page transition, menu fix, dots → digits). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -414,6 +414,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-20
+- Committed and pushed the changes below to `origin/master` (`1e3eb0f`). Vercel deploys from it.
 - New page transition (client request, from the reference video `osmo-draw-svg-page-transition-1440x900.mp4`, analysed frame by frame: 155 frames at 30fps, the stroke covers in about 0.8s, holds a frame and is wiped away in about 1s while the new page fades in): a sky brush stroke that spirals in until the screen is covered, then is wiped away from its start, thinning as it goes, with the tail leaving last. The path is worked out for each screen size, so it covers fully on wide screens and phones. Replaces the expanding-rectangle overlay; every caller of `transitionTo()` gets it. Files: `TransitionProvider.tsx`, `globals.css` (`.dt*`).
 - Menu fix (client report: after clicking a link, the hover SVGs and a box stayed on screen for 1–2 s until the page opened): the link now starts the brush at once over the open menu, and the menu closes instantly under it (`TRANSITION_COVERED_EVENT`, `instantClose` in `Navbar.tsx`); the page stays still until the brush lifts.
 - Decorative dots replaced (client request): menu link dots → hairlines, 'Current page' badge dot removed, About badge dot → mint hairline, Services tags → card numbers 01–06, Services chip bullets removed, reduced-motion Services pagination → 01–06, 'Why I build' timeline dots → beat numbers 01–06 (mint once passed), review file tabs → review numbers, Work tab dot removed, contact form chips → '+' / '✓', the scroll-to-next ring's leading dot removed. Files: `Navbar.tsx`, `AboutMeSection.tsx`, `ServicesSection.tsx`, `WhyIBuildSection.tsx`, `TestimonialsGrid.tsx`, `WorkSection.tsx`, `next-page.tsx`, `globals.css`.
