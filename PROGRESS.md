@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Everything committed and pushed to `origin/master` (latest: `1e3eb0f`, 2026-10-20: draw-brush page transition, menu fix, dots → digits). `ABOUT_AHMAD.md` stays out of git (personal notes). |
+| Git | Everything committed and pushed to `origin/master` (latest: `cf6d340`, 2026-10-20: draw-brush page transition, menu fix, dots → digits, reviews on Hire me and 404). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -414,6 +414,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-20
+- Committed and pushed the reviews change to `origin/master` (`cf6d340`). `/projects` stays without reviews (client's choice).
 - Reviews added to `/hire` (navy, `HireView.tsx`) and the 404 page (royal, `not-found.tsx`), client request: they now sit before the footer on every page except the nav page and `/projects`. Checked the joins at 1440×900 and 390×844 (no seam); typecheck clean. Still hidden on the live site while all reviews are samples.
 - Committed and pushed the changes below to `origin/master` (`1e3eb0f`). Vercel deploys from it.
 - New page transition (client request, from the reference video `osmo-draw-svg-page-transition-1440x900.mp4`, analysed frame by frame: 155 frames at 30fps, the stroke covers in about 0.8s, holds a frame and is wiped away in about 1s while the new page fades in): a sky brush stroke that spirals in until the screen is covered, then is wiped away from its start, thinning as it goes, with the tail leaving last. The path is worked out for each screen size, so it covers fully on wide screens and phones. Replaces the expanding-rectangle overlay; every caller of `transitionTo()` gets it. Files: `TransitionProvider.tsx`, `globals.css` (`.dt*`).
