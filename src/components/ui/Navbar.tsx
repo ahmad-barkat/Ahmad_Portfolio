@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { gsap } from "gsap";
 import { CustomEase } from "gsap/CustomEase";
-import { usePageTransition } from "./TransitionProvider";
+import { usePageTransition, TRANSITION_COVERED_EVENT } from "./TransitionProvider";
 import { useNavHistory } from "@/hooks/useNavHistory";
 import { TextRoll } from "./TextRoll";
 import ButtonWithIcon from "./button-with-icon";
@@ -32,13 +32,15 @@ export default function Navbar() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { transitionTo } = usePageTransition();
+  const { transitionTo, isTransitioning } = usePageTransition();
   const lenis = useLenis();
   const triggerRef = useRef<HTMLButtonElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
   const menuCtx = useRef<gsap.Context | null>(null);
   const closeTl = useRef<gsap.core.Timeline | null>(null);
+  /** Set when the menu closes under the page transition: skip the exit */
+  const instantClose = useRef(false);
   const { isCurrent, isVisited } = useNavHistory();
 
   // ── 2. Full-Screen Kinetic Overlay Logic (Preserved from Sterling Gate) ───
@@ -143,6 +145,24 @@ export default function Navbar() {
           { opacity: 0, y: 15 },
           { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power3.out", delay: 0.45, overwrite: "auto" }
         );
+      } else if (instantClose.current) {
+        // Under the page transition's brush: nothing to watch, so put
+        // everything back at once, ready for the next open
+        instantClose.current = false;
+        navWrap.setAttribute("data-nav", "closed");
+        document.body.style.overflow = "";
+        const shapes = containerRef.current!.querySelectorAll<HTMLElement>(".kn-bg-shape");
+        const shapeEls = containerRef.current!.querySelectorAll<HTMLElement>(".kn-shape-el");
+        gsap.killTweensOf([burgerTop, burgerMid, burgerBot, overlay, ...panels, ...links, ...fadeItems, ...shapeEls]);
+        gsap.set([burgerTop, burgerBot], { y: 0, rotate: 0 });
+        gsap.set(burgerMid, { opacity: 1, scaleX: 1 });
+        gsap.set(panels, { xPercent: 101, x: 0 });
+        gsap.set(links, { autoAlpha: 0 });
+        gsap.set(overlay, { opacity: 0 });
+        gsap.set(shapeEls, { opacity: 0 });
+        shapes.forEach((s) => s.classList.remove("active"));
+        navWrap.style.display = "none";
+        gsap.set(menuPanel, { visibility: "hidden" });
       } else {
         navWrap.setAttribute("data-nav", "closed");
         document.body.style.overflow = "";
@@ -183,12 +203,13 @@ export default function Navbar() {
       const t = window.setTimeout(() => closeRef.current?.focus({ preventScroll: true }), 350);
       return () => window.clearTimeout(t);
     }
-    lenis?.start();
+    // Closed under the page transition: the page stays still until it lifts
+    if (!isTransitioning) lenis?.start();
     if (wasOpen.current) {
       wasOpen.current = false;
       triggerRef.current?.focus({ preventScroll: true });
     }
-  }, [isMenuOpen, lenis]);
+  }, [isMenuOpen, isTransitioning, lenis]);
 
   // Close on ESC
   useEffect(() => {
@@ -202,28 +223,28 @@ export default function Navbar() {
   const toggleMenu = useCallback(() => setIsMenuOpen((p) => !p), []);
   const closeMenu  = useCallback(() => setIsMenuOpen(false), []);
 
+  // A menu link draws the page transition's brush straight over the open
+  // menu. The menu used to play its own exit first, which left the hover
+  // shapes and the transition's box on screen for a second or two; now it
+  // stays put and vanishes under the brush (TRANSITION_COVERED_EVENT).
   const handleLinkClick = useCallback(
     (href: string, color: string, label: string, el: HTMLElement) => {
-      const tl = gsap.timeline({
-        onComplete: () => {
-          setIsMenuOpen(false);
-          transitionTo(href, el, color, label.toUpperCase());
-        },
-      });
-      tl.to(containerRef.current!.querySelectorAll(".kn-nav-link"), {
-        yPercent: -60,
-        autoAlpha: 0,
-        stagger: 0.04,
-        duration: 0.3,
-        ease: "power2.in",
-      }).to(
-        containerRef.current!.querySelectorAll(".kn-backdrop-layer"),
-        { xPercent: 101, stagger: 0.08, duration: 0.45, ease: "power4.in" },
-        "-=0.1"
-      );
+      if (transitionTo(href, el, color, label.toUpperCase())) return;
+      // No cover (the page already open, or reduced motion): close as usual
+      setIsMenuOpen(false);
     },
     [transitionTo]
   );
+
+  useEffect(() => {
+    const onCovered = () => {
+      if (!isMenuOpen) return;
+      instantClose.current = true;
+      setIsMenuOpen(false);
+    };
+    window.addEventListener(TRANSITION_COVERED_EVENT, onCovered);
+    return () => window.removeEventListener(TRANSITION_COVERED_EVENT, onCovered);
+  }, [isMenuOpen]);
 
   const handleHireMeClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -418,9 +439,9 @@ export default function Navbar() {
                         {link.idx}
                       </span>
 
-                      {/* Dot */}
+                      {/* Rule */}
                       <span
-                        className="kn-link-dot"
+                        className="kn-link-rule"
                         style={{
                           background: active ? link.color : undefined,
                         }}
@@ -437,7 +458,6 @@ export default function Navbar() {
                       {/* Badges */}
                       {active ? (
                         <span className="kn-badge kn-badge--active" style={{ background: link.color }}>
-                          <span className="kn-badge-dot" />
                           CURRENT PAGE
                         </span>
                       ) : visited ? (

@@ -167,8 +167,6 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
           },
         });
         tl.fromTo(q(".np-ring__arc"), { attr: { "stroke-dashoffset": RING_LENGTH } }, { attr: { "stroke-dashoffset": 0 } }, 0)
-          .fromTo(q(".np-ring__head"), { rotation: 0 }, { rotation: 360, svgOrigin: "50 50" }, 0)
-          .fromTo(q(".np-ring__head"), { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.04 }, 0)
           .fromTo(q(".np-media__inner"), { scale: 1.08 }, { scale: 1 }, 0)
           .fromTo(q(".np-hint span"), { autoAlpha: 1 }, { autoAlpha: 0, duration: 0.25 }, 0.1);
         tlRef.current = tl;
@@ -208,7 +206,7 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
               <circle className="np-ring__track" cx="50" cy="50" r="49" />
               {/* Starts at the top (rotated in SVG, not CSS) and draws clockwise.
                   The dash is its real length, not pathLength, which Chrome
-                  doesn't always apply to the dash (the arc ran ahead of the dot) */}
+                  doesn't always apply to the dash */}
               <circle
                 className="np-ring__arc"
                 cx="50"
@@ -218,9 +216,6 @@ export function NextPage({ href, title, eyebrow = "Next page", meta, image, fit 
                 strokeDasharray={RING_LENGTH}
                 strokeDashoffset={RING_LENGTH}
               />
-              <g className="np-ring__head">
-                <circle cx="50" cy="1" r="0.9" />
-              </g>
             </svg>
             <p className="np-eyebrow">{eyebrow}</p>
             <h2 className="np-title">{title}</h2>

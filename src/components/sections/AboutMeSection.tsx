@@ -208,7 +208,7 @@ export function AboutMeSection() {
 
               {/* Role badge */}
               <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#3BA7F2]/30 bg-[#03102A]/90 backdrop-blur-md w-fit">
-                <span className="w-2 h-2 rounded-full bg-[#7FE7D6]" />
+                <span aria-hidden="true" className="block w-3.5 h-px bg-[#7FE7D6]" />
                 <span className="font-mono text-[9px] sm:text-[10px] tracking-[0.28em] text-[#3BA7F2] uppercase font-bold">
                   FULL-STACK DEVELOPER · WORKING WORLDWIDE
                 </span>

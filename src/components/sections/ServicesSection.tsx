@@ -460,7 +460,7 @@ export function ServicesSection() {
                   <div className="svc-card__content">
                     <div className="svc-card__head">
                       <span className="svc-card__tag">
-                        <i aria-hidden="true" />
+                        <i aria-hidden="true">{svc.index}</i>
                         {svc.tag}
                       </span>
                       <span aria-hidden="true" className="svc-card__count">
@@ -537,7 +537,7 @@ export function ServicesSection() {
                 aria-current={i === active}
                 onClick={() => goTo(i)}
               >
-                <span />
+                <span>{svc.index}</span>
               </button>
             ))}
           </div>

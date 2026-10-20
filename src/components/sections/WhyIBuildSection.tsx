@@ -256,7 +256,9 @@ export function WhyIBuildSection() {
                     className={`wb-beat${now ? " wb-beat--now" : ""}`}
                     data-passed={i <= active || undefined}
                   >
-                    <span className="wb-beat__dot" aria-hidden="true" />
+                    <span className="wb-beat__dot" aria-hidden="true">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
                     <div className="wb-beat__body">
                       <p className="wb-beat__when">
                         <span>{now ? "Now" : `${b.when} 2026`}</span>

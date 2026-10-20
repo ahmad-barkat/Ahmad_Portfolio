@@ -5,7 +5,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - **Project:** `D:\Ahmad Updated Portfolio\Ahmad_Portfolio`
 - **Stack:** Next.js 15 (App Router), React 19, TypeScript, Tailwind 3, GSAP (ScrollTrigger, useGSAP), Lenis, three.js, motion.
 - **Dev server:** `npm run dev` on http://localhost:3000. Keep it running while working.
-- **Last updated:** 2026-10-17
+- **Last updated:** 2026-10-20
 
 ---
 
@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Everything committed and pushed to `origin/master` (latest: `5b8f874`, 2026-10-10: home redesign, persuasion flow, Stand out and Outcomes). `ABOUT_AHMAD.md` stays out of git (personal notes). |
+| Git | Committed and pushed to `origin/master` up to `70b094e` (2026-10-17). The 2026-10-20 changes (draw-brush page transition, menu fix, dots → digits) are not committed yet. `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -41,6 +41,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - **Placeholder data** is marked in code and must be replaced before launch.
 - **One hover reveal.** Every genjutsu hover uses the dragon's torn brush (`genjutsu-reveal.tsx`), so the hover effects feel connected. Do not replace it with a different mask.
 - Cursor: one system (`LiquidCursor`). Add `data-magnetic` to new buttons or icon links that should pull, `data-cursor="view"` (+ `data-cursor-label`, `data-cursor-color`) to large clickable previews, `data-cursor="minimal"` to areas with their own pointer effect. Don't hide the cursor with `cursor: none` in component CSS.
+- **No decorative dots** (client, 2026-10-20): small coloured dots used as bullets or markers are replaced with two-digit numbers (01, 02…) or a hairline. Kept on purpose: the process road map's stops and pen tip, the trend chart's end point, the three browser-bar dots on project previews, and loading dots.
 
 ---
 
@@ -62,13 +63,13 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 **Global pieces in `layout.tsx`:**
 
-- `TransitionProvider`: expanding-rectangle page transition; exposes `isTransitioning` and `transitionTo()`.
+- `TransitionProvider`: the page transition (rebuilt 2026-10-20 from the client's reference video `osmo-draw-svg-page-transition`). One sky (`#3BA7F2`) brush stroke, a fifth of the screen's diagonal wide, winds in from off the left edge as an elliptical spiral (each turn pulls both radii in by 0.8 of the stroke, so the loops overlap) until it covers the whole screen (0.85s); the router swaps pages under it; then the stroke is wiped away from its start while it thins (1.15s), so the new page shows from the outside in and the tail sweeps out last. The path is computed for each screen size (`brushPath`), drawn with `stroke-dashoffset`; the new page's entrance starts about a third into the wipe (`isTransitioning` turns false). The destination's name shows in small mono capitals in the middle only if the page is slow to arrive. Fires `app:transition-covered` (`TRANSITION_COVERED_EVENT`) once covered. `transitionTo()` returns false when no cover plays (a link to the open page, or reduced motion: plain navigation). CSS `.dt*` at the end of `globals.css`. The old expanding-rectangle overlay is gone.
 - `GlobalPreloader`: first-visit loader, shown once per session via `sessionStorage.app_loaded`.
 - `AnimationGovernor`: pauses CSS animations inside off-screen sections via `[data-offscreen]`.
 - `LenisProvider`, `Navbar`, `Analytics`.
 - `MailFab` (`src/components/ui/mail-fab.tsx`, `.mail-fab*` CSS): a round ice mail button fixed at the bottom right on every page (client, 2026-10-03: not every visitor has WhatsApp or Messenger). Opens `mailto:` to `QUICK_EMAIL` (`code.by.ahmad.dev@gmail.com`, in `src/data/contact.ts`) with the subject "Hello Ahmad". Fades in once `usePageReady()` is true; label slides out on hover (mouse only); sits above the page frame, below the menu and toast, with the site assistant's chat button stacked directly above it.
 - Site assistant: a mint chat button above the mail button opens 'Ask about Ahmad', a built-in assistant that answers from the site's data (`components/chat`; see the 2026-10-15 changelog).
-- **Menu** (`Navbar.tsx`, `.kn-*` CSS): the hamburger opens a panel from the right (three coloured layers slide in, then the links). It has its own round close button (same bars as the hamburger's cross) and an "Esc to close" hint on desktop only. While open, Lenis is stopped so the page behind stays still; focus moves to the close button and returns to the hamburger on close. Note: the CSS parks the layers at `translateX(101%)`, which GSAP reads as a pixel `x`, so the open tween sets `x: 0` as well as `xPercent`.
+- **Menu** (`Navbar.tsx`, `.kn-*` CSS): the hamburger opens a panel from the right (three coloured layers slide in, then the links). It has its own round close button (same bars as the hamburger's cross) and an "Esc to close" hint on desktop only. While open, Lenis is stopped so the page behind stays still; focus moves to the close button and returns to the hamburger on close. Note: the CSS parks the layers at `translateX(101%)`, which GSAP reads as a pixel `x`, so the open tween sets `x: 0` as well as `xPercent`. Clicking a link no longer plays the menu's exit first (that left the hover shapes and the old transition's box on screen for a second or two): the brush draws straight over the open menu, and the menu closes instantly under it on `app:transition-covered`. The dots between the numbers and the labels are now short hairlines that draw out in the link colour on hover; the dot in the 'Current page' badge is gone.
 
 **Scroll to the next page (`src/components/ui/next-page.tsx`, `.np-*` CSS at the end of `globals.css`):**
 
@@ -175,6 +176,7 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
 ### Testimonials (`TestimonialsSection.tsx` + `TestimonialsGrid.tsx`)
 - On every page except `/` (the nav page) and `/projects`: `/home`, `/contact`, `/privacy`, `/terms`, always right before the footer. Hidden in production until there are real (non-sample) reviews.
 - Eyebrow, "WHAT CLIENTS SAY" (`HeadingReveal`), one-line intro; then the reviews as folder cards with a file tab on top (`.tf-*`), two columns from 768px, one on phones. No animation library (IntersectionObserver + CSS).
+- Each folder card's file tab starts with the review's number (`01 sarah-m.md`); the mint dot there was replaced on 2026-10-20.
 - A column holds while hovered, pauses off screen, and stays still with reduced motion. Cards: stars, quote, avatar, name, role (hairline border, no shadow or glow).
 - `background` prop matches the page it sits on (navy on `/home`, royal elsewhere); it is opaque because the footer curtain sits beneath. `id="reviews"` is the hero's "client reviews" link target.
 - Data: `src/data/reviews.ts` (shared with the hero); illustrated SVG avatars in `public/reviews/*.svg`. Samples are filtered out in production, and the section hides when none are left.
@@ -358,6 +360,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 12. Check the page marks on a real screen (Nav, Projects, Contact, Hire me, Privacy, Terms) and the speed on a mid-range phone.
 13. Run PageSpeed Insights on the deployed site (mobile) for Home, Nav, Projects and Contact.
 14. Try the site assistant with real visitor questions; add answers to `knowledge.ts` (or the data files) for anything it misses.
+15. **Check the new draw-brush page transition on a real screen and phone (2026-10-20):** its speed and feel, the menu links, the hold label on a slow connection; confirm the sky colour with the client.
 
 ---
 
@@ -371,6 +374,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 - ESLint is installed but has no config file, so `npm run lint` does nothing useful.
 - The Nav page's opening loader causes a layout-shift score of about 0.18 (it opens its window by animating width, not a transform). Only plays once per visit; fixing it means rebuilding the loader's animation.
 - Home's largest paint on the simulated slow phone is about 4.7-5.0s: the portrait shares the 4G connection with the page's code. Real hosting (Vercel, HTTP/2 priorities, font preloads) should do better than the local test server; check with PageSpeed Insights after deploying (on 2026-10-17 the free PageSpeed API quota was used up and ahmadbarkat.dev did not resolve).
+- Dev console shows a hydration warning: React `useId` differs between server and client for the 道 `JpTerm` tooltip in 'Why I build' (`aria-describedby`/`id`). It was not introduced on 2026-10-20 (nothing in that component tree changed); it may come from the `next/dynamic` sections above it. Harmless for visitors, but worth fixing.
 
 ---
 
@@ -408,6 +412,12 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 ## 10. Changelog
 
 Newest first. One line per change: date, what changed, files touched.
+
+### 2026-10-20
+- New page transition (client request, from the reference video `osmo-draw-svg-page-transition-1440x900.mp4`, analysed frame by frame: 155 frames at 30fps, the stroke covers in about 0.8s, holds a frame and is wiped away in about 1s while the new page fades in): a sky brush stroke that spirals in until the screen is covered, then is wiped away from its start, thinning as it goes, with the tail leaving last. The path is worked out for each screen size, so it covers fully on wide screens and phones. Replaces the expanding-rectangle overlay; every caller of `transitionTo()` gets it. Files: `TransitionProvider.tsx`, `globals.css` (`.dt*`).
+- Menu fix (client report: after clicking a link, the hover SVGs and a box stayed on screen for 1–2 s until the page opened): the link now starts the brush at once over the open menu, and the menu closes instantly under it (`TRANSITION_COVERED_EVENT`, `instantClose` in `Navbar.tsx`); the page stays still until the brush lifts.
+- Decorative dots replaced (client request): menu link dots → hairlines, 'Current page' badge dot removed, About badge dot → mint hairline, Services tags → card numbers 01–06, Services chip bullets removed, reduced-motion Services pagination → 01–06, 'Why I build' timeline dots → beat numbers 01–06 (mint once passed), review file tabs → review numbers, Work tab dot removed, contact form chips → '+' / '✓', the scroll-to-next ring's leading dot removed. Files: `Navbar.tsx`, `AboutMeSection.tsx`, `ServicesSection.tsx`, `WhyIBuildSection.tsx`, `TestimonialsGrid.tsx`, `WorkSection.tsx`, `next-page.tsx`, `globals.css`.
+- Checked in headless Chrome (menu link → page, filmed by CDP screencast) at 1440×900, 1920×1080, 768×1024 and 390×844: the brush covers every pixel before the swap, the menu is gone under it, no errors from the changes; screenshots of the review tab, timeline numbers, menu rules and form chips; typecheck clean. Not yet seen on a real screen. The reviews themselves are still the 8 samples, so they stay hidden on the live site.
 
 ### 2026-10-17
 - Committed and pushed the two changes below to `origin/master` (`0f91cff`). Vercel deploys from it.

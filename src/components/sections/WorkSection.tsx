@@ -250,10 +250,7 @@ export function WorkSection() {
                   className="wrk-tab"
                   onClick={() => goTo(i)}
                 >
-                  <span className="wrk-tab__idx">
-                    <i aria-hidden="true" />
-                    {index}
-                  </span>
+                  <span className="wrk-tab__idx">{index}</span>
                   <span className="wrk-tab__name">{project.title}</span>
                   <span className="wrk-tab__kind">{project.kind}</span>
                   <span className="wrk-tab__year">{project.year}</span>

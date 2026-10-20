@@ -76,7 +76,7 @@ export function TestimonialsGrid({ background = "#072A5E" }: { background?: stri
         {PUBLISHED_REVIEWS.map((r, i) => (
           <figure key={r.name} className="tf-card" style={{ "--i": i % 2 } as React.CSSProperties}>
             <span className="tf-tab" aria-hidden="true">
-              <i />
+              <i>{String(i + 1).padStart(2, "0")}</i>
               {fileName(r.name)}
             </span>
             <div className="tf-body">

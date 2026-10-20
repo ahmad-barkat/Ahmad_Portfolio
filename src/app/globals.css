@@ -456,21 +456,21 @@ html.lenis, html.lenis body {
   width: 2.5ch;
 }
 
-/* Dot */
-.kn-link-dot {
+/* Rule between the index and the label (was a dot): a hairline that draws
+   out in the link's colour on hover */
+.kn-link-rule {
   display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
+  width: 12px;
+  height: 1px;
   background: rgba(232, 246, 255, 0.35);
   flex-shrink: 0;
-  transition: transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+  transform-origin: left center;
+  transition: transform 0.3s cubic-bezier(0.65, 0.01, 0.05, 0.99), background 0.25s ease;
 }
 
-.kn-nav-link:hover .kn-link-dot {
-  transform: scale(1.6);
+.kn-nav-link:hover .kn-link-rule {
+  transform: scaleX(2);
   background: var(--link-color, #3BA7F2);
-  box-shadow: none;
 }
 
 /* Label */
@@ -522,14 +522,6 @@ html.lenis, html.lenis body {
 
 .kn-badge--active {
   color: #0B3D91;
-}
-
-.kn-badge-dot {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: #0B3D91;
-  display: inline-block;
 }
 
 .kn-badge--visited {
@@ -1920,11 +1912,11 @@ html.lenis, html.lenis body {
 
 .svc-card__tag i {
   flex: none;
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--svc-accent);
-  box-shadow: none;
+  font-style: normal;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: var(--svc-accent);
 }
 
 .svc-card__count {
@@ -1984,15 +1976,6 @@ html.lenis, html.lenis body {
   letter-spacing: 0.05em;
   white-space: nowrap;
   color: rgba(232, 246, 255, 0.86);
-}
-
-.svc-card__chips li::before {
-  content: "";
-  flex: none;
-  width: 4px;
-  height: 4px;
-  border-radius: 999px;
-  background: var(--svc-accent);
 }
 
 /* -- Pinned-mode readout -- */
@@ -2135,26 +2118,27 @@ html.lenis, html.lenis body {
   cursor: default;
 }
 
-/* The button is the 24px hit target; the visible pill is drawn inside it */
+/* The button is the hit target; the visible two-digit number sits inside it */
 .svc-dot {
   display: grid;
   place-items: center;
-  width: 24px;
-  height: 24px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 4px;
 }
 
 .svc-dot span {
   display: block;
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: rgba(232, 246, 255, 0.25);
-  transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.35s ease;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(232, 246, 255, 0.4);
+  transition: color 0.35s ease;
 }
 
 .svc-dot[aria-current="true"] span {
-  width: 22px;
-  background: #7fe7d6;
+  color: #7fe7d6;
 }
 
 .svc-nav__btn:focus-visible,
@@ -3118,14 +3102,6 @@ html.lenis, html.lenis body {
   gap: 0.55rem;
   color: var(--wrk-accent);
   font-weight: 700;
-}
-
-.wrk-tab__idx i {
-  width: 6px;
-  height: 6px;
-  border-radius: 999px;
-  background: var(--wrk-accent);
-  box-shadow: none;
 }
 
 .wrk-tab__name {
@@ -4585,12 +4561,14 @@ html.lenis, html.lenis body {
 }
 
 .ct-chip span::before {
-  content: "";
-  width: 0.4rem;
-  height: 0.4rem;
-  border-radius: 50%;
-  background: rgba(232, 246, 255, 0.25);
-  transition: background-color 0.35s ease;
+  content: "+";
+  width: 0.7rem;
+  text-align: center;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: rgba(232, 246, 255, 0.4);
+  transition: color 0.35s ease;
 }
 
 .ct-chip:hover span {
@@ -4604,7 +4582,10 @@ html.lenis, html.lenis body {
   color: #072a5e;
 }
 
-.ct-chip input:checked + span::before { background: #0b3d91; }
+.ct-chip input:checked + span::before {
+  content: "✓";
+  color: #0b3d91;
+}
 
 .ct-chip input:focus-visible + span {
   outline: 2px solid #7fe7d6;
@@ -5234,21 +5215,26 @@ html.lenis, html.lenis body {
   .wb-beat { padding-left: calc(var(--wb-rail) + 3rem); }
 }
 
+/* The beat's number, centred on the timeline; the section colour behind it breaks the line */
 .wb-beat__dot {
   position: absolute;
-  top: 0.3rem;
-  left: calc(var(--wb-rail) - 0.3rem);
-  width: 0.6rem;
-  height: 0.6rem;
-  border: 1px solid rgba(127, 231, 214, 0.55);
-  border-radius: 50%;
+  top: 0.6rem;
+  left: calc(var(--wb-rail) + 0.5px);
+  transform: translate(-50%, -50%);
+  padding: 0.3rem 0.2rem;
   background: #072a5e;
-  transition: background-color 0.4s ease, border-color 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(232, 246, 255, 0.4);
+  transition: color 0.4s ease;
 }
 
 .wb-beat[data-passed] .wb-beat__dot {
-  border-color: #7fe7d6;
-  background: #7fe7d6;
+  color: #7fe7d6;
 }
 
 .wb-beat__when {
@@ -5288,14 +5274,6 @@ html.lenis, html.lenis body {
 .wb-beat__link { margin-top: 1rem; }
 
 /* The last beat is the visitor's: a larger title in mint, and the button */
-.wb-beat--now .wb-beat__dot {
-  width: 0.9rem;
-  height: 0.9rem;
-  left: calc(var(--wb-rail) - 0.45rem);
-  top: 0.15rem;
-  border-color: #7fe7d6;
-}
-
 .wb-beat--now .wb-beat__title {
   font-size: clamp(2rem, 3.8vw, 3.4rem);
   font-weight: 900;
@@ -5514,10 +5492,10 @@ html.lenis, html.lenis body {
 }
 
 .tf-tab i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #7fe7d6;
+  font-style: normal;
+  letter-spacing: 0.12em;
+  font-variant-numeric: tabular-nums;
+  color: rgba(127, 231, 214, 0.6);
 }
 
 .tf-body {
@@ -8499,14 +8477,6 @@ html.lenis, html.lenis body {
   stroke-width: 0.55;
 }
 
-/* The leading dot: shown once the ring starts to draw */
-.np-ring__head {
-  visibility: hidden;
-  opacity: 0;
-}
-
-.np-ring__head circle { fill: #7fe7d6; }
-
 .np-eyebrow {
   position: relative;
   margin: 0;
@@ -9122,4 +9092,40 @@ html.lc-on :is(input:not([type="checkbox"], [type="radio"], [type="range"], [typ
   .chat-fab { transition: opacity 0.2s ease, visibility 0s; transform: none; }
   .chat__msg,
   .chat__msg--typing i { animation: none; }
+}
+
+/* ── Page transition: the drawn brush (TransitionProvider.tsx) ─────────────
+   One sky stroke, as wide as a fifth of the screen's diagonal, winds in from
+   the left edge until it covers everything, then is wiped away from its
+   start to show the next page. Above the menu, below the cursor. */
+.dt {
+  position: fixed;
+  inset: 0;
+  z-index: 1000001;
+  pointer-events: auto;
+  overflow: hidden;
+  contain: strict;
+}
+
+.dt__svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  overflow: visible;
+}
+
+/* Only shown while a slow page is still on its way */
+.dt__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  translate: -50% -50%;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: clamp(0.72rem, 1vw, 0.85rem);
+  font-weight: 500;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #041b3f;
+  white-space: nowrap;
+  visibility: hidden;
 }
