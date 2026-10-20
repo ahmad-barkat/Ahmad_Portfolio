@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
-| Git | Everything committed and pushed to `origin/master` (latest: `cf6d340`, 2026-10-20: draw-brush page transition, menu fix, dots → digits, reviews on Hire me and 404). `ABOUT_AHMAD.md` stays out of git (personal notes). |
+| Git | Everything committed and pushed to `origin/master` (latest: `6768a4d`, 2026-10-20: brush transition like the video, folder reviews, hero speed, sample review tags). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -418,6 +418,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-20
+- Committed and pushed everything below to `origin/master` (`6768a4d`). Vercel deploys from it.
 - Sample reviews shown on the live site (client's choice, after declining to present them as real): each folder carries a "Sample review" tag in place of the score, the intro says they are samples while no review is real, and samples never count as client reviews (new `REAL_REVIEWS` for the hero pill and the site assistant; the old dev-only "Sample" marker is gone). Checked on a production build at 1440×900 and 390×844: 8 tagged folders, hero pill still "6 projects shipped". Files: `src/data/reviews.ts`, `TestimonialsGrid.tsx`, `HeroFront.tsx`, `chat/knowledge.ts`, `globals.css` (`.tf-sample`).
 - Hero and page speed (client: the hero lagged even on a PC). Profiled in Chrome with the real GPU (Intel HD 630): the lag was the Tech Stack's shaders compiling on the main thread a few seconds after load (one freeze of 0.8–1.4 s), plus the portrait's double pointer handler and heavy fluid grid. Fixed with background shader compiles in every scene, a lighter portrait, and section set-ups that wait for the page transition. Files: `load-three.ts`, `liquid-mask-reveal.tsx`, `ParticleField.tsx`, `TechStackSection.tsx`, `projects-helix.ts`, `use-activate.ts`, `TransitionProvider.tsx`, `next.config.ts` (`NEXT_DIST_DIR`), `.gitignore`, `.claude/launch.json` (`prod-test`).
 - Page transition smoother: the path has fewer points (cheaper to redraw each frame), the wipe starts once the new page has had two smooth frames (450 ms at most), and nothing sets up under the brush.
