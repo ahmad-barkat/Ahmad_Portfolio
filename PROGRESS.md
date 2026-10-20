@@ -174,7 +174,7 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
 - Clicking a card's preview or "View project" zooms the preview into that project's page (section 5b).
 
 ### Testimonials (`TestimonialsSection.tsx` + `TestimonialsGrid.tsx`)
-- On every page except `/` (the nav page) and `/projects`: `/home`, `/contact`, `/privacy`, `/terms`, always right before the footer. Hidden in production until there are real (non-sample) reviews.
+- On every page except `/` (the nav page) and `/projects` (its carousel never ends, so nothing can follow it): `/home`, `/contact`, `/hire`, every `/projects/[slug]` page, `/privacy`, `/terms` and the 404 page, always right before the footer (`/hire` and 404 added 2026-10-20, client request). Hidden in production until there are real (non-sample) reviews.
 - Eyebrow, "WHAT CLIENTS SAY" (`HeadingReveal`), one-line intro; then the reviews as folder cards with a file tab on top (`.tf-*`), two columns from 768px, one on phones. No animation library (IntersectionObserver + CSS).
 - Each folder card's file tab starts with the review's number (`01 sarah-m.md`); the mint dot there was replaced on 2026-10-20.
 - A column holds while hovered, pauses off screen, and stays still with reduced motion. Cards: stars, quote, avatar, name, role (hairline border, no shadow or glow).
@@ -414,6 +414,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-20
+- Reviews added to `/hire` (navy, `HireView.tsx`) and the 404 page (royal, `not-found.tsx`), client request: they now sit before the footer on every page except the nav page and `/projects`. Checked the joins at 1440×900 and 390×844 (no seam); typecheck clean. Still hidden on the live site while all reviews are samples.
 - Committed and pushed the changes below to `origin/master` (`1e3eb0f`). Vercel deploys from it.
 - New page transition (client request, from the reference video `osmo-draw-svg-page-transition-1440x900.mp4`, analysed frame by frame: 155 frames at 30fps, the stroke covers in about 0.8s, holds a frame and is wiped away in about 1s while the new page fades in): a sky brush stroke that spirals in until the screen is covered, then is wiped away from its start, thinning as it goes, with the tail leaving last. The path is worked out for each screen size, so it covers fully on wide screens and phones. Replaces the expanding-rectangle overlay; every caller of `transitionTo()` gets it. Files: `TransitionProvider.tsx`, `globals.css` (`.dt*`).
 - Menu fix (client report: after clicking a link, the hover SVGs and a box stayed on screen for 1–2 s until the page opened): the link now starts the brush at once over the open menu, and the menu closes instantly under it (`TRANSITION_COVERED_EVENT`, `instantClose` in `Navbar.tsx`); the page stays still until the brush lifts.

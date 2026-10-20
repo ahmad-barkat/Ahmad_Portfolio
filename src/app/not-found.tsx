@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { useGSAP } from "@gsap/react";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 
 gsap.registerPlugin(useGSAP);
 
@@ -195,6 +196,8 @@ export default function NotFound() {
         </div>
       </div>
     </main>
+
+    <TestimonialsSection background="#0B3D91" />
 
     {/* Footer // curtain reveal with the closing call to action */}
     <CinematicFooter />

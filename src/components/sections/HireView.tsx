@@ -10,6 +10,7 @@ import Link from "next/link";
 import ButtonWithIcon from "@/components/ui/button-with-icon";
 import { TextRoll } from "@/components/ui/TextRoll";
 import { CinematicFooter } from "@/components/ui/motion-footer";
+import { TestimonialsSection } from "@/components/sections/TestimonialsSection";
 import { PROFILE } from "@/data/profile";
 import { PROJECTS, projectPath } from "@/data/projects";
 import { CONTACT_EMAIL, GITHUB_URL, LINKEDIN_URL } from "@/data/contact";
@@ -158,6 +159,7 @@ export default function HireView() {
           </div>
         </section>
       </main>
+      <TestimonialsSection background="#072A5E" />
       <CinematicFooter />
     </>
   );
