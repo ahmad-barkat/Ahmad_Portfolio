@@ -295,6 +295,8 @@ export class ProjectHelix {
   constructor(canvas: HTMLCanvasElement, covers: string[], state: HelixState) {
     this.state = state;
     this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: "high-performance" });
+    // Asking for every shader's error log makes the page wait for each compile
+    this.renderer.debug.checkShaderErrors = process.env.NODE_ENV !== "production";
     this.renderer.setClearColor(0x000000, 0);
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;

@@ -3,7 +3,7 @@
 import React, { useEffect, useRef } from "react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import { ReviewAvatar, StarRow, FACE_FILLS } from "@/components/ui/review-bits";
-import { PUBLISHED_REVIEWS } from "@/data/reviews";
+import { PUBLISHED_REVIEWS, REAL_REVIEWS } from "@/data/reviews";
 import type { Review } from "@/data/reviews";
 
 /** "Sarah M." -> "sarah-m.md": each review is filed like a doc in a project */
@@ -22,8 +22,11 @@ function marked(r: Review) {
 }
 
 /**
- * Testimonials as folder cards: each review is a card with a file tab on
- * top, in a two-column grid (one on phones), which fits a developer's world.
+ * Testimonials as folders: each review is a light sheet filed in a folder
+ * with a file tab, its top peeking out; the folder's front pocket names the
+ * reviewer. On hover the sheet lifts out and the pocket tips forward. The
+ * whole review is readable at rest, so touch screens lose nothing. Two
+ * columns from 768px, one on phones.
  * The cards rise in one after another the first time the grid comes into
  * view. `id="reviews"` is the hero's "client reviews" link target. Loaded
  * only when there are published reviews (see TestimonialsSection.tsx).
@@ -69,37 +72,46 @@ export function TestimonialsGrid({ background = "#072A5E" }: { background?: stri
         <HeadingReveal as="h2" id="tm-title" className="tm-title" scrollStart="top 80%">
           What clients say
         </HeadingReveal>
-        <p className="tm-intro">Founders, product leads and studios on working together, in their own words.</p>
+        <p className="tm-intro">
+          {REAL_REVIEWS.length
+            ? "Founders, product leads and studios on working together, in their own words."
+            : "A preview of how client reviews will read here. These are samples; real ones are on their way."}
+        </p>
       </div>
 
       <div className="tf-grid">
         {PUBLISHED_REVIEWS.map((r, i) => (
           <figure key={r.name} className="tf-card" style={{ "--i": i % 2 } as React.CSSProperties}>
+            {/* The folder's back, with its file tab */}
+            <span className="tf-back" aria-hidden="true" />
             <span className="tf-tab" aria-hidden="true">
               <i>{String(i + 1).padStart(2, "0")}</i>
               {fileName(r.name)}
             </span>
-            <div className="tf-body">
+            {/* The review on a sheet, its top peeking out of the folder */}
+            <div className="tf-paper">
               <div className="tf-top">
                 <StarRow n={r.rating} className="tm-stars" />
-                <span className="tf-score" aria-hidden="true">
-                  {r.rating.toFixed(1)}
-                </span>
+                {r.sample ? (
+                  <span className="tf-sample">Sample review</span>
+                ) : (
+                  <span className="tf-score" aria-hidden="true">
+                    {r.rating.toFixed(1)}
+                  </span>
+                )}
               </div>
               <blockquote className="tf-quote">{marked(r)}</blockquote>
-              <figcaption className="tm-by">
-                <span className="tm-avatar">
-                  <ReviewAvatar review={r} fill={FACE_FILLS[i % FACE_FILLS.length]} />
-                </span>
-                <span className="tm-who">
-                  <b>{r.name}</b>
-                  <span>
-                    {r.role}
-                    {r.sample && <i className="tm-sample">Sample</i>}
-                  </span>
-                </span>
-              </figcaption>
             </div>
+            {/* The front pocket holds the sheet's foot and says who wrote it */}
+            <figcaption className="tf-front tm-by">
+              <span className="tm-avatar">
+                <ReviewAvatar review={r} fill={FACE_FILLS[i % FACE_FILLS.length]} />
+              </span>
+              <span className="tm-who">
+                <b>{r.name}</b>
+                <span>{r.role}</span>
+              </span>
+            </figcaption>
           </figure>
         ))}
       </div>

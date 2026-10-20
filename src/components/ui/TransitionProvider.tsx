@@ -4,6 +4,7 @@ import { createContext, useContext, useState, useEffect, useRef, ReactNode } fro
 import { useRouter, usePathname } from "next/navigation";
 import { useLenis } from "./LenisProvider";
 import { gsap } from "gsap";
+import { TRANSITION_DONE_EVENT } from "./use-activate";
 
 /** Fired on window once the brush covers the whole screen. The menu closes
  *  under it, so it never shows itself leaving. */
@@ -16,7 +17,10 @@ const BRUSH = "#3BA7F2";
 // covers the screen in about 0.8s, holds for a frame, and is wiped away
 // from its start in about 1s while the new page fades in under it
 const DRAW_IN = 0.85;
-const DRAW_OUT = 1.15;
+const DRAW_OUT = 1.1;
+/** The stroke comes in thin, swells to cover, and leaves thin, as in the video */
+const WIDTH_IN = 0.2;
+const WIDTH_OUT = 0.42;
 /** How far into the wipe the new page may start its entrance */
 const READY_AT = 0.32;
 
@@ -60,37 +64,55 @@ export function usePageTransition() {
   return context;
 }
 
+// The brush's shape, as fractions of the screen. Traced from the reference
+// and tuned with a coverage check (.lh-tools/brush): at these values the
+// full-width stroke leaves at most a sliver of a corner open on any screen
+// from 360×640 to 2560×1080, and the cover fill closes that.
+const SHAPE = {
+  /** Where the stroke comes in: low on the left, then up and round */
+  start: 2.3,
+  turns: 2.37,
+  /** First loop's half-size (it hugs the edges) and the last loop's */
+  rx0: 0.569, ry0: 0.542,
+  rx1: 0.269, ry1: 0.124,
+  /** The spiral's centre sinks this far as it winds in, as in the video */
+  drop: 0.108,
+  /** The first loops are squarish (to reach the corners), the last round */
+  round0: 0.49, round1: 0.76,
+  /** Full stroke width, as a share of the screen's diagonal */
+  width: 0.164,
+  /** Portrait screens need a fuller brush: their loops are further apart */
+  portrait: 0.6,
+};
+
 /**
- * The brush's path for a w × h screen: an elliptical spiral that starts off
- * the left edge and winds clockwise inwards, each turn pulling both radii in
- * by the same distance (four fifths of the stroke, so the loops overlap and
- * nothing shows between them), then leaves the screen along a curve. Drawn,
- * it covers every pixel; wiped from its start, it uncovers the new page from
- * the outside in, and the tail sweeps out last.
+ * The brush's path for a w × h screen, after the reference video: the
+ * stroke runs in round the edges, winds inwards in rounder, smaller loops
+ * to a knot just below the middle (a flat loop with a hole the full stroke
+ * still covers), then leaves for the bottom right. Drawn, it covers the
+ * screen; wiped from its start while it thins, it opens the knot's hole
+ * first, unwinds from the outside in, and the tail sweeps away last.
  */
 function brushPath(w: number, h: number): Brush {
-  const cx = w / 2;
-  const cy = h / 2;
-  const width = Math.round(0.19 * Math.hypot(w, h));
-  const pull = width * 0.8;
-  // The outer loop starts a little outside the corners, so they are still
-  // inside the stroke when it comes round to them a turn later
-  const rx = (w / 2) * Math.SQRT2 + width * 0.3;
-  const ry = (h / 2) * Math.SQRT2 + width * 0.3;
-  const start = Math.PI + 0.35;
-  // Wound until the shorter radius is gone, then half a turn more along the
-  // line that is left, which closes the seam between the last two passes
-  const sweep = (Math.min(rx, ry) / pull + 0.5) * Math.PI * 2;
-  const steps = Math.ceil(sweep / 0.05);
+  const S = SHAPE;
+  const width = Math.round(S.width * Math.hypot(w, h) * (1 + S.portrait * Math.max(0, h / w - 1)));
+  const ry1 = Math.min(S.ry1 * h, 0.42 * width);
+  const sweep = S.turns * Math.PI * 2;
+  // Coarse enough to redraw cheaply every frame; the round joins of a
+  // stroke this wide hide the corners
+  const steps = Math.ceil(sweep / 0.07);
+  const pow = (v: number, e: number) => Math.sign(v) * Math.pow(Math.abs(v), e);
 
   const pts: [number, number][] = [];
   for (let i = 0; i <= steps; i++) {
-    const t = (i / steps) * sweep;
-    const k = (pull * t) / (Math.PI * 2);
-    pts.push([
-      cx + Math.max(0, rx - k) * Math.cos(start + t),
-      cy + Math.max(0, ry - k) * Math.sin(start + t),
-    ]);
+    const t = i / steps;
+    const a = S.start + t * sweep;
+    // A superellipse: exponent ½ is a rounded square, 1 an ellipse
+    const u = Math.min(1, Math.max(0, (t - S.round0) / (S.round1 - S.round0)));
+    const e = 0.5 + 0.5 * u * u * (3 - 2 * u);
+    const rx = w * (S.rx0 - (S.rx0 - S.rx1) * t);
+    const ry = h * S.ry0 - (h * S.ry0 - ry1) * t;
+    pts.push([w / 2 + rx * pow(Math.cos(a), e), h * (0.5 + S.drop * t) + ry * pow(Math.sin(a), e)]);
   }
 
   // The tail: on along the way it was going, turning a little further
@@ -103,7 +125,7 @@ function brushPath(w: number, h: number): Brush {
   const turn = 0.9;
   const ox = tx * Math.cos(turn) - ty * Math.sin(turn);
   const oy = tx * Math.sin(turn) + ty * Math.cos(turn);
-  const reach = Math.hypot(w, h);
+  const reach = Math.hypot(w, h) * 0.9;
   const c1: [number, number] = [ex + tx * reach * 0.35, ey + ty * reach * 0.35];
   const end: [number, number] = [ex + ox * reach, ey + oy * reach];
   const c2: [number, number] = [end[0] - ox * reach * 0.4, end[1] - oy * reach * 0.4];
@@ -134,6 +156,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   const [state, setState] = useState<TransitionState>(IDLE);
 
   const pathRef = useRef<SVGPathElement>(null);
+  const fillRef = useRef<SVGRectElement>(null);
   const labelRef = useRef<HTMLSpanElement>(null);
   const isNavigating = useRef(false);
   const stuckTimer = useRef(0);
@@ -160,6 +183,9 @@ export default function TransitionProvider({ children }: { children: ReactNode }
     }
 
     isNavigating.current = true;
+    // Section set-ups wait while this is on (use-activate.ts), so they never
+    // stutter the brush
+    document.documentElement.dataset.transition = "on";
     // Start fetching the page now, so it is ready when the cover is
     router.prefetch(href);
     lenis?.stop();
@@ -179,15 +205,17 @@ export default function TransitionProvider({ children }: { children: ReactNode }
   useEffect(() => {
     const path = pathRef.current;
     const brush = state.brush;
-    if (!state.active || !brush || !path || !labelRef.current) return;
+    if (!state.active || !brush || !path || !labelRef.current || !fillRef.current) return;
 
     const label = labelRef.current;
-    const stroke = { offset: brush.length, width: brush.width * 0.5 };
+    const fill = fillRef.current;
+    const stroke = { offset: brush.length, width: brush.width * WIDTH_IN };
     const paint = () => {
       path.setAttribute("stroke-dashoffset", stroke.offset.toFixed(1));
       path.setAttribute("stroke-width", stroke.width.toFixed(1));
     };
     gsap.set(label, { autoAlpha: 0, y: 8 });
+    gsap.set(fill, { opacity: 0 });
     paint();
 
     const href = state.targetHref;
@@ -204,7 +232,10 @@ export default function TransitionProvider({ children }: { children: ReactNode }
       },
     });
     tl.to(stroke, { offset: 0, duration: DRAW_IN, ease: "power2.inOut", onUpdate: paint }, 0);
-    tl.to(stroke, { width: brush.width, duration: DRAW_IN, ease: "power2.out", onUpdate: paint }, 0);
+    // Thin as it comes in, full by the time it reaches the middle
+    tl.to(stroke, { width: brush.width, duration: DRAW_IN * 0.8, ease: "power2.inOut", onUpdate: paint }, 0);
+    // The cover fill closes the last slivers as the stroke lands
+    tl.to(fill, { opacity: 1, duration: 0.25, ease: "power1.in" }, DRAW_IN - 0.25);
     tlRef.current = tl;
 
     return () => {
@@ -227,30 +258,43 @@ export default function TransitionProvider({ children }: { children: ReactNode }
 
     const label = labelRef.current;
     let raf = 0;
-    let tl: gsap.core.Timeline | null = null;
-    // Two frames, so the new page has painted before it is uncovered
-    raf = requestAnimationFrame(() => {
-      raf = requestAnimationFrame(() => {
-        tlRef.current?.kill();
-        const stroke = { offset: 0, width: brush.width };
-        const paint = () => {
-          path.setAttribute("stroke-dashoffset", stroke.offset.toFixed(1));
-          path.setAttribute("stroke-width", stroke.width.toFixed(1));
-        };
-        tl = gsap.timeline({
-          onComplete: () => {
-            setState(IDLE);
-            lenis?.start();
-          },
-        });
-        gsap.killTweensOf(label);
-        tl.to(label, { autoAlpha: 0, duration: 0.2, ease: "power2.out" }, 0);
-        tl.to(stroke, { offset: -brush.length, duration: DRAW_OUT, ease: "power1.out", onUpdate: paint }, 0);
-        tl.to(stroke, { width: brush.width * 0.62, duration: DRAW_OUT, ease: "power2.in", onUpdate: paint }, 0);
-        tl.call(() => setState((s) => ({ ...s, covering: false })), [], DRAW_OUT * READY_AT);
-        tlRef.current = tl;
+    // Wait until the new page has painted and its first burst of set-up
+    // work is over (two smooth frames in a row, or 450ms at most), so the
+    // wipe does not share its first frames with it
+    const begin = performance.now();
+    let last = begin;
+    let smooth = 0;
+    const settle = (now: number) => {
+      smooth = now - last < 24 ? smooth + 1 : 0;
+      last = now;
+      if (smooth < 2 && now - begin < 450) {
+        raf = requestAnimationFrame(settle);
+        return;
+      }
+      tlRef.current?.kill();
+      const stroke = { offset: 0, width: brush.width };
+      const paint = () => {
+        path.setAttribute("stroke-dashoffset", stroke.offset.toFixed(1));
+        path.setAttribute("stroke-width", stroke.width.toFixed(1));
+      };
+      const tl = gsap.timeline({
+        onComplete: () => {
+          setState(IDLE);
+          lenis?.start();
+          delete document.documentElement.dataset.transition;
+          window.dispatchEvent(new Event(TRANSITION_DONE_EVENT));
+        },
       });
-    });
+      gsap.killTweensOf(label);
+      tl.to(label, { autoAlpha: 0, duration: 0.2, ease: "power2.out" }, 0);
+      tl.to(fillRef.current, { opacity: 0, duration: 0.1, ease: "none" }, 0);
+      tl.to(stroke, { offset: -brush.length, duration: DRAW_OUT, ease: "power1.inOut", onUpdate: paint }, 0);
+      // Thinning opens the knot's hole first, then the loops unwind
+      tl.to(stroke, { width: brush.width * WIDTH_OUT, duration: DRAW_OUT * 0.7, ease: "power2.out", onUpdate: paint }, 0);
+      tl.call(() => setState((s) => ({ ...s, covering: false })), [], DRAW_OUT * READY_AT);
+      tlRef.current = tl;
+    };
+    raf = requestAnimationFrame(settle);
 
     return () => cancelAnimationFrame(raf);
   }, [pathname, state.active, state.brush, lenis]);
@@ -263,6 +307,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
       {state.active && brush && (
         <div className="dt" aria-hidden="true">
           <svg className="dt__svg" width={brush.w} height={brush.h} viewBox={`0 0 ${brush.w} ${brush.h}`}>
+            <rect ref={fillRef} width={brush.w} height={brush.h} fill={BRUSH} opacity={0} />
             <path
               ref={pathRef}
               d={brush.d}
@@ -272,7 +317,7 @@ export default function TransitionProvider({ children }: { children: ReactNode }
               strokeLinejoin="round"
               strokeDasharray={`${brush.length} ${brush.length}`}
               strokeDashoffset={brush.length}
-              strokeWidth={brush.width * 0.5}
+              strokeWidth={brush.width * WIDTH_IN}
             />
           </svg>
           <span ref={labelRef} className="dt__label">

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import type * as THREE from "three";
-import { loadThree } from "./load-three";
+import { compileQuietly, loadThree, prepareRenderer } from "./load-three";
 import { useActivate } from "./use-activate";
 import gsap from "gsap";
 import { sampleShape, sampleWord, type ShapeDrawer } from "./particle-shapes";
@@ -174,6 +174,7 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
           return;
         }
 
+        prepareRenderer(renderer);
         // Phones draw at 1.5x at most: on their dense screens it looks the same
         const pixelRatio = Math.min(window.devicePixelRatio || 1, vw < 768 ? 1.5 : 2);
         renderer.setPixelRatio(pixelRatio);
@@ -388,7 +389,6 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
         const io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? start() : stop()), {
           rootMargin: "120px 0px",
         });
-        io.observe(wrap);
 
         const ro = new ResizeObserver(() => {
           width = Math.max(1, wrap.clientWidth);
@@ -402,11 +402,15 @@ export function ParticleField({ shapes, words, position, onReady, className }: P
           scale = Math.min(width, height) * FIELD_FIT;
           if (!ticking) step(uniforms.uTime.value);
         });
-        ro.observe(wrap);
 
-        // Shaders compiled now, not on the first frame the visitor sees
-        renderer.compile(scene, camera);
-        onReadyRef.current?.(true);
+        // Shaders compiled in the background, not on the first frame the
+        // visitor sees (that froze the page); then the field starts watching
+        compileQuietly(THREE, renderer, scene, camera).then(() => {
+          if (gone) return;
+          io.observe(wrap);
+          ro.observe(wrap);
+          onReadyRef.current?.(true);
+        });
 
         return () => {
           io.disconnect();

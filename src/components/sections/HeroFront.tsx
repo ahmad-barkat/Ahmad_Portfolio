@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { PUBLISHED_REVIEWS } from "@/data/reviews";
+import { REAL_REVIEWS } from "@/data/reviews";
 import { PROJECTS } from "@/data/projects";
 import { ReviewAvatar as Avatar, FACE_FILLS } from "@/components/ui/review-bits";
 import { TextRoll } from "@/components/ui/TextRoll";
@@ -10,8 +10,9 @@ import TextLoop from "@/components/ui/text-loop";
 import { useLenis } from "@/components/ui/LenisProvider";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 
-/** Distinct people only, for the avatar stack and the count */
-const REVIEWERS = PUBLISHED_REVIEWS.filter(
+/** Distinct real reviewers only, for the avatar stack and the count (samples
+ *  never count: while there are none, the pill shows the projects instead) */
+const REVIEWERS = REAL_REVIEWS.filter(
   (r, i, all) => all.findIndex((o) => o.initials === r.initials) === i,
 );
 const RATING = REVIEWERS.length

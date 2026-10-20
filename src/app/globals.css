@@ -5290,8 +5290,9 @@ html.lenis, html.lenis body {
 }
 
 /* ==========================================================================
-   Testimonials: reviews as folder cards (TestimonialsSection.tsx,
-   TestimonialsGrid.tsx). On every page but the landing page.
+   Testimonials: reviews as folders, each a light sheet peeking out of a
+   folder with a file tab (TestimonialsSection.tsx, TestimonialsGrid.tsx).
+   On every page but the nav page and /projects.
    One column on phones, two from 768px.
    ========================================================================== */
 .tm-section {
@@ -5427,7 +5428,8 @@ html.lenis, html.lenis body {
 .tm-head[data-in="true"] { opacity: 1; transform: none; }
 
 .tf-grid {
-  --tf-card: #0a3470;
+  --tf-card: #0b3d91;
+  --tf-front: #1550ad;
   --tf-r: 18px;
   display: grid;
   grid-template-columns: 1fr;
@@ -5447,11 +5449,17 @@ html.lenis, html.lenis body {
   }
 }
 
+/* One folder: its back (with the tab) behind, the review on a light sheet
+   in the middle, its top peeking out over the back, and the front pocket
+   holding the sheet's foot with the reviewer on it. Stacked in one grid
+   cell so the folder grows with the review. */
 .tf-card {
+  --tf-ease: cubic-bezier(0.65, 0.01, 0.05, 0.99);
   position: relative;
-  display: flex;
+  display: grid;
+  grid-template-rows: 2rem auto 1fr auto;
   margin: 0;
-  padding-top: 2rem; /* room for the tab */
+  isolation: isolate;
   opacity: 0;
   transform: translateY(36px);
   transition:
@@ -5461,15 +5469,25 @@ html.lenis, html.lenis body {
 
 .tf-card[data-in="true"] { opacity: 1; transform: none; }
 
-/* The file tab, joined to the card by an inverted curve on its right */
+.tf-back {
+  grid-row: 2 / -1;
+  grid-column: 1;
+  z-index: -1;
+  border-radius: 0 var(--tf-r) var(--tf-r) var(--tf-r);
+  background: var(--tf-card);
+}
+
+/* The file tab, joined to the folder by an inverted curve on its right */
 .tf-tab {
-  position: absolute;
-  top: 0;
-  left: 0;
+  grid-row: 1;
+  grid-column: 1;
+  justify-self: start;
+  position: relative;
+  /* Kept in front of the sheet, so the file name stays readable as it lifts */
+  z-index: 1;
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  height: 2rem;
   padding: 0 1.1rem 0 0.95rem;
   border-radius: 12px 12px 0 0;
   background: var(--tf-card);
@@ -5498,14 +5516,20 @@ html.lenis, html.lenis body {
   color: rgba(127, 231, 214, 0.6);
 }
 
-.tf-body {
+/* The sheet: starts just above the back's top edge (the peek) and runs
+   down behind the pocket, so its foot is tucked in */
+.tf-paper {
+  grid-row: 2 / 4;
+  grid-column: 1;
+  position: relative;
   display: flex;
-  flex: 1;
   flex-direction: column;
-  padding: clamp(1.5rem, 2.4vw, 2.1rem);
-  border-radius: 0 var(--tf-r) var(--tf-r) var(--tf-r);
-  background: var(--tf-card);
-  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  margin: -0.7rem clamp(1rem, 2vw, 1.4rem) -2.5rem;
+  padding: clamp(1.25rem, 2.2vw, 1.75rem) clamp(1.2rem, 2.2vw, 1.7rem) calc(2.5rem + clamp(1.1rem, 2vw, 1.5rem));
+  border-radius: 10px;
+  background: #e8f6ff;
+  color: #041b3f;
+  transition: transform 0.6s var(--tf-ease);
 }
 
 .tf-top {
@@ -5514,58 +5538,84 @@ html.lenis, html.lenis body {
   justify-content: space-between;
 }
 
+.tf-paper .tm-stars svg { fill: rgba(4, 27, 63, 0.14); }
+.tf-paper .tm-stars svg[data-on="true"] { fill: #0b3d91; }
+
 .tf-score {
   font-family: var(--font-mono), ui-monospace, monospace;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.1em;
-  color: #7fe7d6;
+  color: #0b3d91;
 }
 
 .tf-quote {
   flex: 1;
-  margin: 1.1rem 0 0;
-  font-size: clamp(1rem, 1.15vw, 1.08rem);
-  line-height: 1.65;
+  margin: 0.95rem 0 0;
+  font-size: clamp(0.98rem, 1.1vw, 1.05rem);
+  line-height: 1.68;
   letter-spacing: -0.005em;
-  color: rgba(232, 246, 255, 0.84);
+  color: rgba(4, 27, 63, 0.86);
+  text-wrap: pretty;
 }
 
 .tf-quote mark {
   background: none;
-  color: #e8f6ff;
+  color: #041b3f;
   font-weight: 600;
   text-decoration: underline;
-  text-decoration-color: rgba(127, 231, 214, 0.55);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
+  text-decoration-color: rgba(59, 167, 242, 0.75);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.2em;
 }
 
-.tf-card .tm-by { margin-top: 1.6rem; }
+/* The pocket: a lighter panel over the sheet's foot, tipping on its
+   bottom edge */
+.tf-front {
+  grid-row: 4;
+  grid-column: 1;
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  padding: 1.05rem clamp(1.2rem, 2.2vw, 1.7rem) 1.15rem;
+  border-top: 0;
+  border-radius: 14px 14px var(--tf-r) var(--tf-r);
+  background: var(--tf-front);
+  box-shadow: inset 0 1px 0 rgba(232, 246, 255, 0.12);
+  transform-origin: 50% 100%;
+  transition: transform 0.6s var(--tf-ease);
+}
 
-/* Hover (mouse only): the file lifts a little and its tab lights mint */
+/* Hover (mouse only): the sheet lifts out, the pocket tips forward and the
+   tab lights mint */
 @media (hover: hover) {
   .tf-card:hover .tf-tab { color: #7fe7d6; }
-  .tf-card:hover .tf-tab,
-  .tf-card:hover .tf-body { transform: translateY(-4px); }
-  .tf-tab { transition: color 0.3s ease, transform 0.45s cubic-bezier(0.16, 1, 0.3, 1); }
+  .tf-card:hover .tf-paper { transform: translateY(-1.1rem); }
+  .tf-card:hover .tf-front { transform: perspective(700px) rotateX(-9deg); }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tm-head,
   .tf-card { opacity: 1; transform: none; transition: none; }
-  .tf-card:hover .tf-tab,
-  .tf-card:hover .tf-body { transform: none; }
+  .tf-paper,
+  .tf-front { transition: none; }
+  .tf-card:hover .tf-paper,
+  .tf-card:hover .tf-front { transform: none; }
 }
 
-/* Development-only marker on placeholder reviews */
-.tm-sample {
-  padding: 0.1rem 0.4rem;
-  border: 1px solid rgba(127, 231, 214, 0.35);
-  border-radius: 4px;
-  font-style: normal;
-  font-size: 8.5px;
-  color: #7fe7d6;
+/* The tag on a placeholder review (src/data/reviews.ts, `sample`), on the
+   live site too, so nobody takes it for a client's words */
+.tf-sample {
+  padding: 0.28rem 0.6rem;
+  border: 1px solid rgba(11, 61, 145, 0.32);
+  border-radius: 999px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #0b3d91;
+  white-space: nowrap;
 }
 
 /* ==========================================================================
@@ -9095,9 +9145,9 @@ html.lc-on :is(input:not([type="checkbox"], [type="radio"], [type="range"], [typ
 }
 
 /* ── Page transition: the drawn brush (TransitionProvider.tsx) ─────────────
-   One sky stroke, as wide as a fifth of the screen's diagonal, winds in from
-   the left edge until it covers everything, then is wiped away from its
-   start to show the next page. Above the menu, below the cursor. */
+   One sky stroke runs in round the edges and winds to a knot below the
+   middle until it covers everything, then is wiped away from its start,
+   thinning, to show the next page. Above the menu, below the cursor. */
 .dt {
   position: fixed;
   inset: 0;

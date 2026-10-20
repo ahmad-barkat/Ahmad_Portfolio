@@ -20,12 +20,16 @@ export interface Review {
    * words to glow in *asterisks*. Optional; a stock line is used without it.
    */
   genjutsu?: string;
-  /** Placeholder copy. Samples render in development only and never ship. */
+  /**
+   * Placeholder copy. Samples are shown, on the live site too, to preview
+   * the design, each with a visible "Sample review" tag; they are never
+   * counted as client reviews (the hero's proof pill, the site assistant).
+   */
   sample?: boolean;
 }
 
-// SAMPLE reviews — replace with real ones (and drop `sample`) before launch.
-// Production builds leave samples out, and hide the section if none are left.
+// SAMPLE reviews: replace them with real ones (and drop `sample`) as they
+// come in. They show with a "Sample review" tag until then.
 export const REVIEWS: Review[] = [
   {
     quote: "We came to Ahmad with a Notion doc and a lot of hand-waving. Three weeks later we had a site that actually sounds like us. The animations are subtle, which I didn't expect to love as much as I do.",
@@ -117,7 +121,8 @@ export const REVIEWS: Review[] = [
   },
 ];
 
-/** What actually renders: production builds leave samples out. */
-export const PUBLISHED_REVIEWS = REVIEWS.filter(
-  (r) => process.env.NODE_ENV !== "production" || !r.sample,
-);
+/** What the testimonials section shows: real reviews first, then the samples */
+export const PUBLISHED_REVIEWS = [...REVIEWS.filter((r) => !r.sample), ...REVIEWS.filter((r) => r.sample)];
+
+/** Real client reviews only: everything that counts or quotes reviews uses these */
+export const REAL_REVIEWS = REVIEWS.filter((r) => !r.sample);

@@ -2,7 +2,7 @@
 
 import React, { useRef, useEffect, useState, useCallback } from "react";
 import type * as THREE from "three";
-import { loadThree } from "./load-three";
+import { compileQuietly, loadThree, prepareRenderer } from "./load-three";
 import { useActivate } from "./use-activate";
 
 export interface LiquidMaskRevealProps {
@@ -126,6 +126,10 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
 
         let isAnimating = false;
         let rafId = 0;
+        // Nothing draws until the shaders are compiled in the background:
+        // a first frame that compiled them would freeze the page
+        let ready = false;
+        let alive = true;
 
         // Three.js Scene & Perspective Camera
         const scene = new THREE.Scene();
@@ -137,10 +141,11 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
           antialias: false,
           powerPreference: "high-performance",
         });
-        // No sharper than the photos themselves (about 1,500px wide): beyond
-        // that the extra pixels add cost, not detail. Phones: 1.5x at most
+        prepareRenderer(renderer);
+        // No sharper than the photos themselves (1,536px wide): beyond that the
+        // extra pixels add cost, not detail. Phones: 1.5x at most
         const pixelRatio = () =>
-          Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : Math.max(1, 2048 / Math.max(1, container.clientWidth)));
+          Math.min(window.devicePixelRatio || 1, window.innerWidth < 768 ? 1.5 : Math.max(1, 1536 / Math.max(1, container.clientWidth)));
         renderer.setPixelRatio(pixelRatio());
         renderer.setClearColor(0, 0);
 
@@ -169,7 +174,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
           if (tex.image) {
             const aspect = tex.image.width / tex.image.height;
             uniforms.u_frontImageAspect.value = aspect;
-            if (isAnimating) renderer.render(scene, camera);
+            if (isAnimating && ready) renderer.render(scene, camera);
           }
         });
         frontTexture.minFilter = THREE.LinearFilter;
@@ -197,7 +202,9 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         // Fluid simulation setup
         // Half the container's size, but never wider than 720px: the ink is
         // soft and filtered, so a finer grid on big screens only costs frames
-        const simScale = (w: number) => Math.min(0.5, 720 / w);
+        // The ink is soft-edged noise, so a coarse grid reads the same and costs
+        // a fraction (every frame runs about twenty passes over it)
+        const simScale = (w: number) => Math.min(0.4, 480 / w);
         let simWidth = Math.max(1, Math.floor(initialWidth * simScale(initialWidth)));
         let simHeight = Math.max(1, Math.floor(initialHeight * simScale(initialWidth)));
 
@@ -725,7 +732,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
           resizeFluidFBOs(actualWidth, actualHeight);
           texelSize.set(1 / simWidth, 1 / simHeight);
 
-          if (isAnimating) {
+          if (isAnimating && ready) {
             renderer.render(scene, camera);
           }
         };
@@ -745,6 +752,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         let idleFrames = 0;
 
         const render = () => {
+          if (!ready) return;
           if (!isVisible) {
             isAnimating = false;
             return;
@@ -910,12 +918,24 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
           }
         };
 
-        render();
+        compileQuietly(THREE, renderer, scene, camera, {
+          materials: [splatVelMaterial, splatDensityMaterial, advectMaterial, curlMaterial, divergenceMaterial, pressureMaterial, gradientMaterial, advectDensityMaterial],
+          geometry: quadGeometry,
+          target: velFBO0,
+          camera: orthoCamera,
+        }).then(() => {
+            if (!alive) return;
+            ready = true;
+            render();
+          });
 
-        // Mouse / Pointer / Touch movement
-        const onMove = (e: MouseEvent | PointerEvent | TouchEvent) => {
-          const clientX = "touches" in e && e.touches.length > 0 ? e.touches[0].clientX : (e as MouseEvent).clientX;
-          const clientY = "touches" in e && e.touches.length > 0 ? e.touches[0].clientY : (e as MouseEvent).clientY;
+        // Pointer / touch movement (pointer events cover the mouse too). Only
+        // while the portrait is on screen: measuring it on every move further
+        // down the page would cost a layout for nothing
+        const onMove = (e: PointerEvent | TouchEvent) => {
+          if (!isVisible) return;
+          const clientX = "touches" in e && e.touches.length > 0 ? e.touches[0].clientX : (e as PointerEvent).clientX;
+          const clientY = "touches" in e && e.touches.length > 0 ? e.touches[0].clientY : (e as PointerEvent).clientY;
           if (clientX === undefined || clientY === undefined) return;
 
           const rect = container.getBoundingClientRect();
@@ -956,7 +976,7 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         const resizeObserver = new ResizeObserver(() => {
           updateFromDOM();
           // A sleeping loop still owes the resized canvas a frame
-          renderer.render(scene, camera);
+          if (ready) renderer.render(scene, camera);
         });
         resizeObserver.observe(container);
 
@@ -971,15 +991,14 @@ export const LiquidMaskReveal: React.FC<LiquidMaskRevealProps> = ({
         );
         intersectionObserver.observe(container);
 
-        window.addEventListener("mousemove", onMove);
-        window.addEventListener("pointermove", onMove);
+        window.addEventListener("pointermove", onMove, { passive: true });
         window.addEventListener("touchmove", onMove, { passive: true });
 
         return () => {
+          alive = false;
           if (rafId) cancelAnimationFrame(rafId);
           resizeObserver.disconnect();
           intersectionObserver.disconnect();
-          window.removeEventListener("mousemove", onMove);
           window.removeEventListener("pointermove", onMove);
           window.removeEventListener("touchmove", onMove);
           disposeFluidFBOs();

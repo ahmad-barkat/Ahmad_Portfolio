@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef } from "react";
 import type * as THREE from "three";
-import { loadRoomEnvironment, loadThree } from "@/components/ui/load-three";
+import { compileQuietly, loadRoomEnvironment, loadThree, prepareRenderer } from "@/components/ui/load-three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
@@ -299,6 +299,7 @@ export function TechStackSection() {
           stage.dataset.fallback = "true";
           return;
         }
+        prepareRenderer(renderer);
         renderer.setClearColor(0x000000, 0);
         renderer.toneMapping = THREE.ACESFilmicToneMapping;
         renderer.toneMappingExposure = 1.05;
@@ -307,10 +308,39 @@ export function TechStackSection() {
         const scene = new THREE.Scene();
         const pmrem = new THREE.PMREMGenerator(renderer);
         const room = new RoomEnvironment();
-        const envMap = pmrem.fromScene(room, 0.04).texture;
-        scene.environment = envMap;
+        let envMap: THREE.Texture | null = null;
         scene.environmentIntensity = 0.75;
-        room.dispose();
+
+        // The studio lighting (a blurred room the footballs reflect) is made by
+        // PMREMGenerator, which compiles its own shaders on first use: that
+        // froze the page for about a second. Its blur shaders are private, so
+        // they are created through its internals and compiled in the
+        // background first, together with the room's; fromScene then only
+        // draws. If three's internals ever change, it falls back to compiling
+        // on the spot, as before.
+        const internals = pmrem as unknown as {
+          _setSize?: (size: number) => void;
+          _allocateTargets?: () => THREE.WebGLRenderTarget;
+          _blurMaterial?: THREE.Material | null;
+          _ggxMaterial?: THREE.Material | null;
+          _lodMeshes?: THREE.Mesh[];
+        };
+        let lightingCompiled: Promise<void> = Promise.resolve();
+        if (internals._setSize && internals._allocateTargets) {
+          internals._setSize(256);
+          const probe = internals._allocateTargets();
+          probe.depthBuffer = true; // as fromScene draws the room
+          const materials = [internals._blurMaterial, internals._ggxMaterial].filter((m): m is THREE.Material => !!m);
+          const geometry = internals._lodMeshes?.[0]?.geometry;
+          lightingCompiled = compileQuietly(
+            THREE,
+            renderer,
+            room,
+            new THREE.PerspectiveCamera(90, 1, 0.1, 100),
+            geometry ? { materials, geometry, target: probe, camera: new THREE.OrthographicCamera() } : undefined,
+            probe,
+          ).then(() => probe.dispose());
+        }
 
         // A soft key from the top left and a blue bounce from below, like a
         // studio shot against the backdrop
@@ -779,7 +809,20 @@ export function TechStackSection() {
           },
           { threshold: 0.12 },
         );
-        io.observe(stage);
+        // The lighting, then the footballs' shaders (they depend on it), are
+        // compiled in the background first; the stage starts watching for the
+        // visitor only once everything can draw at once
+        lightingCompiled
+          .then(() => {
+            if (gone) return;
+            envMap = pmrem.fromScene(room, 0.04).texture;
+            scene.environment = envMap;
+            room.dispose();
+            return compileQuietly(THREE, renderer, scene, camera);
+          })
+          .then(() => {
+            if (!gone) io.observe(stage);
+          });
 
         window.addEventListener("pointermove", onMove, { passive: true });
         window.addEventListener("pointerdown", onMove, { passive: true });
@@ -821,7 +864,8 @@ export function TechStackSection() {
           geometry.dispose();
           materials.forEach((m) => m.dispose());
           textures.forEach((t) => t.dispose());
-          envMap.dispose();
+          envMap?.dispose();
+          room.dispose();
           pmrem.dispose();
           renderer.dispose();
         };

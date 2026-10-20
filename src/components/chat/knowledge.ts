@@ -27,7 +27,7 @@ import {
 } from "@/data/contact";
 import { PROFILE } from "@/data/profile";
 import { PROJECTS, projectPath } from "@/data/projects";
-import { PUBLISHED_REVIEWS } from "@/data/reviews";
+import { REAL_REVIEWS } from "@/data/reviews";
 import { SERVICE_INFO } from "@/data/services";
 import { PHASES } from "@/data/process";
 
@@ -387,9 +387,9 @@ const TOPICS: Topic[] = [
   {
     keys: ["review", "client review", "client say"],
     answer: () =>
-      PUBLISHED_REVIEWS.length
+      REAL_REVIEWS.length
         ? {
-            text: `${PUBLISHED_REVIEWS.length} client reviews are on the home page. A short one: “${PUBLISHED_REVIEWS[0].quote}” (${PUBLISHED_REVIEWS[0].name}, ${PUBLISHED_REVIEWS[0].role}).`,
+            text: `${REAL_REVIEWS.length} client reviews are on the home page. A short one: “${REAL_REVIEWS[0].quote}” (${REAL_REVIEWS[0].name}, ${REAL_REVIEWS[0].role}).`,
             actions: [A.home],
           }
         : {

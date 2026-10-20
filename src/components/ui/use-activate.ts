@@ -21,12 +21,11 @@ export function useActivate(ref: RefObject<Element | null>, margin = "100% 0px",
 
   useEffect(() => {
     if (!early) return;
-    if (quietReady) {
-      setQuiet(true);
-      return;
-    }
     const done = () => setQuiet(true);
     quietWaiters.add(done);
+    // A page opened later in the visit queues up again, one set-up per
+    // idle slot, instead of all of them at once
+    if (quietReady) pumpQuiet();
     return () => {
       quietWaiters.delete(done);
     };
@@ -49,14 +48,15 @@ export function useActivate(ref: RefObject<Element | null>, margin = "100% 0px",
   }, [ref, margin, near]);
 
   useEffect(() => {
-    if (pageSettled) {
-      setSettled(true);
-      return;
+    let off = false;
+    const done = () => afterTransition(() => !off && setSettled(true));
+    if (pageSettled) done();
+    else {
+      waiters.add(done);
+      armSettle();
     }
-    const done = () => setSettled(true);
-    waiters.add(done);
-    armSettle();
     return () => {
+      off = true;
       waiters.delete(done);
     };
   }, []);
@@ -77,6 +77,23 @@ export function queueScrollRefresh() {
   }, 120);
 }
 
+/** Fired on window when the page transition's brush has left the screen */
+export const TRANSITION_DONE_EVENT = "app:transition-done";
+
+/** True while the page transition's brush covers or uncovers the screen
+ *  (TransitionProvider sets html[data-transition]) */
+const transitioning = () => document.documentElement.dataset.transition === "on";
+
+/**
+ * Runs `cb` now, or once the page transition is over: set-ups started under
+ * the brush would make it stutter as it wipes away, right when the visitor
+ * is watching it.
+ */
+function afterTransition(cb: () => void) {
+  if (!transitioning()) return cb();
+  window.addEventListener(TRANSITION_DONE_EVENT, () => cb(), { once: true });
+}
+
 // One page-wide "settled" signal, shared by every scene
 let pageSettled = false;
 let armed = false;
@@ -92,38 +109,60 @@ function armQuiet() {
   // one while the pointer plays over the hero would stutter its brush
   window.addEventListener("scroll", () => (lastScroll = performance.now()), { passive: true });
   window.addEventListener("pointermove", () => (lastPointer = performance.now()), { passive: true });
-  let waitingSince = 0;
-  const ric = (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void })
-    .requestIdleCallback;
-  // One waiter per idle slot, so a scene's set-up never lands on top of
-  // another's (anything that registers after this simply wakes at once)
-  const next = () => {
-    const [w] = quietWaiters;
-    if (!w) {
-      quietReady = true;
-      return;
-    }
-    // Phones wait for a real pause in reading: a set-up costs them more
-    const calm = window.matchMedia("(pointer: coarse)").matches ? 1000 : 400;
-    const now = performance.now();
-    if (now - lastScroll < calm) {
-      window.setTimeout(next, calm);
-      return;
-    }
-    // The pointer only delays it a little: a visitor who keeps it moving
-    // must not keep the page from ever getting ready
-    waitingSince ||= now;
-    if (now - lastPointer < 300 && now - waitingSince < 2500) {
-      window.setTimeout(next, 300);
-      return;
-    }
-    waitingSince = 0;
-    quietWaiters.delete(w);
-    w();
-    if (ric) ric(next, { timeout: 1500 });
-    else window.setTimeout(next, 50);
-  };
-  window.setTimeout(() => (ric ? ric(next, { timeout: 2500 }) : next()), 1500);
+  pumping = true;
+  window.setTimeout(() => {
+    const idle = ric();
+    if (idle) idle(next, { timeout: 2500 });
+    else next();
+  }, 1500);
+}
+
+let waitingSince = 0;
+let pumping = false;
+const ric = () =>
+  (window as Window & { requestIdleCallback?: (cb: () => void, o?: { timeout: number }) => void }).requestIdleCallback;
+
+/** Starts the quiet queue again when a later page adds to it */
+function pumpQuiet() {
+  if (pumping) return;
+  pumping = true;
+  window.setTimeout(next, 300);
+}
+
+// One waiter per idle slot, so a scene's set-up never lands on top of
+// another's, and none while the page transition is on screen
+function next() {
+  pumping = true;
+  const [w] = quietWaiters;
+  if (!w) {
+    quietReady = true;
+    pumping = false;
+    return;
+  }
+  if (transitioning()) {
+    window.setTimeout(next, 200);
+    return;
+  }
+  // Phones wait for a real pause in reading: a set-up costs them more
+  const calm = window.matchMedia("(pointer: coarse)").matches ? 1000 : 400;
+  const now = performance.now();
+  if (now - lastScroll < calm) {
+    window.setTimeout(next, calm);
+    return;
+  }
+  // The pointer only delays it a little: a visitor who keeps it moving
+  // must not keep the page from ever getting ready
+  waitingSince ||= now;
+  if (now - lastPointer < 300 && now - waitingSince < 2500) {
+    window.setTimeout(next, 300);
+    return;
+  }
+  waitingSince = 0;
+  quietWaiters.delete(w);
+  w();
+  const idle = ric();
+  if (idle) idle(next, { timeout: 1500 });
+  else window.setTimeout(next, 50);
 }
 // Not pointermove: a mouse playing over the hero is not a step down the
 // page, and set-ups started then would stutter the entrance under it

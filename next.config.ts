@@ -35,6 +35,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  // A second build folder for local production tests (NEXT_DIST_DIR=.next-prod),
+  // so a test build never overwrites the running dev server's .next
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
   devIndicators: false,
   poweredByHeader: false,
   compress: true,
