@@ -1301,229 +1301,226 @@ html.lenis, html.lenis body {
   color: rgba(232, 246, 255, 0.66);
 }
 
-.oc-grid {
+/* -- The deck --
+   Three outcome cards, each a two-sided 3D card: an ice front printed like a
+   playing card (index top left, mark top right, a large hairline numeral
+   behind) and a royal back with a hairline crosshatch. The script deals
+   them from one pile and turns them over; the tilt layer leans towards the
+   pointer. Nothing between the deck and the faces may clip or fade, or the
+   3D flattens. */
+.oc-deck {
+  position: relative;
   display: grid;
-  gap: 1.25rem;
+  gap: 1.5rem;
   margin-top: clamp(2.5rem, 6vh, 4rem);
+  perspective: 1600px;
 }
 
 @media (min-width: 900px) {
-  .oc-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  .oc-deck {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1rem, 2vw, 1.75rem);
+  }
 }
 
 .oc-card {
   position: relative;
+  width: 100%;
+  max-width: 30rem;
+  margin-inline: auto;
+  transform-style: preserve-3d;
+}
+
+.oc-card__tilt,
+.oc-card__inner {
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.oc-card__inner {
+  position: relative;
+  display: grid;
+}
+
+.oc-face {
+  grid-area: 1 / 1;
+  position: relative;
+  border-radius: 1.25rem;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  box-shadow: 0 34px 60px -34px rgba(4, 27, 63, 0.9);
+}
+
+/* A printed frame just inside the edge, on both sides */
+.oc-face::before {
+  content: "";
+  position: absolute;
+  inset: 0.6rem;
+  border: 1px solid rgba(11, 61, 145, 0.16);
+  border-radius: 0.8rem;
+  pointer-events: none;
+}
+
+/* Front */
+.oc-face--front {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  border-radius: 24px;
-  border: 1px solid rgba(232, 246, 255, 0.1);
-  background:
-    radial-gradient(80% 60% at 100% 0%, rgba(59, 167, 242, 0.16), transparent 62%),
-    linear-gradient(162deg, #0e418f 0%, #0a3170 40%, #061f4a 100%);
-}
-
-.oc-card__body {
-  display: grid;
-  gap: 0.6rem;
-  padding: 1.4rem 1.5rem 1.6rem;
-}
-
-.oc-card__label {
-  font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.26em;
-  text-transform: uppercase;
-  color: #7fe7d6;
-}
-
-.oc-card__title {
-  margin: 0;
-  font-size: clamp(1.25rem, 1.7vw, 1.6rem);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  color: #e8f6ff;
-}
-
-.oc-card__text {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: rgba(232, 246, 255, 0.66);
-}
-
-/* -- The pictures -- */
-.oc-vis {
-  position: relative;
-  height: 200px;
-  margin: 1.1rem 1.1rem 0;
-  padding: 1.1rem;
-  overflow: hidden;
-  border-radius: 16px;
-  background: rgba(3, 16, 42, 0.45);
-  border: 1px solid rgba(232, 246, 255, 0.07);
-}
-
-/* Found: a search, and you on top */
-.oc-search {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.55rem 0.9rem;
-  border-radius: 999px;
+  min-height: 25rem;
+  padding: clamp(1.4rem, 2vw, 1.9rem);
   background: #e8f6ff;
-  font-size: 0.78rem;
   color: #041b3f;
 }
 
-.oc-search i {
-  width: 10px;
-  height: 10px;
-  border: 2px solid #0b3d91;
-  border-radius: 50%;
+@media (min-width: 900px) {
+  .oc-face--front {
+    min-height: clamp(27rem, 58vh, 33rem);
+  }
 }
 
-.oc-results {
-  display: grid;
-  gap: 0.55rem;
-  margin: 0.8rem 0 0;
+.oc-face--front > * {
+  position: relative;
+}
+
+/* The card's number, large and drawn in a hairline, like a playing card's pip */
+.oc-face--front > .oc-face__pip {
+  position: absolute;
+  top: 50%;
+  right: -0.06em;
+  font-family: var(--font-serif), Georgia, serif;
+  font-size: clamp(9rem, 13vw, 14rem);
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(11, 61, 145, 0.2);
+  transform: translateY(-62%);
+  pointer-events: none;
+  user-select: none;
+}
+
+.oc-face__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: #0b3d91;
+}
+
+.oc-face__mark {
+  width: 1.15rem;
+  height: 1.15rem;
+  color: #0b3d91;
+  --logo-cursor: #3ba7f2;
+}
+
+.oc-face__word {
+  margin: clamp(1.5rem, 5vh, 2.75rem) 0 0;
+  font-size: clamp(3.2rem, 4.8vw, 5rem);
+  font-weight: 600;
+  line-height: 0.9;
+  letter-spacing: -0.055em;
+  color: #041b3f;
+}
+
+.oc-face__word span {
+  color: #3ba7f2;
+}
+
+.oc-face__body {
+  margin-top: auto;
+  padding-top: 1.1rem;
+  border-top: 1px solid rgba(4, 27, 63, 0.14);
+}
+
+.oc-face__title {
+  margin: 0;
+  font-size: clamp(1.1rem, 1.35vw, 1.3rem);
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: #041b3f;
+}
+
+.oc-face__text {
+  margin: 0.6rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(4, 27, 63, 0.7);
+}
+
+.oc-face__spec {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 1.25rem 0 0;
   padding: 0;
   list-style: none;
 }
 
-.oc-result {
-  display: grid;
-  gap: 0.25rem;
-  padding: 0.55rem 0.75rem;
-  border-radius: 10px;
-  background: rgba(232, 246, 255, 0.05);
+.oc-face__spec li {
+  padding: 0.35rem 0.6rem;
+  border: 1px solid rgba(11, 61, 145, 0.22);
+  border-radius: 999px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0b3d91;
 }
 
-.oc-result b,
-.oc-result span {
-  display: block;
-  height: 7px;
-  border-radius: 4px;
-  background: rgba(232, 246, 255, 0.16);
+/* Back */
+.oc-face--back {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  background-color: #0b3d91;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(232, 246, 255, 0.06) 0 1px, transparent 1px 14px),
+    repeating-linear-gradient(-45deg, rgba(232, 246, 255, 0.06) 0 1px, transparent 1px 14px);
+  color: #e8f6ff;
+  transform: rotateY(180deg);
 }
 
-.oc-result b { width: 46%; }
-.oc-result span { width: 78%; }
-
-.oc-result--you {
-  position: relative;
-  z-index: 1;
-  background: rgba(127, 231, 214, 0.12);
-  box-shadow: inset 0 0 0 1px rgba(127, 231, 214, 0.5);
+.oc-face--back::before {
+  border-color: rgba(232, 246, 255, 0.28);
 }
 
-.oc-result--you b,
-.oc-result--you span {
-  width: auto;
-  height: auto;
-  background: none;
-}
-
-.oc-result--you b {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #7fe7d6;
-}
-
-.oc-result--you span {
-  font-size: 0.72rem;
-  color: rgba(232, 246, 255, 0.75);
-}
-
-/* Fast: a gauge sweeping round to the goal */
-.oc-vis--fast {
-  display: grid;
-  place-items: center;
-}
-
-.oc-gauge {
-  width: 150px;
-  height: 150px;
-  transform: rotate(-90deg);
-}
-
-.oc-gauge circle {
-  fill: none;
-  stroke-width: 9;
-}
-
-.oc-gauge__track { stroke: rgba(232, 246, 255, 0.08); }
-
-.oc-gauge__fill {
-  stroke: #7fe7d6;
-  stroke-linecap: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 0.08;
-}
-
-.oc-gauge__label {
+.oc-face--back::after {
+  content: "";
   position: absolute;
-  display: grid;
-  place-items: center;
-  gap: 0.15rem;
+  inset: 1.1rem;
+  border: 1px solid rgba(232, 246, 255, 0.12);
+  border-radius: 0.55rem;
+  pointer-events: none;
 }
 
-.oc-gauge__label b {
-  font-size: 2rem;
-  font-weight: 800;
-  letter-spacing: -0.04em;
+.oc-back__mark {
+  width: clamp(3.5rem, 5vw, 4.75rem);
+  height: auto;
   color: #e8f6ff;
 }
 
-.oc-gauge__label span {
+.oc-back__name {
   font-family: var(--font-mono), ui-monospace, monospace;
-  font-size: 9.5px;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: rgba(232, 246, 255, 0.55);
-}
-
-/* Chosen: enquiries arriving */
-.oc-vis--chosen {
-  display: grid;
-  align-content: center;
-  gap: 0.6rem;
-}
-
-.oc-note {
-  display: flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.6rem 0.8rem;
-  border-radius: 12px;
-  background: #e8f6ff;
-  color: #041b3f;
-  box-shadow: 0 12px 24px -16px rgba(0, 0, 0, 0.7);
-}
-
-.oc-note:nth-child(2) { margin-left: 1.2rem; }
-.oc-note:nth-child(3) { margin-left: 0.4rem; }
-
-.oc-note i {
-  flex: none;
-  width: 26px;
-  height: 26px;
-  border-radius: 8px;
-  background: linear-gradient(140deg, #7fe7d6, #3ba7f2);
-}
-
-.oc-note b {
-  display: block;
-  font-size: 0.8rem;
+  font-size: 12px;
   font-weight: 700;
+  letter-spacing: 0.5em;
+  margin-right: -0.5em;
+  text-transform: uppercase;
 }
 
-.oc-note small {
-  display: block;
-  font-size: 0.7rem;
-  color: rgba(4, 27, 63, 0.6);
+.oc-back__num {
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: rgba(232, 246, 255, 0.6);
 }
 
 /* -- Close -- */

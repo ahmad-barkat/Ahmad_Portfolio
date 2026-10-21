@@ -6,6 +6,7 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import HeadingReveal from "@/components/ui/HeadingReveal";
 import ButtonWithIcon from "@/components/ui/button-with-icon";
+import { LogoMark } from "@/components/ui/Logo";
 import { usePageTransition } from "@/components/ui/TransitionProvider";
 
 if (typeof window !== "undefined") {
@@ -17,86 +18,36 @@ if (typeof window !== "undefined") {
 const OUTCOMES = [
   {
     key: "found",
-    label: "Found",
+    word: "Found",
     title: "Search-ready from day one.",
     text: "Clean structure, fast pages and metadata search engines understand, so the right people find you first.",
+    spec: ["Semantic HTML", "Schema", "Sitemap"],
   },
   {
     key: "fast",
-    label: "Fast",
+    word: "Fast",
     title: "Loads before they lose interest.",
     text: "Light pages, sized images and no bloat. Every second you save keeps a visitor on the page.",
+    spec: ["Under 2 s goal", "Sized images", "No bloat"],
   },
   {
     key: "chosen",
-    label: "Chosen",
+    word: "Chosen",
     title: "Built to turn visitors into enquiries.",
     text: "One clear message, an obvious next step and a design people remember when they compare.",
+    spec: ["One message", "One next step", "Phone first"],
   },
 ] as const;
 
-function FoundVisual() {
-  return (
-    <div className="oc-vis oc-vis--found" aria-hidden="true">
-      <div className="oc-search">
-        <i />
-        <span>best web studio near me</span>
-      </div>
-      <ul className="oc-results">
-        <li className="oc-result oc-result--you">
-          <b>yourbrand.com</b>
-          <span>Your Brand · Be the one they remember</span>
-        </li>
-        <li className="oc-result">
-          <b />
-          <span />
-        </li>
-        <li className="oc-result">
-          <b />
-          <span />
-        </li>
-      </ul>
-    </div>
-  );
-}
-
-function FastVisual() {
-  return (
-    <div className="oc-vis oc-vis--fast" aria-hidden="true">
-      <svg viewBox="0 0 120 120" className="oc-gauge">
-        <circle cx="60" cy="60" r="50" className="oc-gauge__track" />
-        <circle cx="60" cy="60" r="50" className="oc-gauge__fill" pathLength={1} />
-      </svg>
-      <div className="oc-gauge__label">
-        <b>&lt;2s</b>
-        <span>Load goal</span>
-      </div>
-    </div>
-  );
-}
-
-function ChosenVisual() {
-  return (
-    <div className="oc-vis oc-vis--chosen" aria-hidden="true">
-      {["New enquiry", "Call booked", "New enquiry"].map((t, i) => (
-        <div key={i} className="oc-note">
-          <i />
-          <span>
-            <b>{t}</b>
-            <small>from yourbrand.com</small>
-          </span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-const VISUALS = { found: FoundVisual, fast: FastVisual, chosen: ChosenVisual };
+/* Where each card lies in the pile before it is dealt (desktop) */
+const PILE_TILT = [-7, 4, -2];
 
 /**
  * The solution, right after the problem and the proof: what standing out
- * actually gets a client. Three outcomes, each with a small picture that
- * plays once as it scrolls in, then the call to action again.
+ * actually gets a client. Three outcomes as a deck of cards: they wait
+ * face down in one pile and, as the section scrolls in, are dealt into a
+ * row, turning over on the way. On phones each card turns over as it
+ * arrives. With a mouse, a card leans towards the pointer.
  */
 export function OutcomesSection() {
   const root = useRef<HTMLElement>(null);
@@ -104,22 +55,92 @@ export function OutcomesSection() {
 
   useGSAP(
     () => {
+      const s = root.current;
+      if (!s) return;
+      const deck = s.querySelector<HTMLElement>(".oc-deck");
+      const cards = gsap.utils.toArray<HTMLElement>(".oc-card", s);
+      const faces = gsap.utils.toArray<HTMLElement>(".oc-card__inner", s);
+      if (!deck || cards.length === 0) return;
+
       const mm = gsap.matchMedia();
+
       mm.add("(prefers-reduced-motion: no-preference)", () => {
-        const s = root.current;
-        if (!s) return;
-        const once = (trigger: Element | string, start = "top 80%") => ({ trigger, start, once: true });
-
-        gsap.from(".oc-fade", { y: 28, opacity: 0, duration: 0.9, stagger: 0.08, ease: "power3.out", scrollTrigger: once(s, "top 75%") });
-        gsap.from(".oc-card", { y: 48, opacity: 0, duration: 1, stagger: 0.12, ease: "power3.out", scrollTrigger: once(".oc-grid") });
-
-        // Found: you rise to the top of the results
-        gsap.from(".oc-result--you", { y: 64, duration: 1.1, ease: "power3.inOut", scrollTrigger: once(".oc-vis--found", "top 78%") });
-        // Fast: the gauge sweeps round
-        gsap.fromTo(".oc-gauge__fill", { strokeDashoffset: 1 }, { strokeDashoffset: 0.08, duration: 1.4, ease: "power2.out", scrollTrigger: once(".oc-vis--fast", "top 78%") });
-        // Chosen: the enquiries arrive one after another
-        gsap.from(".oc-note", { y: 26, opacity: 0, scale: 0.94, duration: 0.6, stagger: 0.35, ease: "back.out(1.6)", scrollTrigger: once(".oc-vis--chosen", "top 78%") });
+        gsap.from(".oc-fade", {
+          y: 28,
+          opacity: 0,
+          duration: 0.9,
+          stagger: 0.08,
+          ease: "power3.out",
+          scrollTrigger: { trigger: s, start: "top 75%", once: true },
+        });
       });
+
+      // Desktop: one pile in the middle, dealt into the row as you scroll
+      mm.add("(min-width: 900px) and (prefers-reduced-motion: no-preference)", () => {
+        const toPile = (i: number) => deck.offsetWidth / 2 - (cards[i].offsetLeft + cards[i].offsetWidth / 2);
+        const tl = gsap.timeline({
+          scrollTrigger: { trigger: deck, start: "top 90%", end: "top 25%", scrub: 0.7, invalidateOnRefresh: true },
+        });
+        tl.fromTo(
+          cards,
+          { x: toPile, y: (i) => 90 - i * 6, rotationZ: (i) => PILE_TILT[i] },
+          { x: 0, y: 0, rotationZ: 0, duration: 1, stagger: 0.14, ease: "power3.inOut" },
+          0,
+        );
+        tl.fromTo(
+          faces,
+          { rotationY: (i) => (i === 0 ? -180 : 180) },
+          { rotationY: 0, duration: 0.75, stagger: 0.14, ease: "power2.inOut" },
+          0.2,
+        );
+        // Each card lifts off the table while it turns over
+        tl.to(cards, { z: 110, duration: 0.38, stagger: 0.14, ease: "sine.out" }, 0.2);
+        tl.to(cards, { z: 0, duration: 0.42, stagger: 0.14, ease: "sine.in" }, 0.58);
+      });
+
+      // Phones and tablets: each card turns over as it arrives
+      mm.add("(max-width: 899px) and (prefers-reduced-motion: no-preference)", () => {
+        cards.forEach((card, i) => {
+          const side = i % 2 ? 1 : -1;
+          const tl = gsap.timeline({
+            scrollTrigger: { trigger: card, start: "top 96%", end: "top 48%", scrub: 0.6 },
+          });
+          tl.fromTo(card, { x: 36 * side, y: 50, rotationZ: 6 * side }, { x: 0, y: 0, rotationZ: 0, ease: "power3.out" }, 0);
+          tl.fromTo(faces[i], { rotationY: 180 * side }, { rotationY: 0, ease: "power2.inOut" }, 0);
+        });
+      });
+
+      // Mouse: a card leans towards the pointer
+      mm.add("(hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference)", () => {
+        const offs = cards.map((card) => {
+          const tilt = card.querySelector<HTMLElement>(".oc-card__tilt");
+          if (!tilt) return () => {};
+          const rx = gsap.quickTo(tilt, "rotationX", { duration: 0.6, ease: "power3" });
+          const ry = gsap.quickTo(tilt, "rotationY", { duration: 0.6, ease: "power3" });
+          let box: DOMRect | null = null;
+          const enter = () => (box = card.getBoundingClientRect());
+          const move = (e: PointerEvent) => {
+            if (!box) box = card.getBoundingClientRect();
+            ry(((e.clientX - box.left) / box.width - 0.5) * 14);
+            rx(-((e.clientY - box.top) / box.height - 0.5) * 10);
+          };
+          const leave = () => {
+            box = null;
+            rx(0);
+            ry(0);
+          };
+          card.addEventListener("pointerenter", enter);
+          card.addEventListener("pointermove", move);
+          card.addEventListener("pointerleave", leave);
+          return () => {
+            card.removeEventListener("pointerenter", enter);
+            card.removeEventListener("pointermove", move);
+            card.removeEventListener("pointerleave", leave);
+          };
+        });
+        return () => offs.forEach((off) => off());
+      });
+
       return () => mm.revert();
     },
     { scope: root },
@@ -141,16 +162,41 @@ export function OutcomesSection() {
           </p>
         </header>
 
-        <div className="oc-grid">
-          {OUTCOMES.map((o) => {
-            const Visual = VISUALS[o.key];
+        <div className="oc-deck">
+          {OUTCOMES.map((o, i) => {
+            const num = String(i + 1).padStart(2, "0");
             return (
               <article key={o.key} className="oc-card">
-                <Visual />
-                <div className="oc-card__body">
-                  <span className="oc-card__label">{o.label}</span>
-                  <h3 className="oc-card__title">{o.title}</h3>
-                  <p className="oc-card__text">{o.text}</p>
+                <div className="oc-card__tilt">
+                  <div className="oc-card__inner">
+                    <div className="oc-face oc-face--front">
+                      <span className="oc-face__pip" aria-hidden="true">
+                        {num}
+                      </span>
+                      <div className="oc-face__top" aria-hidden="true">
+                        <span>{num}</span>
+                        <LogoMark className="oc-face__mark" />
+                      </div>
+                      <p className="oc-face__word" aria-hidden="true">
+                        {o.word}
+                        <span>.</span>
+                      </p>
+                      <div className="oc-face__body">
+                        <h3 className="oc-face__title">{o.title}</h3>
+                        <p className="oc-face__text">{o.text}</p>
+                      </div>
+                      <ul className="oc-face__spec" aria-label="Included">
+                        {o.spec.map((item) => (
+                          <li key={item}>{item}</li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="oc-face oc-face--back" aria-hidden="true">
+                      <LogoMark className="oc-back__mark" />
+                      <span className="oc-back__name">Ahmad</span>
+                      <span className="oc-back__num">{num} / 03</span>
+                    </div>
+                  </div>
                 </div>
               </article>
             );

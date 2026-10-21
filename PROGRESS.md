@@ -5,7 +5,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 - **Project:** `D:\Ahmad Updated Portfolio\Ahmad_Portfolio`
 - **Stack:** Next.js 15 (App Router), React 19, TypeScript, Tailwind 3, GSAP (ScrollTrigger, useGSAP), Lenis, three.js, motion.
 - **Dev server:** `npm run dev` on http://localhost:3000. Keep it running while working.
-- **Last updated:** 2026-10-20
+- **Last updated:** 2026-10-21
 
 ---
 
@@ -13,7 +13,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 | Area | Status |
 |---|---|
-| Home page (`/home`) | Built. Needs a full bug check (section 7). |
+| Home page (`/home`) | Built. Needs a full check on real devices (section 6). |
 | Hero entrance | Rebuilt 2026-10-09 (section 4, Hero). Not yet seen on a real phone. |
 | Projects page (`/projects`) | Built: "Enter my world" (seamless loop video → 3D logo + project helix), then an endless scroll-driven carousel with four clickable cards in front (section 5). Nothing below it. All project content is dummy. |
 | Project pages (`/projects/[slug]`) | Built for all 6 projects: image-to-background zoom from any project image, then glance, case study, problem, challenge, process, result, client review, testimonials, footer, scroll to the next project (section 5b). All figures are dummy. |
@@ -21,7 +21,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Hire page (`/hire`) | Built 2026-10-02 for recruiters and AI assistants (section 5d). Education, languages, CV file still missing. |
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
-| Typecheck | `npx tsc --noEmit -p .` clean as of the last handover. |
+| Typecheck | `npx tsc --noEmit -p .` clean as of 2026-10-20. |
 | Git | Everything committed and pushed to `origin/master` (latest: `6768a4d`, 2026-10-20: brush transition like the video, folder reviews, hero speed, sample review tags). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
@@ -59,7 +59,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | `/privacy`, `/terms` | `src/app/*/page.tsx` | Legal pages, each with testimonials before the footer. |
 | 404 | `src/app/not-found.tsx` | |
 
-`sitemap.ts` lists `/`, `/home`, `/projects`, `/contact`, `/privacy`, `/terms` on `https://ahmadbarkat.dev`.
+`sitemap.ts` lists `/`, `/home`, `/projects`, `/hire`, every `/projects/[slug]` page, `/contact`, `/privacy`, `/terms` on `https://ahmadbarkat.dev`.
 
 **Global pieces in `layout.tsx`:**
 
@@ -73,7 +73,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 
 **Scroll to the next page (`src/components/ui/next-page.tsx`, `.np-*` CSS at the end of `globals.css`):**
 
-- From the reference video `scroll-to-next-page.mp4`. At the end of a page (after the footer), a full-screen panel of the next page rises over it: its picture, "Next page"/"Next project", the name in a thin ring, "Keep scrolling". The panel pins for one viewport of scroll while the ring draws closed (ice arc, mint leading dot); when it closes, the next page takes over from the panel's picture.
+- From the reference video `scroll-to-next-page.mp4`. At the end of a page (after the footer), a full-screen panel of the next page rises over it: its picture, "Next page"/"Next project", the name in a thin ring, "Keep scrolling". The panel pins for one viewport of scroll while the ring draws closed (ice arc; its leading dot was removed on 2026-10-20); when it closes, the next page takes over from the panel's picture.
 - Projects: the image-to-background zoom (`useOpenProject` with a full-screen source and `shade: 1`), so the next project's hero is the identical frame. Pages: a copy of the panel's picture covers the screen (`.np-handoff`, `html[data-handoff="on"]`) while the router swaps pages, then fades as the new page runs its entrance (`usePageReady` waits for `HANDOFF_DONE_EVENT`).
 - Clicking the panel goes straight there. Reduced motion: a plain link, never moves on by itself.
 - Chain: `/` → `/home` → `/projects`; `/contact` → `/home` (the home page panel rises after the footer). Not on the legal pages.
@@ -152,7 +152,7 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
 - Not yet checked on a real device (section 6, item 10). Reduced motion: to check with the new sequence.
 
 ### Outcomes (`OutcomesSection.tsx`, `.oc-*` CSS), added 2026-10-10
-- The solution step after the call to action: eyebrow "The result", "What standing out gets *you.*", a short intro, three cards each with a small picture that plays once on entry: **Found** "Search-ready from day one." (a search with yourbrand.com rising to the top), **Fast** "Loads before they lose interest." (a gauge sweeping to a "<2s" load goal), **Chosen** "Built to turn visitors into enquiries." (enquiry notes arriving). Closing line "Your goals, *built into every page.*" with `ButtonWithIcon` "Start your project".
+- The solution step after the call to action: eyebrow "The result", "What standing out gets *you.*", a short intro, then the three outcomes as a deck of 3D cards (redesigned 2026-10-21, client: the old three-card grid with mock search/gauge/notification pictures looked AI-built). Each card has two sides: an ice front printed like a playing card (index 01–03 top left, the logo mark top right, a large hairline numeral in Instrument Serif behind, the big word **Found.** / **Fast.** / **Chosen.**, the old title and text under a hairline, and three spec tags) and a royal back with a hairline crosshatch, double frame, logo mark, "AHMAD" and "01 / 03". Desktop (≥900px): the cards wait face down in one pile in the middle and, as the deck scrolls from 90% to 25% of the screen, are dealt into the row, each lifting off the table and turning over (GSAP scrub, CSS 3D only, no pin). Phones: each card turns over as it scrolls in, alternating sides. With a mouse, a card leans towards the pointer (up to 7°). Reduced motion: cards face up, no tilt. Closing line "Your goals, *built into every page.*" with `ButtonWithIcon` "Start your project". Spec tags are new copy for the client to confirm: Semantic HTML / Schema / Sitemap; Under 2 s goal / Sized images / No bloat; One message / One next step / Phone first.
 - These are promises about the work, not client figures; real results go here as numbers when the client has them.
 
 ### Services (`ServicesSection.tsx`, `ParticleField.tsx`, `particle-shapes.ts`, `.svc-*` CSS), rebuilt 2026-10-09
@@ -175,11 +175,11 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
 
 ### Testimonials (`TestimonialsSection.tsx` + `TestimonialsGrid.tsx`)
 - On every page except `/` (the nav page) and `/projects` (its carousel never ends, so nothing can follow it): `/home`, `/contact`, `/hire`, every `/projects/[slug]` page, `/privacy`, `/terms` and the 404 page, always right before the footer (`/hire` and 404 added 2026-10-20, client request). Since 2026-10-20 the samples show on the live site too (client's choice), each folder tagged "Sample review" in place of its score (`.tf-sample`), and while no review is real the intro reads "A preview of how client reviews will read here. These are samples; real ones are on their way." Samples never count as client reviews: the hero pill and the site assistant use `REAL_REVIEWS` (`src/data/reviews.ts`); the section lists real reviews first. To add a real one, add an entry without `sample` (with the client's permission and photo).
-- Eyebrow, "WHAT CLIENTS SAY" (`HeadingReveal`), one-line intro; then the reviews as folders (`.tf-*`, redesigned 2026-10-20, client's choice of design A 'peek and lift'): a royal folder back with the file tab (`01 sarah-m.md`), the review on a light ice sheet (ink text, royal stars, highlights underlined in sky) whose top peeks out over the folder's edge, and a lighter front pocket holding the sheet's foot with the avatar, name and role. On hover (mouse only) the sheet lifts out (1.1rem) and the pocket tips forward; the tab stays in front of the sheet and turns mint. The whole review is readable at rest, so touch screens lose nothing. Two columns from 768px, one on phones; no animation library (CSS transforms only). No animation library (IntersectionObserver + CSS).
+- Eyebrow, "WHAT CLIENTS SAY" (`HeadingReveal`), one-line intro; then the reviews as folders (`.tf-*`, redesigned 2026-10-20, client's choice of design A 'peek and lift'): a royal folder back with the file tab (`01 sarah-m.md`), the review on a light ice sheet (ink text, royal stars, highlights underlined in sky) whose top peeks out over the folder's edge, and a lighter front pocket holding the sheet's foot with the avatar, name and role. On hover (mouse only) the sheet lifts out (1.1rem) and the pocket tips forward; the tab stays in front of the sheet and turns mint. The whole review is readable at rest, so touch screens lose nothing. Two columns from 768px, one on phones; no animation library (CSS transforms only).
 - Each folder card's file tab starts with the review's number (`01 sarah-m.md`); the mint dot there was replaced on 2026-10-20.
-- A column holds while hovered, pauses off screen, and stays still with reduced motion. Cards: stars, quote, avatar, name, role (hairline border, no shadow or glow).
+- With reduced motion the sheets do not lift. Folders have a hairline edge, no shadow or glow.
 - `background` prop matches the page it sits on (navy on `/home`, royal elsewhere); it is opaque because the footer curtain sits beneath. `id="reviews"` is the hero's "client reviews" link target.
-- Data: `src/data/reviews.ts` (shared with the hero); illustrated SVG avatars in `public/reviews/*.svg`. Samples are filtered out in production, and the section hides when none are left.
+- Data: `src/data/reviews.ts` (shared with the hero); illustrated SVG avatars in `public/reviews/*.svg`. Every review in `PUBLISHED_REVIEWS` shows, samples included (tagged, see above); the section hides only if that list is empty.
 - CSS: `.tm-*` in `globals.css`, just before the footer styles.
 
 ### Performance
@@ -190,7 +190,7 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
 - **Local production tests:** `NEXT_DIST_DIR=.next-prod npx next build`, then the `prod-test` launch config (port 3100), so a test build never overwrites the dev server's `.next` (a second `next dev` start wiped it on 2026-10-20). Next rewrites `tsconfig.json` during such a build (adds `.next-prod/types`); undo it with `git checkout -- tsconfig.json`.
 
 ### Why I build (`WhyIBuildSection.tsx`)
-- Added 2026-09-30 in place of the `/story` page, to make the emotional connection on the home page. Since 2026-10-09 it sits after Work, right before the testimonials. The client wants it professional, modern and not cringy.
+- Added 2026-09-30 in place of the `/story` page, to make the emotional connection on the home page. It sits after About, right before the testimonials. The client wants it professional, modern and not cringy.
 - Eyebrow 道 (michi, "the way", as a `JpTerm`) · "The honest version"; title "Why I build".
 - Statement: "I learn by building. Every project this year taught me something the last one couldn't, and each one made me care more about the people on the other side of the screen." Each word goes from faint (0.16) to full as it scrolls through (GSAP scrub).
 - The year, 2026, told through five of the projects. Their dates match `project-details.ts`:
@@ -201,7 +201,7 @@ The page is ordered as an argument (client-approved 2026-10-10): the promise, th
   - Jun – Aug: this site
   - Now: "Your project", in mint, with `ButtonWithIcon` "Start your project" (goes to `/contact`).
 - Each beat has a date, a length, a title, one or two lines and a link to its project (link style, page transition).
-- A line down the beats fills as the reader scrolls. The dots fill as the line reaches them. On desktop a sticky column shows the current month turning over like a counter (JAN … NOW), with "01 / 07" and a note, "Five builds in seven months, each one a little harder than the last." The line, the dots and the counter all follow one ScrollTrigger range, and beat offsets are measured on refresh only.
+- A line down the beats fills as the reader scrolls. Each beat's number (01–06, which replaced the dots on 2026-10-20) turns mint as the line passes it. On desktop a sticky column shows the current month turning over like a counter (JAN … NOW), with "01 / 06" and a note, "Five builds in seven months, each one a little harder than the last." The line, the dots and the counter all follow one ScrollTrigger range, and beat offsets are measured on refresh only.
 - The "What you can count on" promises (Straight answers · Progress you can see · Work that lasts) were removed on 2026-10-09 (client request); the section now ends on "Your project".
 - Reduced motion: no scrub or entrance, everything visible.
 - **Copy is a draft written from the project data.** The client should check that the lines and promises are true to them.
@@ -310,7 +310,7 @@ Rebuilt from scratch on 2026-09-30 (the old page had inline styles, its own butt
 
 ### Files
 - `src/app/contact/page.tsx`: server page with metadata and the FAQ as FAQPage structured data (JSON-LD); renders `ContactView`.
-- `src/components/sections/ContactView.tsx`: the whole page (hero, brief, channels, FAQ), then testimonials, footer and scroll-to-next (Story).
+- `src/components/sections/ContactView.tsx`: the whole page (hero, brief, channels, FAQ), then testimonials, footer and scroll-to-next (Home).
 - `src/data/contact.ts`: email, hero words, form options, next steps, channels, FAQ. **PLACEHOLDER:** budget ranges, reply time ("within one working day"), FAQ timelines and the 30-day support period. It is also the one place for the client's contact details, which the footer imports too: `CONTACT_EMAIL` (code.by.ahmad.dev@gmail.com since 2026-10-03; was ahmadbarkat382@gmail.com), `EMAIL_HREF` (mailto with the subject "Project enquiry"), `PHONE_DISPLAY`/`PHONE_HREF` (+92 305 4090550), `WHATSAPP_HREF` (wa.me/923054090550 with the message "Hi Ahmad, are you available at this time?"), `LINKEDIN_URL`, `GITHUB_URL`.
 - CSS: `.ct-*` in `globals.css`, just before the testimonials block.
 - `src/components/ui/ContactGlobe.tsx` deleted.
@@ -365,6 +365,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 13. Run PageSpeed Insights on the deployed site (mobile) for Home, Nav, Projects and Contact.
 14. Try the site assistant with real visitor questions; add answers to `knowledge.ts` (or the data files) for anything it misses.
 15. **Check the new draw-brush page transition on a real screen and phone (2026-10-20):** its speed and feel, the menu links, the hold label on a slow connection; confirm the sky colour with the client.
+16. **Check the Outcomes card deck on a real screen and phone (2026-10-21):** the deal and flip speed, the pointer tilt, and the phone flips; confirm the spec tags with the client.
 
 ---
 
@@ -384,7 +385,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 
 ## 8. Needs the client's input
 
-- Check the 'Why I build' copy on `/home` (statement, the six beats, the three promises). It was drafted from the project data, and only true lines should stay. A candid photo would make it stronger.
+- Check the 'Why I build' copy on `/home` (statement and the six beats: five projects plus "Your project"). It was drafted from the project data, and only true lines should stay. A candid photo would make it stronger.
 - **Real testimonials:** all 8 reviews are samples. They show on the live site tagged "Sample review" (client's choice, 2026-10-20); the hero's review pill stays on "6 projects shipped" until a real review (with permission and photo) goes in `src/data/reviews.ts`. Ask past clients (Ard Al Khair, Amethyst Developers, HRA Studio, MAB) for a short quote.
 - **Real case-study numbers:** the case studies are marked DUMMY; invented figures are a trust risk and need real numbers, results and client reviews from Ahmad's actual projects.
 - **Payment terms, revisions and post-launch support:** for a planned "Working with me" section (`src/data/contact.ts`).
@@ -416,6 +417,10 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 ## 10. Changelog
 
 Newest first. One line per change: date, what changed, files touched.
+
+### 2026-10-21
+- Outcomes section redesigned as a deck of 3D cards (client: the old cards looked AI-built; asked for rotating 3D cards after looking at Awwwards). Dealt from a face-down pile and turned over on scroll on desktop, turned over one by one on phones, pointer tilt with a mouse; the mock search, gauge and notification pictures are gone. Filmed in headless Chrome at 1440×900, 1920×1080 and 390×844 (`.lh-tools/shots-deck.mjs`): pile, deal, flip, rest and hover; no new console errors; typecheck clean. Files: `OutcomesSection.tsx`, `globals.css` (`.oc-deck`, `.oc-card*`, `.oc-face*`, `.oc-back*`; the `.oc-grid`, `.oc-vis`, `.oc-search`, `.oc-result`, `.oc-gauge`, `.oc-note` rules removed).
+- PROGRESS.md cleaned up after a review (no site change): sitemap list now includes `/hire` and the project pages; the reviews notes no longer say samples are hidden in production and drop the old scrolling-column text and a repeated sentence; the next-page ring and 'Why I build' timeline no longer mention the removed dots (counter is 01 / 06); 'Why I build' placed after About; contact's scroll-to-next goes to Home (not Story); the client to-do no longer lists the removed promises; status table dates the typecheck and points the Home check at section 6.
 
 ### 2026-10-20
 - Committed and pushed everything below to `origin/master` (`6768a4d`). Vercel deploys from it.
