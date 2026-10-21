@@ -22,7 +22,7 @@ The living record of Ahmad Barkat's portfolio. **It is updated after every chang
 | Real content | Stats, reviews and projects are still placeholders (section 8). |
 | Font | Geist (sans) + Geist Mono, plus Instrument Serif italic (`--font-serif`) for the one accent word in the home hero headline. All via next/font/google in layout.tsx. |
 | Typecheck | `npx tsc --noEmit -p .` clean as of 2026-10-20. |
-| Git | Everything committed and pushed to `origin/master` (latest: `6768a4d`, 2026-10-20: brush transition like the video, folder reviews, hero speed, sample review tags). `ABOUT_AHMAD.md` stays out of git (personal notes). |
+| Git | Everything committed and pushed to `origin/master` (latest: `4669b84`, 2026-10-21: Outcomes as a 3D card deck, PROGRESS.md cleanup). `ABOUT_AHMAD.md` stays out of git (personal notes). |
 
 ---
 
@@ -419,6 +419,7 @@ Goal (client): land full-time jobs abroad (US, UK, Germany, Canada, Japan and ot
 Newest first. One line per change: date, what changed, files touched.
 
 ### 2026-10-21
+- Committed and pushed the two changes below to `origin/master` (`4669b84`). Vercel deploys from it.
 - Outcomes section redesigned as a deck of 3D cards (client: the old cards looked AI-built; asked for rotating 3D cards after looking at Awwwards). Dealt from a face-down pile and turned over on scroll on desktop, turned over one by one on phones, pointer tilt with a mouse; the mock search, gauge and notification pictures are gone. Filmed in headless Chrome at 1440×900, 1920×1080 and 390×844 (`.lh-tools/shots-deck.mjs`): pile, deal, flip, rest and hover; no new console errors; typecheck clean. Files: `OutcomesSection.tsx`, `globals.css` (`.oc-deck`, `.oc-card*`, `.oc-face*`, `.oc-back*`; the `.oc-grid`, `.oc-vis`, `.oc-search`, `.oc-result`, `.oc-gauge`, `.oc-note` rules removed).
 - PROGRESS.md cleaned up after a review (no site change): sitemap list now includes `/hire` and the project pages; the reviews notes no longer say samples are hidden in production and drop the old scrolling-column text and a repeated sentence; the next-page ring and 'Why I build' timeline no longer mention the removed dots (counter is 01 / 06); 'Why I build' placed after About; contact's scroll-to-next goes to Home (not Story); the client to-do no longer lists the removed promises; status table dates the typecheck and points the Home check at section 6.
 
